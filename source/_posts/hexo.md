@@ -31,44 +31,20 @@ typora-root-url: hexo
 
 ![img](11-29-08.jpg)
 
-
-
 > 这时候你会发现git版本会过低，我这里的是1.8.3.1
 > 下面我将介绍最新版本git安装
 
 1. 先卸载旧版本
-
-   
-
-   
-
-   bash
-
    ```bash
    $ sudo yum remove -y git
    ```
-
 2. 安装git新版本所需的依赖包
-
-   
-
-   
-
-   bash
-
    ```bash
    $ sudo yum install -y curl-devel expat-devel gettext-devel openssl-devel zlib-devel
    $ sudo yum install -y gcc perl-ExtUtils-MakeMaker
    ```
 
 3. 从我的github仓库源中下载最新git安装包并解压到`/usr/local/src`目录下
-
-   
-
-   
-
-   bash
-
    ```bash
    $ wget https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.19.0.tar.gz
    $ sudo tar -zxvf git-2.19.0.tar.gz -C /usr/local/src
@@ -81,12 +57,6 @@ typora-root-url: hexo
 
 4. 编译并安装
 
-   
-
-   
-
-   bash
-
    ```bash
    $ cd /usr/local/src/git-2.19.0/
    $ sudo make prefix=/usr/local/git all # 编译源码
@@ -95,25 +65,12 @@ typora-root-url: hexo
 
 5. 修改配置文件（添加环境变量）
 
-   
-
-   
-
-   bash
-
    ```bash
    $ sudo vi /etc/profile
    #在文件末尾添加export PATH=/usr/local/git/bin:$PATH 保存退出
    ```
 
 6. 更新修改过后的配置文件
-
-   
-
-   
-
-   bash
-
    ```bash
    $ source /etc/profile
    #查看git版本检查一下是否安装成功
@@ -121,13 +78,6 @@ typora-root-url: hexo
    ```
 
 7. 顺便添加你的用户和邮箱
-
-   
-
-   
-
-   bash
-
    ```bash
    # git config --global user.name "yourname"
    # git config --global user.email "youremail"
@@ -138,37 +88,16 @@ typora-root-url: hexo
 在安装hexo-cli之前需要借助nodejs
 
 1. 去nodejs官网下载Linux二进制64bit压缩包，当然如果你的系统是32位的，即选择32位的，这里我直接用wget命令+ url 直接下载到本系统上
-
-   
-
-   
-
-   bash
-
    ```bash
    # wget https://nodejs.org/dist/v12.13.1/node-v12.13.1-linux-x64.tar.xz
    ```
 
 2. 在`/usr/local/`目录下创建一个`nodejs`文件夹
-
-   
-
-   
-
-   bash
-
    ```bash
    # mkdir /usr/local/nodejs
    ```
 
 3. 将压缩包解压到`/usr/local/nodejs/`下
-
-   
-
-   
-
-   bash
-
    ```bash
    # tar -Jxvf node-v12.13.1-linux-x64.tar.xz -C /usr/local/nodejs
    ```
@@ -176,36 +105,15 @@ typora-root-url: hexo
 4. 为nodejs添加环境变量，即将`/usr/local/nodejs/node-v12.13.1-linux-x64/bin`添加到环境变量$PATH中，当然你也可以用创建`软连接`(即windows中的快捷方式)的方式代替，只不过第二种显得有点麻烦
 
    - 查看一下当前进程的环境变量值
-
-     
-
-     
-
-     bash
-
      ```bash
      # echo $PATH
      ```
 
    - 配置nodejs的环境
-
-     
-
-     
-
-     bash
-
      ```bash
      # vi /etc/profile
      ```
-
      在文件末尾加上：`export PATH=/usr/local/nodejs/node-v12.13.1-linux-x64/bin:$PATH`保存退出并更新profile文件
-
-     
-
-     
-
-     bash
 
      ```bash
      # source /etc/profile
@@ -218,23 +126,11 @@ typora-root-url: hexo
 
    - 再次查看环境变量检查是否添加成功
 
-     
-
-     
-
-     bash
-
      ```bash
      # echo $PATH
      ```
 
 5. 查看nodejs版本检查是否安装成功
-
-   
-
-   
-
-   bash
 
    ```bash
    # node -v
@@ -246,24 +142,11 @@ typora-root-url: hexo
 接下来用`npm`来安装hexo-cli,但是在这不推荐大家使用，由于安装源在国外，下载过于缓慢，所以我们可以用国内的阿里巴巴镜像源进行快速下载安装
 
 1. npm 安装方式
-
-   
-
-   
-
-   bash
-
    ```bash
    # npm install -g hexo-cli
    ```
 
 2. cnpm 安装方式
-
-   
-
-   
-
-   bash
 
    ```bash
    # npm install -g cnpm --registry=https://registry.npm.taobao.org
@@ -272,12 +155,6 @@ typora-root-url: hexo
 
 3. 查看hexo版本检查是否已安装好
 
-   
-
-   
-
-   bash
-
    ```bash
    # hexo -v
    ```
@@ -285,12 +162,6 @@ typora-root-url: hexo
 #### 4、用hexo生成博客框架
 
 1. 随便创建一个文件夹，这个文件夹用来存放hexo框架所有文件的（换而言之这个文件夹就是你的博客根目录），然后初始化该文件
-
-   
-
-   
-
-   bash
 
    ```bash
    # mkdir myblog
@@ -301,37 +172,16 @@ typora-root-url: hexo
    ```
 
 2. 用hexo -s 命令启动该博客，接着用浏览器输入localhost:4000 访问，检查是否成功
-
-   
-
-   
-
-   bash
-
    ```bash
    # hexo s
    ```
 
    - 默认端口4000，你也可以自定义指定端口为5000
-
-     
-
-     
-
-     bash
-
      ```bash
      # hexo s -p 5000
      ```
 
 3. 另外介绍一个命令（后面要用到），用`hexo g`命令生成部署该博客（实质会生成一个public文件夹，这个文件夹下都是html静态页面）
-
-   
-
-   
-
-   bash
-
    ```bash
    # hexo g
    ```
@@ -341,25 +191,11 @@ typora-root-url: hexo
 由于我所有hexo部署都在虚拟机系统上，怎么通过win10主机访问我的博客页面呢
 
 1. 开放虚拟机CentOS系统的4000端口
-
-   
-
-   
-
-   bash
-
    ```bash
    # firewall-cmd --zone=public --add-port=4000/tcp --permanent
    ```
 
 2. 重启防火墙
-
-   
-
-   
-
-   bash
-
    ```bash
    # systemctl restart firewalld.service
    ```
@@ -374,12 +210,6 @@ typora-root-url: hexo
 
 从github上下载一个matery主题(当前目录下)，然后把这个文件移动到`myblog/themes/`下
 
-
-
-
-
-bash
-
 ```bash
 # git clone https://github.com/blinkfoxhexo-theme-matery.git
 #/home/jake/myblog是我的博客根目录，需要根据自身情况予以修改
@@ -388,28 +218,15 @@ bash
 
 #### 2、修改配置文件_config.yml
 
-
-
 ![img](11-29-10.jpg)
 
-
-
 #### 3、切换到myblog文件下重新启动
-
-
-
-
-
-bash
 
 ```bash
 # hexo s
 ```
 
-
-
 ![img](11-29-11.jpg)
-
 
 
 #### 4、部署GitHub
@@ -420,76 +237,32 @@ bash
 
    ![img](11-29-12.jpg)
 
-   
-
 2. 按照规则为你的仓库起名（这个名字就是别人可以访问你博客的网址）
-
    ![img](11-29-13.jpg)
-
    ![img](11-29-14.jpg)
 
-   
-
 3. 打开`_config.yml`配置文件，配置你的仓库
-
-   
-
-   
-
-   bash
-
    ```bash
    # vi _config.yml
    ```
-
-   
-
    ![img](11-29-15.jpg)
 
-   
-
 4. 因为需要将项目推送到GitHub，所以需要安装一个插件
-
-   
-
-   
-
-   bash
-
    ```bash
    # cnpm install --save hexo-deployer-git
    ```
 
 5. 装好后直接用hexo g 生成博客文件，再用hexo d 推送项目到github上
-
-   
-
-   
-
-   bash
-
    ```bash
    # hexo g
    # hexo d
    ```
-
-   
-
    ![img](11-29-16.jpg)
-
-   
 
 6. 换用ssh公钥
    你会发现每次执行hexo d 推送到github上时需要输入账号和密码，这有点令人不耐烦，因此下面给大家展示一种用ssh公钥的方法去部署github
 
    - 在虚拟机CentOS系统上下载ssh key
-
-     
-
-     
-
-     bash
-
      ```bash
      # ssh-keygen -t rsa
      #一路回车即可，然后查看/root下的文件夹
@@ -497,11 +270,9 @@ bash
      ```
 
    - 这时候你会发现在root下有一个隐藏文件.ssh，打开.ssh下的
-
      ```
      id_rsa.pub
      ```
-
      文件，复制此文件的全部内容,粘贴到下图所示位置
 
      打开github
@@ -513,17 +284,12 @@ bash
      ![img](11-29-19.jpg)
 
    - 相应的也要修改
-
      ```
      _config.yml
      ```
-
      配置文件
-
      ![img](11-29-22.jpg)
-
      ![img](11-29-21.jpg)
-
      ![img](11-29-20.jpg)
 
 #### 5、收获成功的喜悦
@@ -531,29 +297,22 @@ bash
 当你看到这里恭喜你已经成功完成了第一份属于自己的博客了!但你会发现，你通过github访问你的博客会很卡，简单说一下原因。github服务器在国外，所以访问速度很慢，这里提供一个简单的解决办法
 
 1. 可以用国内的coding，类似github，去coding官网注册一个账号，记得要实名认证，然后仿照github的操作将ssh key内容粘贴到指定区域
-
    ![img](11-29-24.jpg)
-
    ![img](11-29-25.jpg)
 
 2. 同样修改
-
    ```
    _config.yml
    ```
 
    配置文件
-
    ![img](11-29-23.jpg)
 
 3. 用`hexo clean`清理一下 ==> `hexo g`生成 ==> `hexo d`部署推送博客
 
 4. 接下来登录coding账号，查看仓库是存在项目，确定之后开始创建静态网站，步骤如下图所示
-
    ![img](11-29-26.jpg)
-
    ![img](11-29-27.jpg)
-
    ![img](11-29-28.jpg)
 
 #### 6、温馨提示
@@ -572,12 +331,6 @@ bash
 
 当你做完前面两大步，这一步就相当的简单，原理都一样，首先在你的云服务机上，创建一个git用户,并指定密码
 
-
-
-
-
-bash
-
 ```bash
 # useradd git
 # passwd git
@@ -586,12 +339,6 @@ bash
 #### 2. 部署密钥到服务器上
 
 切换到git用户，创建`.ssh`文件夹，以及在`.ssh`下创建`authorized_keys`文件,将ssh_key（也就是第二大步里面的那个密钥内容）粘贴到`authorized_keys`文件中
-
-
-
-
-
-bash
 
 ```bash
 # su git
@@ -608,12 +355,6 @@ $ chmod 700 ~/.ssh
 
 #### 3. 安装nginx
 
-
-
-
-
-bash
-
 ```bash
 # yum install -y nginx
 # systemctl start nginx.service # 启动nginx服务
@@ -624,16 +365,7 @@ bash
 
 ![img](11-29-29.jpg)
 
-
 接下来创建你的博客根目录(我创建的根目录是`/home/git/blog`)
-
-
-
-
-
-
-
-bash
 
 ```bash
 $ mkdir ~/blog
@@ -641,25 +373,10 @@ $ mkdir ~/blog
 
 修改nginx配置文件如下（注意以下两个地方）
 第一个是权限问题
-
 ![img](11-29-31.jpg)
-
-
 第二个是访问路径
-
 ![img](11-29-30.jpg)
-
-
 配置好就重启一下nginx
-
-
-
-
-
-
-
-bash
-
 ```bash
 # systemctl restart nginx.service
 ```
@@ -667,13 +384,6 @@ bash
 #### 4.创建git仓库
 
 创建git仓库以及用hooks钩子同步到你的博客根目录
-
-
-
-
-
-bash
-
 ```bash
 $ cd ~
 $ git init --bare blog.git
@@ -691,24 +401,11 @@ $ vim blog.git/hooks/post-receive
 > `/home/git/blog`这是你刚刚创建的博客根目录
 > 赋予其执行权限
 
-
-
-
-
-bash
-
 ```bash
 $ chmod +x /home/git/blog.git/hooks/post-receive
 ```
 
 接下来创建git-receive-pack和git-upload-pack软连接,以防执行hexo d 命令时报错找不到
-
-
-
-
-
-bash
-
 ```bash
 # sudo ln -s /usr/local/git/bin/git-receive-pack  /usr/bin/git-recei
 # sudo ln -s /usr/local/git/bin/git-upload-pack  /usr/bin/git-upload-pack
@@ -720,7 +417,6 @@ bash
 添加 `git@yourserver_ip:/home/git/blog.git`git服务器地址
 
 ![img](11-29-32.jpg)
-
 
 
 > 特别注意：
@@ -736,13 +432,6 @@ bash
    所以建议你把博客根目录下所有文件的使用者更改为你当前用户。当然你也可以用root用户去操作，但是经常切换用户很麻烦，或者使用sudo借用root权限也要输入密码。
    如：假设你的博客根目录路径为`/home/jake/myblog`
    那么使用以下命令更改权限
-
-   
-
-   
-
-   bash
-
    ```bash
    $ sudo chown jake:jake -R /home/jake/myblog/*
    ```

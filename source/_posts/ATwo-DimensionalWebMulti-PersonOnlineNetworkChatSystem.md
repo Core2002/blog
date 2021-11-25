@@ -1,5 +1,5 @@
 ---
-title: 一款二次元的Web多人在线网络聊天系统：Fiora安装及使用
+title: 一款二次元的Web多人在线网络聊天系统：Fiora的部署
 typora-copy-images-to: ATwo-DimensionalWebMulti-PersonOnlineNetworkChatSystem
 date: 2020-02-15 04:05:21
 tags:
