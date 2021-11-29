@@ -9,6 +9,8 @@ categories:
 typora-root-url: UseKaliWirelessPenetrationToGetTheWifiPassword
 ---
 
+> 仅供学习与交流，切勿对真实目标操作，否则后果自负！
+
 # 前期准备：
 
 在虚拟机Kali中是无法直接使用物理机本身的网卡的，需要自己买一块网卡插上去让Kali使用，而且对于网卡的类型也是有限制的，买得不好的话就用不了又得退货。本人在这用的无线网卡型号为`EP-N8508GS`，仅供参考。
@@ -70,4 +72,4 @@ aireplay-ng -0 2 -a 52:A5:89:BA:57:B3 -c 68:3E:34:A1:F7:27 wlan0mon
 
 最后注意的是，WPA和WEP不同（具体的可以百度），如果在字典中没有对应的口令，换句话说，只要WiFi密码设置得够复杂、在口令字典文件中不存在，那么就别指望爆破出密码了。可以看出，也是需要点运气的~
 
-> 原文地址：https://blog.csdn.net/ski_12/article/details/76598873
+> 原文链接：https://blog.csdn.net/ski_12/article/details/76598873

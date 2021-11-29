@@ -139,12 +139,4 @@ hexo.extend.filter.register('after_post_render', function(data) {
 {% asset_img example.jpg This is an example image %}
 ```
 
-浏览地址：Ericam个人博客
-配置教程：安装配置Gridea
-
-原创不易，请勿转载。如有问题，可以评论区留言。点赞！
-
-###### ————————————————
-
-版权声明：本文为CSDN博主「Ericam_」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
-原文链接：https://blog.csdn.net/xjm850552586/article/details/84101345
+> 原文链接：https://blog.csdn.net/xjm850552586/article/details/84101345
