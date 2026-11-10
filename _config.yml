@@ -100,6 +100,11 @@ theme: matery
 theme_config:
   reward:
     enable: false
+  music:
+    enable: true
+    server: netease
+    type: song
+    id: 506520164
   profile:
     avatar: /images/avatar.png
     career: ''
