@@ -28,7 +28,7 @@ Install No">
 
     <script src="/libs/jquery/jquery.min.js"></script>
     
-<meta name="generator" content="Hexo 4.2.1"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+<meta name="generator" content="Hexo 8.1.2"></head>
 
 
 <body>
@@ -476,18 +476,18 @@ Install No">
                 <h1 id="Install"><a href="#Install" class="headerlink" title="Install"></a>Install</h1><h2 id="Environmental-Preparation"><a href="#Environmental-Preparation" class="headerlink" title="Environmental Preparation"></a>Environmental Preparation</h2><p>To run Fiora, you need Node.js(recommend v14 LTS version), MongoDB and redis</p>
 <ul>
 <li>Install Node.js<ul>
-<li>Official website <a href="https://nodejs.org/en/download/" target="_blank" rel="noopener">https://nodejs.org/en/download/</a></li>
+<li>Official website <a target="_blank" rel="noopener" href="https://nodejs.org/en/download/">https://nodejs.org/en/download/</a></li>
 <li>It is recommended to use nvm to install Node.js<ul>
-<li>Install nvm <a href="https://github.com/nvm-sh/nvm#install--update-script" target="_blank" rel="noopener">https://github.com/nvm-sh/nvm#install--update-script</a></li>
-<li>Install Node.js via nvm <a href="https://github.com/nvm-sh/nvm#usage" target="_blank" rel="noopener">https://github.com/nvm-sh/nvm#usage</a></li>
+<li>Install nvm <a target="_blank" rel="noopener" href="https://github.com/nvm-sh/nvm#install--update-script">https://github.com/nvm-sh/nvm#install--update-script</a></li>
+<li>Install Node.js via nvm <a target="_blank" rel="noopener" href="https://github.com/nvm-sh/nvm#usage">https://github.com/nvm-sh/nvm#usage</a></li>
 </ul>
 </li>
 <li>Install MongoDB<ul>
-<li>Official website <a href="https://docs.mongodb.com/manual/installation/#install-mongodb" target="_blank" rel="noopener">https://docs.mongodb.com/manual/installation/#install-mongodb</a></li>
+<li>Official website <a target="_blank" rel="noopener" href="https://docs.mongodb.com/manual/installation/#install-mongodb">https://docs.mongodb.com/manual/installation/#install-mongodb</a></li>
 </ul>
 </li>
 <li>Install redis<ul>
-<li>Official website <a href="https://docs.mongodb.com/manual/installation/#install-mongodb" target="_blank" rel="noopener">https://docs.mongodb.com/manual/installation/#install-mongodb</a></li>
+<li>Official website <a target="_blank" rel="noopener" href="https://docs.mongodb.com/manual/installation/#install-mongodb">https://docs.mongodb.com/manual/installation/#install-mongodb</a></li>
 </ul>
 </li>
 </ul>
@@ -504,46 +504,48 @@ Install No">
 <li>Open <code>http://[ip]:[port]</code>(such as <code>http://127.0.0.1:9200</code>) in browser</li>
 </ol>
 <h2 id="Run-in-the-background"><a href="#Run-in-the-background" class="headerlink" title="Run in the background"></a>Run in the background</h2><p>Using <code>yarn start</code> to run the server will stop running after disconnecting the ssh connection, it is recommended to use pm2 to run</p>
-<pre class=" language-shell"><code class="language-shell"># install pm2
-npm install -g pm2
+<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># install pm2</span>
+<span class="token function">npm</span> <span class="token function">install</span> <span class="token parameter variable">-g</span> pm2
 
-# use pm2 to run fiora
-pm2 start yarn --name fiora -- start
+<span class="token comment"># use pm2 to run fiora</span>
+pm2 start <span class="token function">yarn</span> <span class="token parameter variable">--name</span> fiora -- start
 
-# view pm2 apps status
-pm2 ls
+<span class="token comment"># view pm2 apps status</span>
+pm2 <span class="token function">ls</span>
 
-# view pm2 fiora logging
+<span class="token comment"># view pm2 fiora logging</span>
 pm2 logs fiora</code></pre>
+
 <h2 id="Run-With-Develop-Mode"><a href="#Run-With-Develop-Mode" class="headerlink" title="Run With Develop Mode"></a>Run With Develop Mode</h2><ol>
 <li>Start the server <code>yarn dev:server</code></li>
 <li>Start the client <code>yarn dev:web</code></li>
 <li>Open <code>http://localhost:8080</code> in browser</li>
 </ol>
-<h2 id="Running-on-the-docker"><a href="#Running-on-the-docker" class="headerlink" title="Running on the docker"></a>Running on the docker</h2><p>First install docker <a href="https://docs.docker.com/install/" target="_blank" rel="noopener">https://docs.docker.com/install/</a></p>
-<h2 id="Run-directly-from-the-DockerHub-image"><a href="#Run-directly-from-the-DockerHub-image" class="headerlink" title="Run directly from the DockerHub image"></a>Run directly from the DockerHub image</h2><pre class=" language-shell"><code class="language-shell"># Pull mongo
-docker pull mongo
+<h2 id="Running-on-the-docker"><a href="#Running-on-the-docker" class="headerlink" title="Running on the docker"></a>Running on the docker</h2><p>First install docker <a target="_blank" rel="noopener" href="https://docs.docker.com/install/">https://docs.docker.com/install/</a></p>
+<h2 id="Run-directly-from-the-DockerHub-image"><a href="#Run-directly-from-the-DockerHub-image" class="headerlink" title="Run directly from the DockerHub image"></a>Run directly from the DockerHub image</h2><pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># Pull mongo</span>
+<span class="token function">docker</span> pull mongo
 
-# Pull redis
-docker pull redis
+<span class="token comment"># Pull redis</span>
+<span class="token function">docker</span> pull redis
 
-# Pull fiora
-docker pull suisuijiang/fiora
+<span class="token comment"># Pull fiora</span>
+<span class="token function">docker</span> pull suisuijiang/fiora
 
-# Create a virtual network
-docker network create fiora-network
+<span class="token comment"># Create a virtual network</span>
+<span class="token function">docker</span> network create fiora-network
 
-# Run mongodB
-docker run --name fioradb -p 27017:27017 --network fiora-network mongo
+<span class="token comment"># Run mongodB</span>
+<span class="token function">docker</span> run <span class="token parameter variable">--name</span> fioradb <span class="token parameter variable">-p</span> <span class="token number">27017</span>:27017 <span class="token parameter variable">--network</span> fiora-network mongo
 
-# Run redis
-docker run --name fioraredis -p 6379:6379 --network fiora-network redis
+<span class="token comment"># Run redis</span>
+<span class="token function">docker</span> run <span class="token parameter variable">--name</span> fioraredis <span class="token parameter variable">-p</span> <span class="token number">6379</span>:6379 <span class="token parameter variable">--network</span> fiora-network redis
 
-# Run fiora
-docker run --name fiora -p 9200:9200 --network fiora-network -e Database=mongodb://fioradb:27017/fiora -e RedisHost=fioraredis suisuijiang/fiora</code></pre>
+<span class="token comment"># Run fiora</span>
+<span class="token function">docker</span> run <span class="token parameter variable">--name</span> fiora <span class="token parameter variable">-p</span> <span class="token number">9200</span>:9200 <span class="token parameter variable">--network</span> fiora-network <span class="token parameter variable">-e</span> <span class="token assign-left variable">Database</span><span class="token operator">=</span>mongodb://fioradb:27017/fiora <span class="token parameter variable">-e</span> <span class="token assign-left variable">RedisHost</span><span class="token operator">=</span>fioraredis suisuijiang/fiora</code></pre>
+
 <h2 id="Local-build-image-and-run"><a href="#Local-build-image-and-run" class="headerlink" title="Local build image and run"></a>Local build image and run</h2><ol>
 <li>Clone the project to the local <code>git clone https://github.com/yinxin630/fiora.git -b master</code></li>
-<li>Build the image<code>docker-compose build --no-cache --force-rm</code></li>
+<li>Build the image<code> docker-compose build --no-cache --force-rm</code></li>
 <li>Run it <code>docker-compose up</code></li>
 </ol>
 
@@ -671,7 +673,7 @@ docker run --name fiora -p 9200:9200 --network fiora-network -e Database=mongodb
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            说明：sish是一个SSH服务器，仅用于远程端口转发，可以快速将本地端口暴露在外网，作者声称其为Servo/Ngrok替代方案，仅使用SSH的HTTP(S)、WS(S)、TCP隧道连接到他们的localhost服务器，该工具和Servo差不
+                            说明：sish是一个SSH服务器，仅用于远程端口转发，可以快速将本地端口暴露在外网，作者声称其为Servo&#x2F;Ngrok替代方案，仅使用SSH的HTTP(S)、WS(S)、TCP隧道连接到他们的localhost服务器，该工具和Se
                         
                     </div>
                     <div class="publish-info">

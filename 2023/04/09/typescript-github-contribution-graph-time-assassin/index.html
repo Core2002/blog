@@ -29,7 +29,7 @@
 
     <script src="/libs/jquery/jquery.min.js"></script>
     
-<meta name="generator" content="Hexo 4.2.1"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+<meta name="generator" content="Hexo 8.1.2"></head>
 
 
 <body>
@@ -483,16 +483,17 @@
         <div class="card-content article-card-content">
             <div id="articleContent">
                 <p>GitHub 贡献图是一张按周排列的日期网格，每列 7 天，一年大约 53 列。我写 time_assassin 的出发点很简单：既然每个格子对应一天，能不能先选好日期，再让 Git 在这些日期产生提交。</p>
-<a id="more"></a>
+<span id="more"></span>
 
 <h2 id="两个时间戳"><a href="#两个时间戳" class="headerlink" title="两个时间戳"></a>两个时间戳</h2><p>Git 的每个提交有两个时间戳，author date 和 committer date，默认都取自系统时钟。要控制它们，可以修改提交参数，也可以直接修改系统时间。我选择了后者：在 PowerShell 里用 <code>Set-Date</code> 把系统时间设到目标日期，之后正常执行 commit，两个时间戳会一起被改写，无论 GitHub 按哪个口径统计，结果都落在同一天。</p>
 <p>这个做法会影响整台机器的时间，我也清楚这一点。项目定位是一个小工具，使用时需要管理员权限，脚本结束后会通过 <code>w32tm /resync</code> 把时间同步回来。</p>
 <h2 id="网格与日期偏移"><a href="#网格与日期偏移" class="headerlink" title="网格与日期偏移"></a>网格与日期偏移</h2><p>网格的计算比看起来麻烦。1 月 1 日不一定落在第一列第一行，需要根据它在星期中的位置计算偏移。第 <code>iw</code> 列第 <code>id</code> 行对应的日期，距 1 月 1 日有 <code>7 * iw + id - offset</code> 天；负数落在空白格，超过当年天数则落在范围之外。平年 365 天加上最大偏移 6 是 371 格，正好等于 53×7；闰年 366 天加偏移 6 需要 372 格，最后一天会被截掉。</p>
 <p>这个问题是在测试 2024 年时发现的：12 月 31 日的格子点不亮。原因是列数被写死成了 53。我没有修改它，因为工具主要服务于我自己使用的年份，但这是网格计算里一个明确的边界情况。</p>
 <p>日期累加用的是固定 24 小时：</p>
-<pre class=" language-ts"><code class="language-ts"><span class="token keyword">function</span> <span class="token function">addDay</span><span class="token punctuation">(</span>dt<span class="token punctuation">:</span> Date<span class="token punctuation">,</span> dn<span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre class="language-typescript" data-language="typescript"><code class="language-typescript"><span class="token keyword">function</span> <span class="token function">addDay</span><span class="token punctuation">(</span>dt<span class="token operator">:</span> Date<span class="token punctuation">,</span> dn<span class="token operator">:</span> <span class="token builtin">number</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span>dt<span class="token punctuation">.</span><span class="token function">getTime</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> dn <span class="token operator">*</span> <span class="token number">24</span> <span class="token operator">*</span> <span class="token number">60</span> <span class="token operator">*</span> <span class="token number">60</span> <span class="token operator">*</span> <span class="token number">1000</span><span class="token punctuation">)</span>
-<span class="token punctuation">}</span></code></pre>
+<span class="token punctuation">&#125;</span></code></pre>
+
 <p>在有夏令时的时区，这种方式会产生漂移。我所在的时区没有夏令时，所以没有遇到问题，但这并不意味着实现是通用的。</p>
 <h2 id="页面交互与导出"><a href="#页面交互与导出" class="headerlink" title="页面交互与导出"></a>页面交互与导出</h2><p>页面上的每个日期渲染成一个 Layui 按钮，<code>title</code> 属性保存 <code>YYYY-MM-DD</code>，点击后在灰色和绿色之间切换。选中的日期可以导出为 JSON，下次导入后继续编辑。生成脚本时，每个日期对应三条操作：设置系统时间、向 <code>checkpoint.log</code> 追加一行、执行 <code>git add</code> 和 <code>git commit</code>，最后统一 push。</p>
 <h2 id="生成的脚本"><a href="#生成的脚本" class="headerlink" title="生成的脚本"></a>生成的脚本</h2><p><code>checkpoint.log</code> 是必要的：如果工作区没有变化，第二次 commit 会直接失败。时间固定为 <code>11:45:14</code>，是为了避开午夜边界，减少时区和夏令时导致日期偏移的可能。脚本开头先执行 <code>net start w32time</code>，因为时间服务未启动时 <code>Set-Date</code> 可能不生效。</p>

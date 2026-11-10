@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="keywords" content="一个开源、轻量且类似于Servo/Ngrok的内网穿透工具, 小白的小博客">
-    <meta name="description" content="说明：sish是一个SSH服务器，仅用于远程端口转发，可以快速将本地端口暴露在外网，作者声称其为Servo/Ngrok替代方案，仅使用SSH的HTTP(S)、WS(S)、TCP隧道连接到他们的localhost服务器，该工具和Servo差不">
+    <meta name="description" content="说明：sish是一个SSH服务器，仅用于远程端口转发，可以快速将本地端口暴露在外网，作者声称其为Servo&amp;#x2F;Ngrok替代方案，仅使用SSH的HTTP(S)、WS(S)、TCP隧道连接到他们的localhost服务器，该工具和Se">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -26,7 +26,7 @@
 
     <script src="/libs/jquery/jquery.min.js"></script>
     
-<meta name="generator" content="Hexo 4.2.1"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+<meta name="generator" content="Hexo 8.1.2"></head>
 
 
 <body>
@@ -475,63 +475,69 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p><strong>说明：</strong><code>sish</code>是一个<code>SSH</code>服务器，仅用于远程端口转发，可以快速将本地端口暴露在外网，作者声称其为<code>Servo</code>/<code>Ngrok</code>替代方案，仅使用<code>SSH</code>的<code>HTTP(S)</code>、<code>WS(S)</code>、<code>TCP</code>隧道连接到他们的<code>localhost</code>服务器，该工具和<a href="https://www.moerats.com/archives/990/" target="_blank" rel="noopener">Servo</a>差不多一样，不同就是<code>Servo</code>官方提供了免费的<code>SSH</code>客户端，而<code>sish</code>作者提供的客户端貌似因为滥用关闭了，所以就需要我们自己搭建了，这里就水下<code>Docker</code>和手动安装。</p>
-<h2 id="Docker安装"><a href="#Docker安装" class="headerlink" title="Docker安装"></a>Docker安装</h2><p><strong>Github地址：</strong><a href="https://github.com/antoniomika/sish" target="_blank" rel="noopener">https://github.com/antoniomika/sish</a></p>
+                <p><strong>说明：</strong><code>sish</code>是一个<code>SSH</code>服务器，仅用于远程端口转发，可以快速将本地端口暴露在外网，作者声称其为<code>Servo</code>&#x2F;<code>Ngrok</code>替代方案，仅使用<code>SSH</code>的<code>HTTP(S)</code>、<code>WS(S)</code>、<code>TCP</code>隧道连接到他们的<code>localhost</code>服务器，该工具和<a target="_blank" rel="noopener" href="https://www.moerats.com/archives/990/">Servo</a>差不多一样，不同就是<code>Servo</code>官方提供了免费的<code>SSH</code>客户端，而<code>sish</code>作者提供的客户端貌似因为滥用关闭了，所以就需要我们自己搭建了，这里就水下<code>Docker</code>和手动安装。</p>
+<h2 id="Docker安装"><a href="#Docker安装" class="headerlink" title="Docker安装"></a>Docker安装</h2><p>**Github地址：**<a target="_blank" rel="noopener" href="https://github.com/antoniomika/sish">https://github.com/antoniomika/sish</a></p>
 <p><strong>1、安装Docker</strong></p>
-<pre><code>#CentOS 6
-rpm -iUvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+<pre class="language-none"><code class="language-none">#CentOS 6
+rpm -iUvh http:&#x2F;&#x2F;dl.fedoraproject.org&#x2F;pub&#x2F;epel&#x2F;6&#x2F;x86_64&#x2F;epel-release-6-8.noarch.rpm
 yum update -y
 yum -y install docker-io
 service docker start
 chkconfig docker on
 
 #CentOS 7、Debian、Ubuntu
-curl -sSL https://get.docker.com/ | sh
+curl -sSL https:&#x2F;&#x2F;get.docker.com&#x2F; | sh
 systemctl start docker
-systemctl enable docker</code></pre><p><strong>2、拉取镜像</strong><br>这里由于直接使用<code>ip</code>的话，只能用于转发<code>TCP</code>，<code>HTTP(S)</code>等就需要配置下域名了，所以以下全部默认使用域名。</p>
-<p>先解析一个主/泛域名到服务器<code>ip</code>，比如解析<code>moerats.com</code>、<code>*.moerats.com</code>到服务器<code>ip</code>。</p>
+systemctl enable docker</code></pre>
+
+<p><strong>2、拉取镜像</strong><br>这里由于直接使用<code>ip</code>的话，只能用于转发<code>TCP</code>，<code>HTTP(S)</code>等就需要配置下域名了，所以以下全部默认使用域名。</p>
+<p>先解析一个主&#x2F;泛域名到服务器<code>ip</code>，比如解析<code>moerats.com</code>、<code>*.moerats.com</code>到服务器<code>ip</code>。</p>
 <p>然后再参考下面的参数详解，再自行修改部分参数后，使用命令：</p>
-<pre><code>#配置http域名
+<pre class="language-none"><code class="language-none">#配置http域名
 docker run -d --name sish \
-  --restart=always \
-  -v ~/sish/keys:/keys \
-  -v ~/sish/pubkeys:/pubkeys \
-  --net=host antoniomika/sish \
-  -sish.addr=:3333 \
-  -sish.http=:80 \
-  -sish.keysdir=/pubkeys \
-  -sish.pkloc=/keys/ssh_key \
-  -sish.forcerandomsubdomain=false \
+  --restart&#x3D;always \
+  -v ~&#x2F;sish&#x2F;keys:&#x2F;keys \
+  -v ~&#x2F;sish&#x2F;pubkeys:&#x2F;pubkeys \
+  --net&#x3D;host antoniomika&#x2F;sish \
+  -sish.addr&#x3D;:3333 \
+  -sish.http&#x3D;:80 \
+  -sish.keysdir&#x3D;&#x2F;pubkeys \
+  -sish.pkloc&#x3D;&#x2F;keys&#x2F;ssh_key \
+  -sish.forcerandomsubdomain&#x3D;false \
   -sish.domain moerats.com \
-  -sish.bindrandom=false \
-  -sish.redirectrootlocation https://www.baidu.com 
+  -sish.bindrandom&#x3D;false \
+  -sish.redirectrootlocation https:&#x2F;&#x2F;www.baidu.com 
 
 #配置https域名，这里需要提供泛域名证书
 docker run -d --name sish \
-  --restart=always \
-  -v ~/sish/ssl:/ssl \
-  -v ~/sish/keys:/keys \
-  -v ~/sish/pubkeys:/pubkeys \
-  --net=host antoniomika/sish \
-  -sish.addr=:3333 \
-  -sish.https=:443 \
-  -sish.http=:80 \
-  -sish.httpsenabled=true \
-  -sish.httpspems=/ssl \
-  -sish.keysdir=/pubkeys \
-  -sish.pkloc=/keys/ssh_key \
-  -sish.forcerandomsubdomain=false \
+  --restart&#x3D;always \
+  -v ~&#x2F;sish&#x2F;ssl:&#x2F;ssl \
+  -v ~&#x2F;sish&#x2F;keys:&#x2F;keys \
+  -v ~&#x2F;sish&#x2F;pubkeys:&#x2F;pubkeys \
+  --net&#x3D;host antoniomika&#x2F;sish \
+  -sish.addr&#x3D;:3333 \
+  -sish.https&#x3D;:443 \
+  -sish.http&#x3D;:80 \
+  -sish.httpsenabled&#x3D;true \
+  -sish.httpspems&#x3D;&#x2F;ssl \
+  -sish.keysdir&#x3D;&#x2F;pubkeys \
+  -sish.pkloc&#x3D;&#x2F;keys&#x2F;ssh_key \
+  -sish.forcerandomsubdomain&#x3D;false \
   -sish.domain moerats.com \
-  -sish.bindrandom=false \
-  -sish.redirectrootlocation https://www.baidu.com</code></pre><p>部分参数如下：</p>
-<pre><code>-sish.addr=:3333  #ssh监听地址
--sish.forcerandomsubdomain=false  #是否强制随机子域，这个建议关掉
--sish.bindrandom=false  #是否随机绑定端口，这个建议关掉
+  -sish.bindrandom&#x3D;false \
+  -sish.redirectrootlocation https:&#x2F;&#x2F;www.baidu.com</code></pre>
+
+<p>部分参数如下：</p>
+<pre class="language-none"><code class="language-none">-sish.addr&#x3D;:3333  #ssh监听地址
+-sish.forcerandomsubdomain&#x3D;false  #是否强制随机子域，这个建议关掉
+-sish.bindrandom&#x3D;false  #是否随机绑定端口，这个建议关掉
 -sish.domain moerats.com  #使用的域名
--sish.redirectrootlocation https://www.baidu.com  #主域名(-sish.domain参数)强制跳转到该地址
--sish.httpspems=/ssl  #泛域名SSL证书路径，存放路径~/sish/ssl，证书命名格式fullchain.pem和privkey.pem</code></pre><p>其他参数默认即可，也可以自行添加或修改其它参数。</p>
+-sish.redirectrootlocation https:&#x2F;&#x2F;www.baidu.com  #主域名(-sish.domain参数)强制跳转到该地址
+-sish.httpspems&#x3D;&#x2F;ssl  #泛域名SSL证书路径，存放路径~&#x2F;sish&#x2F;ssl，证书命名格式fullchain.pem和privkey.pem</code></pre>
+
+<p>其他参数默认即可，也可以自行添加或修改其它参数。</p>
 <p>全部参数如下：</p>
-<pre><code>Usage of sish:
+<pre class="language-none"><code class="language-none">Usage of sish:
   -sish.addr string
         The address to listen for SSH connections (default &quot;localhost:2222&quot;)
   -sish.auth
@@ -563,15 +569,15 @@ docker run -d --name sish \
   -sish.httpsenabled
         Whether or not to listen for HTTPS connections
   -sish.httpspems string
-        The location of pem files for HTTPS (fullchain.pem and privkey.pem) (default &quot;ssl/&quot;)
+        The location of pem files for HTTPS (fullchain.pem and privkey.pem) (default &quot;ssl&#x2F;&quot;)
   -sish.httpsport int
         The port for HTTPS connections. This is only for output messages (default 443)
   -sish.keysdir string
-        Directory for public keys for pubkey auth (default &quot;pubkeys/&quot;)
+        Directory for public keys for pubkey auth (default &quot;pubkeys&#x2F;&quot;)
   -sish.password string
         Password to use for password auth (default &quot;S3Cr3tP4$$W0rD&quot;)
   -sish.pkloc string
-        SSH server private key (default &quot;keys/ssh_key&quot;)
+        SSH server private key (default &quot;keys&#x2F;ssh_key&quot;)
   -sish.pkpass string
         Passphrase to use for the server private key (default &quot;S3Cr3tP4$$phrAsE&quot;)
   -sish.proxyprotoenabled
@@ -581,7 +587,7 @@ docker run -d --name sish \
   -sish.redirectroot
         Whether or not to redirect the root domain (default true)
   -sish.redirectrootlocation string
-        Where to redirect the root domain to (default &quot;https://github.com/antoniomika/sish&quot;)
+        Where to redirect the root domain to (default &quot;https:&#x2F;&#x2F;github.com&#x2F;antoniomika&#x2F;sish&quot;)
   -sish.subdomainlen int
         The length of the random subdomain to generate (default 3)
   -sish.usegeodb
@@ -593,101 +599,129 @@ docker run -d --name sish \
   -sish.whitelistedcountries string
         A comma separated list of whitelisted countries
   -sish.whitelistedips string
-        A comma separated list of whitelisted ips</code></pre><p>看不懂的，可以使用下谷歌翻译。</p>
+        A comma separated list of whitelisted ips</code></pre>
+
+<p>看不懂的，可以使用下谷歌翻译。</p>
 <p>最后<code>CentOS</code>系统建议关闭防火墙使用，或者打开部分端口也行，关闭命令：</p>
-<pre><code>#CentOS 6系统
+<pre class="language-none"><code class="language-none">#CentOS 6系统
 service iptables stop
 chkconfig iptables off
 
 #CentOS 7系统
 systemctl stop firewalld
-systemctl disable firewalld</code></pre><p>像阿里云等服务器，还需要去安全组那里开放下端口。</p>
+systemctl disable firewalld</code></pre>
+
+<p>像阿里云等服务器，还需要去安全组那里开放下端口。</p>
 <h2 id="手动安装"><a href="#手动安装" class="headerlink" title="手动安装"></a>手动安装</h2><p><code>Docker</code>虽然方便很多，但也有人会喜欢手动安装，这里作者没直接给出二进制文件，所以就需要我们手动来构建二进制文件了。</p>
-<p><strong>1、安装Go</strong><br>这里由于需要新版的<code>Go</code>环境，所以这里就使用<code>Go</code>二进制包安装环境，下载地址→<a href="https://golang.org/dl/" target="_blank" rel="noopener">传送门</a>。</p>
+<p><strong>1、安装Go</strong><br>这里由于需要新版的<code>Go</code>环境，所以这里就使用<code>Go</code>二进制包安装环境，下载地址→<a target="_blank" rel="noopener" href="https://golang.org/dl/">传送门</a>。</p>
 <p>然后根据自己的服务器架构下载对应的最新安装包，一般可以直接使用命令：</p>
-<pre><code>#32位系统下载
-wget -O go.tar.gz https://dl.google.com/go/go1.13.3.linux-386.tar.gz
+<pre class="language-none"><code class="language-none">#32位系统下载
+wget -O go.tar.gz https:&#x2F;&#x2F;dl.google.com&#x2F;go&#x2F;go1.13.3.linux-386.tar.gz
 #64位系统下载
-wget -O go.tar.gz https://dl.google.com/go/go1.13.3.linux-amd64.tar.gz
+wget -O go.tar.gz https:&#x2F;&#x2F;dl.google.com&#x2F;go&#x2F;go1.13.3.linux-amd64.tar.gz
 
 #解压压缩包
-tar -zxvf go.tar.gz -C /usr/local
+tar -zxvf go.tar.gz -C &#x2F;usr&#x2F;local
 #设置环境变量，将以下一起复制进ssh客户端运行
-mkdir $HOME/go
-echo &#39;export GOROOT=/usr/local/go
-export GOPATH=$HOME/go
-export PATH=$PATH:$GOROOT/bin:$GOPATH/bin&#39; &gt;&gt; /etc/profile
-source /etc/profile
+mkdir $HOME&#x2F;go
+echo &#39;export GOROOT&#x3D;&#x2F;usr&#x2F;local&#x2F;go
+export GOPATH&#x3D;$HOME&#x2F;go
+export PATH&#x3D;$PATH:$GOROOT&#x2F;bin:$GOPATH&#x2F;bin&#39; &gt;&gt; &#x2F;etc&#x2F;profile
+source &#x2F;etc&#x2F;profile
 #查看go版本，有输出即为安装成功
-go version</code></pre><p><strong>2、安装sish</strong></p>
-<pre><code>#下载源码到主目录
-git clone https://github.com/antoniomika/sish
+go version</code></pre>
+
+<p><strong>2、安装sish</strong></p>
+<pre class="language-none"><code class="language-none">#下载源码到主目录
+git clone https:&#x2F;&#x2F;github.com&#x2F;antoniomika&#x2F;sish
 cd sish
 #编译二进制文件
-go install</code></pre><p>这里提示<code>-bash: git: command not found</code>的，可以先使用命令：</p>
-<pre><code>#CentOS
+go install</code></pre>
+
+<p>这里提示<code>-bash: git: command not found</code>的，可以先使用命令：</p>
+<pre class="language-none"><code class="language-none">#CentOS
 yum -y install git
 
 #Debian、Ubuntu
-apt install git -y</code></pre><p><strong>3、运行sish</strong><br>运行参数这里就不贴了，直接参考上面<code>Docker</code>安装最下面的全部参数就行了。</p>
-<p>先解析一个主/泛域名到服务器<code>ip</code>，比如解析<code>moerats.com</code>、<code>*.moerats.com</code>到服务器<code>ip</code>。</p>
+apt install git -y</code></pre>
+
+<p><strong>3、运行sish</strong><br>运行参数这里就不贴了，直接参考上面<code>Docker</code>安装最下面的全部参数就行了。</p>
+<p>先解析一个主&#x2F;泛域名到服务器<code>ip</code>，比如解析<code>moerats.com</code>、<code>*.moerats.com</code>到服务器<code>ip</code>。</p>
 <p>这里就贴个大概需要使用的参数，其它的根据需求自行修改，使用命令：</p>
-<pre><code>#配置http域名
-sish -sish.addr=:3333 -sish.http=:80 -sish.domain moerats.com -sish.forcerandomsubdomain=false -sish.bindrandom=false -sish.redirectrootlocation https://www.moerats.com -sish.keysdir=/sish/pubkeys -sish.pkloc=/sish/keys/ssh_key 
+<pre class="language-none"><code class="language-none">#配置http域名
+sish -sish.addr&#x3D;:3333 -sish.http&#x3D;:80 -sish.domain moerats.com -sish.forcerandomsubdomain&#x3D;false -sish.bindrandom&#x3D;false -sish.redirectrootlocation https:&#x2F;&#x2F;www.moerats.com -sish.keysdir&#x3D;&#x2F;sish&#x2F;pubkeys -sish.pkloc&#x3D;&#x2F;sish&#x2F;keys&#x2F;ssh_key 
 
 #配置https域名
-sish -sish.addr=:3333 -sish.https=:443 -sish.http=:80 -sish.domain moerats.com -sish.forcerandomsubdomain=false -sish.bindrandom=false -sish.httpsenabled=true -sish.redirectrootlocation https://www.moerats.com -sish.keysdir=/sish/pubkeys -sish.pkloc=/sish/keys/ssh_key -sish.httpspems=/sish/ssl</code></pre><p>部分参数详解：</p>
-<pre><code>-sish.addr=:3333  #ssh监听地址，这里为3333
--sish.forcerandomsubdomain=false  #是否强制随机子域，这个建议关掉
--sish.bindrandom=false  #是否随机绑定端口，这个建议关掉
+sish -sish.addr&#x3D;:3333 -sish.https&#x3D;:443 -sish.http&#x3D;:80 -sish.domain moerats.com -sish.forcerandomsubdomain&#x3D;false -sish.bindrandom&#x3D;false -sish.httpsenabled&#x3D;true -sish.redirectrootlocation https:&#x2F;&#x2F;www.moerats.com -sish.keysdir&#x3D;&#x2F;sish&#x2F;pubkeys -sish.pkloc&#x3D;&#x2F;sish&#x2F;keys&#x2F;ssh_key -sish.httpspems&#x3D;&#x2F;sish&#x2F;ssl</code></pre>
+
+<p>部分参数详解：</p>
+<pre class="language-none"><code class="language-none">-sish.addr&#x3D;:3333  #ssh监听地址，这里为3333
+-sish.forcerandomsubdomain&#x3D;false  #是否强制随机子域，这个建议关掉
+-sish.bindrandom&#x3D;false  #是否随机绑定端口，这个建议关掉
 -sish.domain moerats.com  #使用的域名
--sish.redirectrootlocation https://www.baidu.com  #主域名(-sish.domain参数)强制跳转到该地址
--sish.httpspems=/sish/ssl  #泛域名SSL证书存放路径，证书命名格式fullchain.pem和privkey.pem
--sish.keysdir=/sish/pubkeys  #pubkey auth的公共密钥存放文件夹
--sish.pkloc=/sish/keys/ssh_key  #SSH服务器私钥</code></pre><p>这里<code>/sish/ssl</code>、<code>/sish/pubkeys</code>、<code>/sish/keys</code>目录需要自己提前创建下，使用命令：</p>
-<pre><code>mkdir -p /sish/ssl /sish/pubkeys /sish/keys</code></pre><p><strong>4、开机自启</strong><br>如果你使用手动命令没问题了，先使用<code>Ctrl+C</code>断开命令。</p>
+-sish.redirectrootlocation https:&#x2F;&#x2F;www.baidu.com  #主域名(-sish.domain参数)强制跳转到该地址
+-sish.httpspems&#x3D;&#x2F;sish&#x2F;ssl  #泛域名SSL证书存放路径，证书命名格式fullchain.pem和privkey.pem
+-sish.keysdir&#x3D;&#x2F;sish&#x2F;pubkeys  #pubkey auth的公共密钥存放文件夹
+-sish.pkloc&#x3D;&#x2F;sish&#x2F;keys&#x2F;ssh_key  #SSH服务器私钥</code></pre>
+
+<p>这里<code>/sish/ssl</code>、<code>/sish/pubkeys</code>、<code>/sish/keys</code>目录需要自己提前创建下，使用命令：</p>
+<pre class="language-none"><code class="language-none">mkdir -p &#x2F;sish&#x2F;ssl &#x2F;sish&#x2F;pubkeys &#x2F;sish&#x2F;keys</code></pre>
+
+<p><strong>4、开机自启</strong><br>如果你使用手动命令没问题了，先使用<code>Ctrl+C</code>断开命令。</p>
 <p>再新建<code>systemd</code>配置文件，适用<code>CentOS 7</code>、<code>Debian 8+</code>、<code>Ubuntu 16+</code>。</p>
-<pre><code>#修改成你手动运行命令的全部参数
-command=&quot;-sish.addr=:3333 -sish.http=:80 -sish.domain moerats.com -sish.forcerandomsubdomain=false -sish.bindrandom=false -sish.redirectrootlocation https://www.moerats.com -sish.keysdir=/sish/pubkeys -sish.pkloc=/sish/keys&quot;
+<pre class="language-none"><code class="language-none">#修改成你手动运行命令的全部参数
+command&#x3D;&quot;-sish.addr&#x3D;:3333 -sish.http&#x3D;:80 -sish.domain moerats.com -sish.forcerandomsubdomain&#x3D;false -sish.bindrandom&#x3D;false -sish.redirectrootlocation https:&#x2F;&#x2F;www.moerats.com -sish.keysdir&#x3D;&#x2F;sish&#x2F;pubkeys -sish.pkloc&#x3D;&#x2F;sish&#x2F;keys&quot;
 #将以下代码一起复制到SSH运行
-cat &gt; /etc/systemd/system/sish.service &lt;&lt;EOF
+cat &gt; &#x2F;etc&#x2F;systemd&#x2F;system&#x2F;sish.service &lt;&lt;EOF
 [Unit]
-Description=sish
-After=network.target
+Description&#x3D;sish
+After&#x3D;network.target
 
 [Service]
-Type=simple
-ExecStart=$(command -v sish) ${command}
-Restart=on-failure
+Type&#x3D;simple
+ExecStart&#x3D;$(command -v sish) $&#123;command&#125;
+Restart&#x3D;on-failure
 
 [Install]
-WantedBy=multi-user.target
-EOF</code></pre><p>启动并设置开机自启：</p>
-<pre><code>systemctl start sish
-systemctl enable sish</code></pre><p>最后<code>CentOS</code>系统建议关闭防火墙使用，或者打开部分端口也行，关闭命令：</p>
-<pre><code>#CentOS 6系统
+WantedBy&#x3D;multi-user.target
+EOF</code></pre>
+
+<p>启动并设置开机自启：</p>
+<pre class="language-none"><code class="language-none">systemctl start sish
+systemctl enable sish</code></pre>
+
+<p>最后<code>CentOS</code>系统建议关闭防火墙使用，或者打开部分端口也行，关闭命令：</p>
+<pre class="language-none"><code class="language-none">#CentOS 6系统
 service iptables stop
 chkconfig iptables off
 
 #CentOS 7系统
 systemctl stop firewalld
-systemctl disable firewalld</code></pre><p>像阿里云等服务器，还需要去安全组那里开放下端口。</p>
+systemctl disable firewalld</code></pre>
+
+<p>像阿里云等服务器，还需要去安全组那里开放下端口。</p>
 <h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>使用要求：可以使用<code>SSH</code>，并且能连接到互联网，<code>Linux</code>、<code>Windows</code>等系统都行。</p>
 <p>以下所使用的的<code>moerats.com</code>为上面配置好的客户端域名地址，自行修改成自己的即可。</p>
 <p><strong>1、转发HTTP(S)</strong><br>将本地<code>3000</code>端口穿透到公网中，使用命令：</p>
-<pre><code>#要转发其它端口的自行替换
-ssh -p 3333 -R 80:localhost:3000 moerats.com</code></pre><p>第一次如果有提示，选择<code>yes</code>即可，之后会为你随机生成一个<code>moerats.com</code>的二级域名，然后就可以使用浏览器间接访问本地的<code>localhost:3000</code>了。</p>
+<pre class="language-none"><code class="language-none">#要转发其它端口的自行替换
+ssh -p 3333 -R 80:localhost:3000 moerats.com</code></pre>
+
+<p>第一次如果有提示，选择<code>yes</code>即可，之后会为你随机生成一个<code>moerats.com</code>的二级域名，然后就可以使用浏览器间接访问本地的<code>localhost:3000</code>了。</p>
 <p>如果要指定二级域名，可以使用命令：</p>
-<pre><code>#这里默认为no1.moerats.com，自行替换即可
-ssh -p 3333 -R no1:80:localhost:3000 moerats.com</code></pre><p>此时你就可以在外网使用<code>no1.moerats.com</code>访问你本地的<code>localhost:3000</code>了。</p>
+<pre class="language-none"><code class="language-none">#这里默认为no1.moerats.com，自行替换即可
+ssh -p 3333 -R no1:80:localhost:3000 moerats.com</code></pre>
+
+<p>此时你就可以在外网使用<code>no1.moerats.com</code>访问你本地的<code>localhost:3000</code>了。</p>
 <p><strong>2、转发TCP</strong><br>将本地<code>6789</code>端口穿透到公网的<code>9876</code>端口中，使用命令：</p>
-<pre><code>#可以自行设置公网端口，这里默认6789，如果你要转发SSH端口，那就改成你的SSH端口
-ssh -p 3333 -R 9876:localhost:6789 moerats.com</code></pre><p>这里只说了下简单用法，客户端我们还可以设置国家/地区、<code>IP</code>白名单等，使用参考→<a href="https://github.com/antoniomika/sish#whitelisting-ips" target="_blank" rel="noopener">传送门</a>。</p>
-<p>最后没有泛域名证书的，可以查看该教程自己申请→<a href="https://www.moerats.com/archives/900/" target="_blank" rel="noopener">传送门</a>，或者等博主发码子→<a href="https://www.moerats.com/archives/996/" target="_blank" rel="noopener">传送门</a>。</p>
+<pre class="language-none"><code class="language-none">#可以自行设置公网端口，这里默认6789，如果你要转发SSH端口，那就改成你的SSH端口
+ssh -p 3333 -R 9876:localhost:6789 moerats.com</code></pre>
+
+<p>这里只说了下简单用法，客户端我们还可以设置国家&#x2F;地区、<code>IP</code>白名单等，使用参考→<a target="_blank" rel="noopener" href="https://github.com/antoniomika/sish#whitelisting-ips">传送门</a>。</p>
+<p>最后没有泛域名证书的，可以查看该教程自己申请→<a target="_blank" rel="noopener" href="https://www.moerats.com/archives/900/">传送门</a>，或者等博主发码子→<a target="_blank" rel="noopener" href="https://www.moerats.com/archives/996/">传送门</a>。</p>
 <hr>
 <blockquote>
-<p>版权声明：本文为原创文章，版权归 <a href="https://www.moerats.com/" target="_blank" rel="noopener">Rat’s Blog</a> 所有，转载请注明出处！</p>
-<p>本文链接：<a href="https://www.moerats.com/archives/1002/" target="_blank" rel="noopener">https://www.moerats.com/archives/1002/</a></p>
+<p>版权声明：本文为原创文章，版权归 <a target="_blank" rel="noopener" href="https://www.moerats.com/">Rat’s Blog</a> 所有，转载请注明出处！</p>
+<p>本文链接：<a target="_blank" rel="noopener" href="https://www.moerats.com/archives/1002/">https://www.moerats.com/archives/1002/</a></p>
 </blockquote>
 
             </div>

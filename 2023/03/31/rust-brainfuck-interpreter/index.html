@@ -29,7 +29,7 @@
 
     <script src="/libs/jquery/jquery.min.js"></script>
     
-<meta name="generator" content="Hexo 4.2.1"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+<meta name="generator" content="Hexo 8.1.2"></head>
 
 
 <body>
@@ -479,16 +479,17 @@
         <div class="card-content article-card-content">
             <div id="articleContent">
                 <p>写一个 Brainfuck 解释器，是我用来理解虚拟机的一次练习。它只有八条指令、一条数据带和一个指针，代码量不大，适合把取指、译码、执行的循环完整地写一遍。</p>
-<a id="more"></a>
+<span id="more"></span>
 
 <h2 id="八条指令与括号匹配"><a href="#八条指令与括号匹配" class="headerlink" title="八条指令与括号匹配"></a>八条指令与括号匹配</h2><p>八条指令里，前六条都是简单的指针和数值操作，<code>[</code> 和 <code>]</code> 需要多考虑一层。第一版我准备在运行时向后扫描、寻找配对的括号，写到一半发现嵌套循环会反复扫描同一段代码，复杂度不理想。后来改成加载时用栈扫描一次，把配对的下标双向存进哈希表：</p>
-<pre class=" language-rust"><code class="language-rust"><span class="token string">'['</span> <span class="token operator">=</span><span class="token operator">></span> stack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>index<span class="token punctuation">)</span><span class="token punctuation">,</span>
-<span class="token string">']'</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">{</span>
-    <span class="token keyword">if</span> <span class="token keyword">let</span> <span class="token function">Some</span><span class="token punctuation">(</span>start<span class="token punctuation">)</span> <span class="token operator">=</span> stack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre class="language-rust" data-language="rust"><code class="language-rust"><span class="token char">'['</span> <span class="token operator">=></span> stack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>index<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token char">']'</span> <span class="token operator">=></span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">if</span> <span class="token keyword">let</span> <span class="token class-name">Some</span><span class="token punctuation">(</span>start<span class="token punctuation">)</span> <span class="token operator">=</span> stack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         brackets<span class="token punctuation">.</span><span class="token function">insert</span><span class="token punctuation">(</span>start<span class="token punctuation">,</span> index<span class="token punctuation">)</span><span class="token punctuation">;</span>
         brackets<span class="token punctuation">.</span><span class="token function">insert</span><span class="token punctuation">(</span>index<span class="token punctuation">,</span> start<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code></pre>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span></code></pre>
+
 <h2 id="指令指针的跳转语义"><a href="#指令指针的跳转语义" class="headerlink" title="指令指针的跳转语义"></a>指令指针的跳转语义</h2><p>主循环里，我一开始把跳转目标写成了配对括号的下一条指令，结果 Hello World 的输出多了一个字符。原因是循环末尾统一执行 <code>instruction_ptr += 1</code>，所以 <code>[</code> 应该跳到配对的 <code>]</code> 本身，<code>]</code> 应该跳回配对的 <code>[</code>，再靠这一次自增落到正确位置。这个问题不大，但让我把指令指针的语义重新理了一遍。</p>
 <h2 id="一个调试用的非标准指令"><a href="#一个调试用的非标准指令" class="headerlink" title="一个调试用的非标准指令"></a>一个调试用的非标准指令</h2><p>调试嵌套循环时，屏幕上只有错误的输出，看不到数据带的状态。我加了一个非标准指令 <code>&amp;</code>，执行时打印当前指针位置和整条数据带。它不属于语言本身，但对定位指针偏移很直接。</p>
 <h2 id="数据带与输入输出"><a href="#数据带与输入输出" class="headerlink" title="数据带与输入输出"></a>数据带与输入输出</h2><p>数据带初始有 32 个 <code>i64</code> 单元格，指针右移越界时执行 <code>push(0)</code>，因此只会向右增长。输入用 <code>read_exact</code> 每次读一个字节，输出用 <code>char::from_u32</code> 加 <code>print!</code>。</p>
@@ -496,7 +497,7 @@
 <p>单元格类型也有类似的情况。我选了 <code>i64</code>，考虑的是避免溢出；标准 Brainfuck 的单元格通常是 8 位无符号数，255 加一会回绕成 0。有些程序依赖这种回绕，用 <code>i64</code> 反而对不上。</p>
 <p>数据指针左移时同样有边界问题。在 0 号格执行 <code>&lt;</code>，debug 模式下 <code>usize</code> 会因减法下溢 panic，release 模式会回绕成 <code>usize::MAX</code>，下一次访问仍然崩溃。我没有加检查，因为当时只把它当作学习项目，但这个行为后来一直记得。</p>
 <p>括号不匹配没有在加载阶段校验。孤立的 <code>]</code> 会被静默忽略，未闭合的 <code>[</code> 要到运行时查表才以 “key not found” 失败，错误信息里也没有源码位置。</p>
-<h2 id="整体结构"><a href="#整体结构" class="headerlink" title="整体结构"></a>整体结构</h2><p>整个解释器不到 150 行，没有第三方依赖。它不算严格符合标准，但包含了虚拟机的基本结构：指令指针、数据指针、内存、跳转表和 I/O。写完这个版本之后，再看栈式虚拟机和字节码解释器，结构就清楚了很多。</p>
+<h2 id="整体结构"><a href="#整体结构" class="headerlink" title="整体结构"></a>整体结构</h2><p>整个解释器不到 150 行，没有第三方依赖。它不算严格符合标准，但包含了虚拟机的基本结构：指令指针、数据指针、内存、跳转表和 I&#x2F;O。写完这个版本之后，再看栈式虚拟机和字节码解释器，结构就清楚了很多。</p>
 
             </div>
             <hr/>

@@ -26,7 +26,7 @@
 
     <script src="/libs/jquery/jquery.min.js"></script>
     
-<meta name="generator" content="Hexo 4.2.1"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+<meta name="generator" content="Hexo 8.1.2"></head>
 
 
 <body>
@@ -484,7 +484,7 @@
         <div class="card-content article-card-content">
             <div id="articleContent">
                 <p>StellarEyes 的目标是在 Android 设备上完成人脸识别，不把生物特征或图片上传到服务器。应用使用 Kotlin 和 Jetpack Compose 编写界面，CameraX 获取预览帧，ML Kit 做人脸检测，TensorFlow Lite 运行 FaceNet 提取 512 维特征，最后在本地向量库中做余弦相似度匹配。</p>
-<a id="more"></a>
+<span id="more"></span>
 
 <h2 id="整体流程"><a href="#整体流程" class="headerlink" title="整体流程"></a>整体流程</h2><p>整个流程可以分成两段：检测负责回答“脸在哪里”，识别负责回答“这是谁”。ML Kit 返回人脸框，应用根据人脸框裁剪图像，缩放到 160×160，再交给 FaceNet。两段之间只通过裁剪和缩放衔接，因此可以分别替换。assets 目录里也放过 RetinaFace 模型，用于后续实验。</p>
 <h2 id="检测与裁剪"><a href="#检测与裁剪" class="headerlink" title="检测与裁剪"></a>检测与裁剪</h2><p>CameraX 的 <code>ImageAnalysis</code> 提供 <code>ImageProxy</code>，转换成 <code>InputImage</code> 后交给 ML Kit。第一版没有传入 <code>rotationDegrees</code>，横屏时检测框整体旋转了 90 度。裁剪还有另一个问题：即使检测框位置正确，如果裁剪使用的坐标系和人脸框不一致，裁出来的图像仍然会偏移。这两个问题需要一起处理。</p>

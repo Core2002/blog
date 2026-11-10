@@ -26,7 +26,7 @@
 
     <script src="/libs/jquery/jquery.min.js"></script>
     
-<meta name="generator" content="Hexo 4.2.1"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+<meta name="generator" content="Hexo 8.1.2"></head>
 
 
 <body>
@@ -480,11 +480,12 @@
         <div class="card-content article-card-content">
             <div id="articleContent">
                 <p>这个项目的目标是把 Windows 回收站的图标换成啵啵猫。选择它主要是想找一个具体场景练习 Tauri，同时了解一下 Windows Shell 图标的配置方式。项目使用 Tauri 1.4、Vue 3 和 TypeScript，Rust 侧负责注册表和文件操作。</p>
-<a id="more"></a>
+<span id="more"></span>
 
 <h2 id="回收站图标与-CLSID"><a href="#回收站图标与-CLSID" class="headerlink" title="回收站图标与 CLSID"></a>回收站图标与 CLSID</h2><p>我原本以为换图标是替换一张图片，查过资料后才知道回收站不是普通快捷方式，而是由 Shell 通过 CLSID 管理的对象。它的图标配置位于当前用户的注册表下：</p>
-<pre class=" language-text"><code class="language-text">HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\CLSID\
-  {645FF040-5081-101B-9F08-00AA002F954E}\DefaultIcon</code></pre>
+<pre class="language-text" data-language="text"><code class="language-text">HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\CLSID\
+  &#123;645FF040-5081-101B-9F08-00AA002F954E&#125;\DefaultIcon</code></pre>
+
 <p>这个键下有 <code>empty</code> 和 <code>full</code> 两个值，格式是 <code>文件路径,图标索引</code>，负数索引表示按资源 ID 取图标。系统默认指向 <code>imageres.dll</code> 中的两个图标。也就是说，要替换图标，需要提供一个带图标资源的 DLL，而不是 png 或 ico 文件。</p>
 <h2 id="图标-DLL-与权限"><a href="#图标-DLL-与权限" class="headerlink" title="图标 DLL 与权限"></a>图标 DLL 与权限</h2><p>我做了两个约 66KB 的 DLL，各放入一个图标，使用 <code>resource</code> crate 在编译期嵌入可执行文件。运行时将它们释放到 <code>C:\cat_empty.dll</code> 和 <code>C:\cat_full.dll</code>，再把注册表值改成这两个路径。</p>
 <p>选择根目录是为了省事：路径固定，注册表里可以直接写死，不需要处理用户目录展开。代价是写入 <code>C:\</code> 需要管理员权限。程序启动时会尝试释放文件，写成功说明有权限，失败则让前端提示以管理员身份运行。这样权限问题在启动阶段就能暴露，而不是等用户点击按钮后才报错。</p>
