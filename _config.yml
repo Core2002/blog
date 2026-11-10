@@ -100,6 +100,27 @@ theme: matery
 theme_config:
   reward:
     enable: false
+  profile:
+    avatar: /images/avatar.png
+    career: ''
+    introduction: ''
+  socialLink:
+    github: https://github.com/Core2002
+    email:
+    facebook:
+    twitter:
+    qq:
+    weibo:
+    zhihu:
+    rss: false
+  githubLink:
+    url: https://github.com/Core2002/blog
+  indexbtn:
+    url: https://github.com/Core2002
+  myProjects:
+    enable: false
+  mySkills:
+    enable: false
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
