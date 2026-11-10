@@ -4,6 +4,194 @@
   
     
     <entry>
+      <title>在 Android 上跑端侧人脸识别：StellarEyes 的技术拆解</title>
+      <link href="/2026/07/03/android-on-device-face-recognition-stellareyes/"/>
+      <url>/2026/07/03/android-on-device-face-recognition-stellareyes/</url>
+      
+        <content type="html"><![CDATA[<p>StellarEyes 的目标是在 Android 设备上完成人脸识别，不把生物特征或图片上传到服务器。应用使用 Kotlin 和 Jetpack Compose 编写界面，CameraX 获取预览帧，ML Kit 做人脸检测，TensorFlow Lite 运行 FaceNet 提取 512 维特征，最后在本地向量库中做余弦相似度匹配。</p><a id="more"></a><h2 id="整体流程"><a href="#整体流程" class="headerlink" title="整体流程"></a>整体流程</h2><p>整个流程可以分成两段：检测负责回答“脸在哪里”，识别负责回答“这是谁”。ML Kit 返回人脸框，应用根据人脸框裁剪图像，缩放到 160×160，再交给 FaceNet。两段之间只通过裁剪和缩放衔接，因此可以分别替换。assets 目录里也放过 RetinaFace 模型，用于后续实验。</p><h2 id="检测与裁剪"><a href="#检测与裁剪" class="headerlink" title="检测与裁剪"></a>检测与裁剪</h2><p>CameraX 的 <code>ImageAnalysis</code> 提供 <code>ImageProxy</code>，转换成 <code>InputImage</code> 后交给 ML Kit。第一版没有传入 <code>rotationDegrees</code>，横屏时检测框整体旋转了 90 度。裁剪还有另一个问题：即使检测框位置正确，如果裁剪使用的坐标系和人脸框不一致，裁出来的图像仍然会偏移。这两个问题需要一起处理。</p><h2 id="特征提取与推理"><a href="#特征提取与推理" class="headerlink" title="特征提取与推理"></a>特征提取与推理</h2><p>FaceNet 的输入是 160×160 的 RGB 浮点张量，数值归一化到 <code>[-1, 1]</code>，输出 512 维向量。TensorFlow Lite 的 GPU delegate 有一个约束：Interpreter 必须在创建它的线程上调用。早期版本在协程中初始化、在另一个线程推理，应用会直接崩溃。现在的实现使用单线程调度器，把初始化和推理固定在同一条线程上。</p><p>GPU delegate 会先用 <code>CompatibilityList</code> 检查设备支持情况，不支持时回退到 CPU。低端机和部分驱动异常的机型会走到这条路径，否则应用启动阶段就会失败。</p><p>预处理是逐像素完成的，通过位运算取出 RGB 分量，避免 <code>getPixel</code> 每次返回对象带来的开销。160×160 只有 25600 个像素，在 Kotlin 中执行一次的成本可以接受。代码里还保留着一套基于 <code>StandardizeOp</code> 的预处理，但主路径没有使用它，实际生效的是手动的 <code>(p - 127.5) / 128</code>。两套实现并存容易造成误解。</p><p>摄像头每秒产生 30 帧，没有必要每帧都执行推理。持续推理模式下使用 100ms 的最小间隔，将频率限制在 10fps，降低发热和耗电。手动识别时直接调用不节流的版本。</p><h2 id="向量检索"><a href="#向量检索" class="headerlink" title="向量检索"></a>向量检索</h2><p>检索部分使用一个 <code>MutableList</code> 保存人脸向量，线性扫描计算余弦相似度，阈值设为 0.84。几百张人脸的规模下，线性扫描足够使用，因此没有引入向量索引。阈值不是理论推导的结果，而是在自己的设备、光照和测试人群上调整出来的：过低会认错人，过高会拒绝本人。它表示相似度，不是身份认证强度。</p><p>模型输出的向量不一定有效，GPU delegate 偶尔会产生 NaN 或 Infinity。查询前会先把非有限值清零，再做 L2 归一化；全零向量返回零数组，避免除零。归一化之后余弦相似度等价于点积，但代码中保留了完整公式，便于将来使用非归一化向量。</p><h2 id="持久化与并发"><a href="#持久化与并发" class="headerlink" title="持久化与并发"></a>持久化与并发</h2><p>并发方面，识别在后台线程执行，UI 线程可能同时修改或删除人脸记录。查询接口返回的是防御性拷贝，向量本身也会复制，否则一个线程修改数组、另一个线程同时计算相似度时会产生难以复现的读取错误。代价是每次检索多分配一些内存，在当前规模下可以接受。</p><p>向量保存在 <code>filesDir/vectors.json</code>，使用 kotlinx.serialization 整体读写。姓名、描述、头像和自定义字段放在单独的 <code>face_catalog.json</code> 中，两个文件通过同一个 id 关联。这样检索层只处理向量，“是谁”和“有什么备注”由另一层负责。</p><h2 id="NCNN-的部分"><a href="#NCNN-的部分" class="headerlink" title="NCNN 的部分"></a>NCNN 的部分</h2><p>项目里还集成了 NCNN：assets 中有 retinaface、yolo 和 mbv2facenet 模型，<code>main.cpp</code> 通过 JNI 加载并启用 Vulkan。这部分更像一条已经铺好、尚未启用的支线——模型、入口和开关都在，但识别流程仍然沿 TensorFlow Lite 展开。README 中“使用 NCNN 计算余弦相似度”的说法，描述的是这条支线的目标，而非主链路当下的走向；文档与实现之间的这点距离，也如实反映了项目在两种方案之间的取舍。</p><h2 id="隐私限制"><a href="#隐私限制" class="headerlink" title="隐私限制"></a>隐私限制</h2><p>隐私是这个项目的核心限制。向量和图片只保存在应用私有目录，不联网。但 <code>vectors.json</code> 是明文 JSON，头像以 base64 存储，设备被 root 或备份被导出时数据会泄露。应用没有活体检测，照片对着摄像头也可以通过识别。导出功能会把整个人脸库写入公共下载目录。这些限制决定了它适合用于本地相册整理，而不适合门禁等需要可靠身份验证的场景。</p><p>这条流程涉及的环节不算复杂，但需要同时处理线程、GPU delegate、数值稳定性、并发和隐私。相比单独运行一个模型，把这些部分组合成稳定可用的链路是更主要的工作量。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Android </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Android </tag>
+            
+            <tag> Kotlin </tag>
+            
+            <tag> TensorFlow Lite </tag>
+            
+            <tag> 人脸识别 </tag>
+            
+            <tag> NCNN </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Go 实战：用 WebAuthn + PASETO 给后台做一套无密码登录</title>
+      <link href="/2026/06/18/go-webauthn-paseto-gateway/"/>
+      <url>/2026/06/18/go-webauthn-paseto-gateway/</url>
+      
+        <content type="html"><![CDATA[<p>管理后台使用密码登录时，需要处理密码复用、哈希存储、拖库和钓鱼等问题。Passkey 出现之后，我决定把密码从系统中移除，于是写了 fifu-gateway：前面接管理后台，后面代理业务服务，认证统一在网关完成。</p><a id="more"></a><h2 id="架构与信任边界"><a href="#架构与信任边界" class="headerlink" title="架构与信任边界"></a>架构与信任边界</h2><p>架构比较直接：<code>cat-admin</code> 运行在 5200，网关在 5000，业务服务 <code>cat-dataserver</code> 在 5100。网关处理 <code>/webauthn/*</code> 的注册和登录、<code>/admin/users</code> 的管理接口，再把 <code>/api/*</code> 反向代理到后端。业务服务不做认证，只信任网关注入的 <code>X-User-ID</code>、<code>X-Username</code> 和 <code>X-User-Role</code> 头。</p><p>这种模式成立的前提是业务服务不能直接暴露给公网。如果后端端口可以从外部访问，攻击者可以绕过网关直接伪造这些头，整套认证就没有意义。</p><h2 id="challenge-的生命周期"><a href="#challenge-的生命周期" class="headerlink" title="challenge 的生命周期"></a>challenge 的生命周期</h2><p>WebAuthn 的注册和登录都分为两步：start 接口返回 challenge 和选项，浏览器调用 <code>navigator.credentials.create</code> 或 <code>get</code>，finish 接口验证返回的结果。challenge 必须由服务端生成、一次性使用，并在短时间内有效。网关把它存放在进程内的 map 中，以用户名为键，有效期 10 分钟，另有一个 goroutine 每 5 分钟清理过期会话。</p><p>使用进程内存储是因为当时只部署单实例，希望先把流程跑通。这样做在本地没有问题，但如果扩容到多个实例，start 和 finish 落到不同实例时就找不到 challenge。</p><h2 id="稳定的用户-ID"><a href="#稳定的用户-ID" class="headerlink" title="稳定的用户 ID"></a>稳定的用户 ID</h2><p>注册流程里遇到的第一个问题是用户 ID。注册发生在写入数据库之前，用户对象的 ID 为 0；登录时用户已经有数据库 ID。如果 <code>WebAuthnID()</code> 直接返回 ID，注册和登录会得到不同的值，凭证无法对应。浏览器只返回一个笼统的错误，服务端日志里没有更多信息。</p><p>最后的做法是用用户名的 SHA-256 作为稳定的 WebAuthn ID。无论用户是否已入库、ID 是多少，两边计算出的值都一致。代价是用户名不能修改，同一个用户名在不同环境中也会得到相同的 ID。对单实例的管理后台来说，这个取舍可以接受。</p><h2 id="JSON-转换"><a href="#JSON-转换" class="headerlink" title="JSON 转换"></a>JSON 转换</h2><p>第二个问题是 JSON 结构。<code>go-webauthn</code> 返回 Go 结构体，前端使用的是 SimpleWebAuthn 风格的 JSON。challenge 和 <code>user.id</code> 需要 base64url 编码，<code>pubKeyCredParams</code>、<code>excludeCredentials</code>、<code>authenticatorSelection</code> 需要逐项转换。这部分代码比较繁琐，但只有转换正确，前端才能调用浏览器的 WebAuthn 接口。</p><h2 id="登录验证与-PASETO"><a href="#登录验证与-PASETO" class="headerlink" title="登录验证与 PASETO"></a>登录验证与 PASETO</h2><p>登录时，<code>ValidateLogin</code> 会检查 challenge、RP ID、origin、签名和签名计数器。计数器用于防克隆认证器：如果新断言的计数器没有增加，可能说明同一把私钥被复制到了其他设备。验证通过后更新用户记录，再签发 PASETO。</p><p>选择 PASETO 而不是 JWT，是因为 JWT 的 <code>alg</code> 头由令牌自身声明，攻击者可以将其改为 <code>none</code> 或 <code>HS256</code> 来影响验证逻辑。PASETO 把版本和用途写在令牌前缀中，不存在算法协商。项目使用 <code>v2.public</code>，Ed25519 签名，公钥验证、私钥签发。</p><p>密钥对在网关启动时生成。服务重启后，之前签发的令牌全部失效；如果部署多个实例，每个实例的密钥不同，用户在 A 实例登录、请求落到 B 实例时会被拒绝。对单实例后台来说，重启后强制重新登录可以接受，但这是实现带来的结果，而不是刻意的设计。</p><h2 id="中间件与反向代理"><a href="#中间件与反向代理" class="headerlink" title="中间件与反向代理"></a>中间件与反向代理</h2><p>认证中间件解析 Bearer token，把 payload 放进 Gin 上下文，并将三个身份头写入下游请求。角色中间件检查 <code>admin</code> 角色。反向代理使用 <code>httputil.NewSingleHostReverseProxy</code>，在 <code>Director</code> 中去掉 <code>/api</code> 前缀。当前所有 <code>/api</code> 路由都要求管理员身份。</p><h2 id="配置与边界"><a href="#配置与边界" class="headerlink" title="配置与边界"></a>配置与边界</h2><p>配置里最容易出错的是 RP ID 和 origin。WebAuthn 的 RP ID 必须是注册域名，例如 <code>fifu.fun</code>，不能带协议和路径；origin 才是完整的 <code>https://fifu.fun</code>。项目最初用同一个环境变量同时充当两者，只要变量包含 <code>https://</code>，配置就不合法。浏览器只返回 <code>SecurityError</code>，服务端没有日志。把两者拆开后，配置才稳定下来。环境变量名中的 <code>PDisplayName</code> 拼写也造成过一次部署问题。</p><p>另外两个细节是在写完之后才注意到的。角色权限不足时最初返回 401，前端会据此跳转到登录页，语义上更合适的状态码是 403。业务服务完全信任网关注入的身份头，这一点对部署方式提出了明确要求。</p><p>这个网关的代码量不算大，但涉及 challenge 生命周期、RP ID 与 origin 匹配、用户 ID 稳定性和签名计数器等多个细节，任何一处出错都表现为浏览器端失败。PASETO 的部分相对简单，也更容易确认行为。项目目前作为个人后台的认证层使用。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Go </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Go </tag>
+            
+            <tag> Gin </tag>
+            
+            <tag> WebAuthn </tag>
+            
+            <tag> PASETO </tag>
+            
+            <tag> 认证 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>feach：用 Rust 写一个“在多个目录里执行同一条命令”的小工具</title>
+      <link href="/2026/05/02/rust-feach-cli/"/>
+      <url>/2026/05/02/rust-feach-cli/</url>
+      
+        <content type="html"><![CDATA[<p>我的机器上有几十个仓库，分散在几个目录里。每次更新都需要逐个执行 <code>cd</code> 和 <code>git pull</code>，为此写过 shell 循环，但在 Windows 上经常被路径和引号的问题打断。后来用 Rust 写了 feach，遍历指定目录的子目录，并在每个子目录中执行同一条命令。</p><a id="more"></a><h2 id="参数设计"><a href="#参数设计" class="headerlink" title="参数设计"></a>参数设计</h2><p>参数只有四个：目录、命令、遍历层数、是否并发。命令部分用 clap 的 <code>Vec&lt;String&gt;</code> 配合 <code>num_args = 1..</code>，这样 <code>-c git pull</code> 和 <code>-c &quot;git pull&quot;</code> 都能解析，不需要用户额外加引号。并发开关的字段名写成 <code>r#async</code>，因为 <code>async</code> 从 Rust 2018 起是关键字；clap 会自动把它映射为 <code>--async</code>。</p><h2 id="目录遍历"><a href="#目录遍历" class="headerlink" title="目录遍历"></a>目录遍历</h2><p>遍历使用 <code>walkdir</code>。<code>max_depth</code> 的语义需要确认：<code>max_depth(1)</code> 会同时包含根目录（深度 0）和一级子目录。默认值 <code>-l 1</code> 因此表示“当前目录加直接子目录”，而不是只处理子目录。这个行为符合我批量更新仓库时的需要，所以没有修改。</p><p><code>follow_links(true)</code> 是为了处理放在软链接后面的仓库。开启后遍历可能走出 <code>--dir</code> 的范围，也可能遇到链接环。<code>walkdir</code> 会把这些情况作为错误返回，但代码里的 <code>filter_map(|r| r.ok())</code> 把错误全部丢弃了。有一次扫描到没有权限的目录时，工具没有任何提示，我后来才发现错误在这里被吞掉。</p><h2 id="命令解析"><a href="#命令解析" class="headerlink" title="命令解析"></a>命令解析</h2><p>命令字符串没有交给 <code>sh -c</code> 或 <code>cmd /c</code>，而是自己写了一个简单的分词器，只处理单双引号。原因是 Windows 的 <code>cmd</code> 和 Unix 的 <code>sh</code> 在引号、转义和通配符上的行为差异较大，交给 shell 会导致跨平台行为不一致。这个选择的代价是不支持管道、重定向和 <code>&amp;&amp;</code>，例如 <code>git log | head</code> 无法执行。</p><h2 id="执行与输出捕获"><a href="#执行与输出捕获" class="headerlink" title="执行与输出捕获"></a>执行与输出捕获</h2><p>执行命令时使用 <code>Command::new().current_dir()</code>，不需要先切换目录，并发执行时工作目录也不会相互影响。最初的实现用 <code>spawn().wait_with_output()</code> 获取输出，但打印出来的只有退出状态。原因是 <code>spawn</code> 默认让子进程继承父进程的 stdio，没有设置为 <code>piped</code> 的流不会被捕获。命令的输出实际上直接写到了终端。</p><h2 id="异步模式的问题"><a href="#异步模式的问题" class="headerlink" title="异步模式的问题"></a>异步模式的问题</h2><p>异步模式是这部分里问题最多的。最初的实现只有一行 <code>tokio::spawn</code>，实际运行时，部分命令在 <code>main</code> 返回后没有执行完。原因有两个。</p><p>第一，<code>tokio::spawn</code> 启动的任务不会被等待。主函数把所有任务提交给运行时后立即返回，<code>#[tokio::main]</code> 生成的运行时会随 <code>main</code> 结束而关闭，未完成的任务被丢弃。</p><p>第二，<code>do_command4_dir</code> 内部使用阻塞的 <code>Command::spawn().wait_with_output()</code>。把它放进普通的 <code>tokio::spawn</code> 会占用一个 worker 线程，任务数量增加后线程池会被阻塞，既没有等待结果，也没有实现并发。</p><p>后来查文档时了解到 <code>JoinSet</code> 和 <code>spawn_blocking</code>：阻塞调用应该交给阻塞线程池，主函数需要显式等待所有任务结束。仓库里的代码没有修改，仍保留原来的实现。</p><h2 id="其他细节"><a href="#其他细节" class="headerlink" title="其他细节"></a>其他细节</h2><p>另有一个小问题：<code>Cargo.toml</code> 中的版本是 0.1.2，clap 的 <code>version</code> 却硬编码为 0.1.1，<code>feach -V</code> 显示的是旧版本号。</p><h2 id="使用情况"><a href="#使用情况" class="headerlink" title="使用情况"></a>使用情况</h2><p>feach 现在仍在日常使用，主要用来批量执行 <code>git pull</code> 和 <code>git status</code>。它的实现很小，但把参数解析、目录遍历、进程执行和异步任务这几个部分放在了一起，也让我对 tokio 的任务生命周期有了更具体的认识。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Rust </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Rust </tag>
+            
+            <tag> CLI </tag>
+            
+            <tag> walkdir </tag>
+            
+            <tag> tokio </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Tauri + Rust 实战：把 Windows 回收站改成啵啵猫</title>
+      <link href="/2024/11/05/tauri-rust-popcat/"/>
+      <url>/2024/11/05/tauri-rust-popcat/</url>
+      
+        <content type="html"><![CDATA[<p>这个项目的目标是把 Windows 回收站的图标换成啵啵猫。选择它主要是想找一个具体场景练习 Tauri，同时了解一下 Windows Shell 图标的配置方式。项目使用 Tauri 1.4、Vue 3 和 TypeScript，Rust 侧负责注册表和文件操作。</p><a id="more"></a><h2 id="回收站图标与-CLSID"><a href="#回收站图标与-CLSID" class="headerlink" title="回收站图标与 CLSID"></a>回收站图标与 CLSID</h2><p>我原本以为换图标是替换一张图片，查过资料后才知道回收站不是普通快捷方式，而是由 Shell 通过 CLSID 管理的对象。它的图标配置位于当前用户的注册表下：</p><pre class=" language-text"><code class="language-text">HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\CLSID\  {645FF040-5081-101B-9F08-00AA002F954E}\DefaultIcon</code></pre><p>这个键下有 <code>empty</code> 和 <code>full</code> 两个值，格式是 <code>文件路径,图标索引</code>，负数索引表示按资源 ID 取图标。系统默认指向 <code>imageres.dll</code> 中的两个图标。也就是说，要替换图标，需要提供一个带图标资源的 DLL，而不是 png 或 ico 文件。</p><h2 id="图标-DLL-与权限"><a href="#图标-DLL-与权限" class="headerlink" title="图标 DLL 与权限"></a>图标 DLL 与权限</h2><p>我做了两个约 66KB 的 DLL，各放入一个图标，使用 <code>resource</code> crate 在编译期嵌入可执行文件。运行时将它们释放到 <code>C:\cat_empty.dll</code> 和 <code>C:\cat_full.dll</code>，再把注册表值改成这两个路径。</p><p>选择根目录是为了省事：路径固定，注册表里可以直接写死，不需要处理用户目录展开。代价是写入 <code>C:\</code> 需要管理员权限。程序启动时会尝试释放文件，写成功说明有权限，失败则让前端提示以管理员身份运行。这样权限问题在启动阶段就能暴露，而不是等用户点击按钮后才报错。</p><h2 id="刷新-Explorer"><a href="#刷新-Explorer" class="headerlink" title="刷新 Explorer"></a>刷新 Explorer</h2><p>修改注册表后，桌面不会立刻更新，因为 Explorer 会缓存图标。项目采用的刷新方式是结束 <code>explorer.exe</code> 再重新启动。这个办法比较直接，会关闭所有资源管理器窗口，任务栏也会短暂消失。执行时给 <code>cmd.exe</code> 设置了 <code>CREATE_NO_WINDOW</code>，避免出现控制台窗口。</p><h2 id="界面与命令"><a href="#界面与命令" class="headerlink" title="界面与命令"></a>界面与命令</h2><p>前端只有两张图片：点击猫切换到啵啵猫图标，点击回收站恢复默认。Rust 侧注册了三个命令，图形界面和命令行模式共用 <code>pop_cat</code> 函数。Tauri 的 <code>allowlist</code> 被全部关闭，只保留了 <code>shell.open</code>。</p><h2 id="测试中发现的问题"><a href="#测试中发现的问题" class="headerlink" title="测试中发现的问题"></a>测试中发现的问题</h2><p>测试过程中发现了两个问题。一个是命令行模式：释放 DLL 的逻辑只挂在图形界面的命令里，如果在一台从未打开过界面的机器上直接执行 <code>rust_pop_cat.exe 1</code>，注册表会指向两个不存在的文件，回收站图标变成空白。另一个是权限检查只判断了第一个文件的写入结果，第二个文件写入失败时仍然返回成功，界面会显示权限正常，但回收站的 <code>full</code> 图标没有落地。</p><h2 id="恢复默认"><a href="#恢复默认" class="headerlink" title="恢复默认"></a>恢复默认</h2><p>恢复默认的顺序是先写回 <code>imageres.dll,-55</code> 和 <code>-54</code>，重启 Explorer，再删除两个 DLL。如果用户安装过其他回收站美化工具，写回默认值会覆盖对方的配置，这类工具之间是互斥的。</p><h2 id="项目范围"><a href="#项目范围" class="headerlink" title="项目范围"></a>项目范围</h2><p>这个项目涉及的环节包括 CLSID、<code>DefaultIcon</code> 的路径索引格式、资源内嵌、提权判断、Explorer 刷新和 Tauri 的命令桥接。代码量不大，但把几个原本分散的 Windows 概念串了起来。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Rust </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Rust </tag>
+            
+            <tag> Tauri </tag>
+            
+            <tag> Windows </tag>
+            
+            <tag> Vue </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>用 TypeScript 在 GitHub 贡献图上“作画”：Time Assassin</title>
+      <link href="/2023/04/09/typescript-github-contribution-graph-time-assassin/"/>
+      <url>/2023/04/09/typescript-github-contribution-graph-time-assassin/</url>
+      
+        <content type="html"><![CDATA[<p>GitHub 贡献图是一张按周排列的日期网格，每列 7 天，一年大约 53 列。我写 time_assassin 的出发点很简单：既然每个格子对应一天，能不能先选好日期，再让 Git 在这些日期产生提交。</p><a id="more"></a><h2 id="两个时间戳"><a href="#两个时间戳" class="headerlink" title="两个时间戳"></a>两个时间戳</h2><p>Git 的每个提交有两个时间戳，author date 和 committer date，默认都取自系统时钟。要控制它们，可以修改提交参数，也可以直接修改系统时间。我选择了后者：在 PowerShell 里用 <code>Set-Date</code> 把系统时间设到目标日期，之后正常执行 commit，两个时间戳会一起被改写，无论 GitHub 按哪个口径统计，结果都落在同一天。</p><p>这个做法会影响整台机器的时间，我也清楚这一点。项目定位是一个小工具，使用时需要管理员权限，脚本结束后会通过 <code>w32tm /resync</code> 把时间同步回来。</p><h2 id="网格与日期偏移"><a href="#网格与日期偏移" class="headerlink" title="网格与日期偏移"></a>网格与日期偏移</h2><p>网格的计算比看起来麻烦。1 月 1 日不一定落在第一列第一行，需要根据它在星期中的位置计算偏移。第 <code>iw</code> 列第 <code>id</code> 行对应的日期，距 1 月 1 日有 <code>7 * iw + id - offset</code> 天；负数落在空白格，超过当年天数则落在范围之外。平年 365 天加上最大偏移 6 是 371 格，正好等于 53×7；闰年 366 天加偏移 6 需要 372 格，最后一天会被截掉。</p><p>这个问题是在测试 2024 年时发现的：12 月 31 日的格子点不亮。原因是列数被写死成了 53。我没有修改它，因为工具主要服务于我自己使用的年份，但这是网格计算里一个明确的边界情况。</p><p>日期累加用的是固定 24 小时：</p><pre class=" language-ts"><code class="language-ts"><span class="token keyword">function</span> <span class="token function">addDay</span><span class="token punctuation">(</span>dt<span class="token punctuation">:</span> Date<span class="token punctuation">,</span> dn<span class="token punctuation">:</span> <span class="token keyword">number</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>    <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span>dt<span class="token punctuation">.</span><span class="token function">getTime</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> dn <span class="token operator">*</span> <span class="token number">24</span> <span class="token operator">*</span> <span class="token number">60</span> <span class="token operator">*</span> <span class="token number">60</span> <span class="token operator">*</span> <span class="token number">1000</span><span class="token punctuation">)</span><span class="token punctuation">}</span></code></pre><p>在有夏令时的时区，这种方式会产生漂移。我所在的时区没有夏令时，所以没有遇到问题，但这并不意味着实现是通用的。</p><h2 id="页面交互与导出"><a href="#页面交互与导出" class="headerlink" title="页面交互与导出"></a>页面交互与导出</h2><p>页面上的每个日期渲染成一个 Layui 按钮，<code>title</code> 属性保存 <code>YYYY-MM-DD</code>，点击后在灰色和绿色之间切换。选中的日期可以导出为 JSON，下次导入后继续编辑。生成脚本时，每个日期对应三条操作：设置系统时间、向 <code>checkpoint.log</code> 追加一行、执行 <code>git add</code> 和 <code>git commit</code>，最后统一 push。</p><h2 id="生成的脚本"><a href="#生成的脚本" class="headerlink" title="生成的脚本"></a>生成的脚本</h2><p><code>checkpoint.log</code> 是必要的：如果工作区没有变化，第二次 commit 会直接失败。时间固定为 <code>11:45:14</code>，是为了避开午夜边界，减少时区和夏令时导致日期偏移的可能。脚本开头先执行 <code>net start w32time</code>，因为时间服务未启动时 <code>Set-Date</code> 可能不生效。</p><h2 id="使用范围"><a href="#使用范围" class="headerlink" title="使用范围"></a>使用范围</h2><p>运行这个脚本会向仓库历史写入大量以过去日期为时间戳的提交，而且这些提交会一直保留。我只在一个专门用于画图的仓库里使用它，没有把它用在真实项目上。</p><h2 id="后来才知道的"><a href="#后来才知道的" class="headerlink" title="后来才知道的"></a>后来才知道的</h2><p>后来我注意到 Git 本身支持用 <code>GIT_AUTHOR_DATE</code> 和 <code>GIT_COMMITTER_DATE</code> 为单次提交指定时间，不需要修改系统时钟。已经完成的版本没有改动。如果当时知道这两个变量，实现会简单一些，也不会影响整台机器的时间。</p><h2 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h2><p>现在回看这个项目，主要涉及三部分内容：贡献图的网格布局、Git 的双时间戳，以及系统时钟与 NTP 的相互影响。代码不复杂，但每个部分都有需要确认的边界。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 前端 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> TypeScript </tag>
+            
+            <tag> Git </tag>
+            
+            <tag> GitHub </tag>
+            
+            <tag> 工具 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>用 Rust 从零实现一个 Brainfuck 解释器</title>
+      <link href="/2023/03/31/rust-brainfuck-interpreter/"/>
+      <url>/2023/03/31/rust-brainfuck-interpreter/</url>
+      
+        <content type="html"><![CDATA[<p>写一个 Brainfuck 解释器，是我用来理解虚拟机的一次练习。它只有八条指令、一条数据带和一个指针，代码量不大，适合把取指、译码、执行的循环完整地写一遍。</p><a id="more"></a><h2 id="八条指令与括号匹配"><a href="#八条指令与括号匹配" class="headerlink" title="八条指令与括号匹配"></a>八条指令与括号匹配</h2><p>八条指令里，前六条都是简单的指针和数值操作，<code>[</code> 和 <code>]</code> 需要多考虑一层。第一版我准备在运行时向后扫描、寻找配对的括号，写到一半发现嵌套循环会反复扫描同一段代码，复杂度不理想。后来改成加载时用栈扫描一次，把配对的下标双向存进哈希表：</p><pre class=" language-rust"><code class="language-rust"><span class="token string">'['</span> <span class="token operator">=</span><span class="token operator">></span> stack<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>index<span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token string">']'</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">{</span>    <span class="token keyword">if</span> <span class="token keyword">let</span> <span class="token function">Some</span><span class="token punctuation">(</span>start<span class="token punctuation">)</span> <span class="token operator">=</span> stack<span class="token punctuation">.</span><span class="token function">pop</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>        brackets<span class="token punctuation">.</span><span class="token function">insert</span><span class="token punctuation">(</span>start<span class="token punctuation">,</span> index<span class="token punctuation">)</span><span class="token punctuation">;</span>        brackets<span class="token punctuation">.</span><span class="token function">insert</span><span class="token punctuation">(</span>index<span class="token punctuation">,</span> start<span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token punctuation">}</span><span class="token punctuation">}</span></code></pre><h2 id="指令指针的跳转语义"><a href="#指令指针的跳转语义" class="headerlink" title="指令指针的跳转语义"></a>指令指针的跳转语义</h2><p>主循环里，我一开始把跳转目标写成了配对括号的下一条指令，结果 Hello World 的输出多了一个字符。原因是循环末尾统一执行 <code>instruction_ptr += 1</code>，所以 <code>[</code> 应该跳到配对的 <code>]</code> 本身，<code>]</code> 应该跳回配对的 <code>[</code>，再靠这一次自增落到正确位置。这个问题不大，但让我把指令指针的语义重新理了一遍。</p><h2 id="一个调试用的非标准指令"><a href="#一个调试用的非标准指令" class="headerlink" title="一个调试用的非标准指令"></a>一个调试用的非标准指令</h2><p>调试嵌套循环时，屏幕上只有错误的输出，看不到数据带的状态。我加了一个非标准指令 <code>&amp;</code>，执行时打印当前指针位置和整条数据带。它不属于语言本身，但对定位指针偏移很直接。</p><h2 id="数据带与输入输出"><a href="#数据带与输入输出" class="headerlink" title="数据带与输入输出"></a>数据带与输入输出</h2><p>数据带初始有 32 个 <code>i64</code> 单元格，指针右移越界时执行 <code>push(0)</code>，因此只会向右增长。输入用 <code>read_exact</code> 每次读一个字节，输出用 <code>char::from_u32</code> 加 <code>print!</code>。</p><h2 id="与标准不一致的地方"><a href="#与标准不一致的地方" class="headerlink" title="与标准不一致的地方"></a>与标准不一致的地方</h2><p>输出这一处后来出了问题。运行一个会产生负值的程序时，解释器 panic 了：<code>-1 as u32</code> 得到 4294967295，<code>from_u32</code> 返回 <code>None</code>，随后的 <code>expect</code> 终止了进程。标准里 <code>.</code> 的语义是写一个字节，而我实现的是输出一个 Unicode 字符。两者在 ASCII 范围内看不出区别，超出以后就不一样了。</p><p>单元格类型也有类似的情况。我选了 <code>i64</code>，考虑的是避免溢出；标准 Brainfuck 的单元格通常是 8 位无符号数，255 加一会回绕成 0。有些程序依赖这种回绕，用 <code>i64</code> 反而对不上。</p><p>数据指针左移时同样有边界问题。在 0 号格执行 <code>&lt;</code>，debug 模式下 <code>usize</code> 会因减法下溢 panic，release 模式会回绕成 <code>usize::MAX</code>，下一次访问仍然崩溃。我没有加检查，因为当时只把它当作学习项目，但这个行为后来一直记得。</p><p>括号不匹配没有在加载阶段校验。孤立的 <code>]</code> 会被静默忽略，未闭合的 <code>[</code> 要到运行时查表才以 “key not found” 失败，错误信息里也没有源码位置。</p><h2 id="整体结构"><a href="#整体结构" class="headerlink" title="整体结构"></a>整体结构</h2><p>整个解释器不到 150 行，没有第三方依赖。它不算严格符合标准，但包含了虚拟机的基本结构：指令指针、数据指针、内存、跳转表和 I/O。写完这个版本之后，再看栈式虚拟机和字节码解释器，结构就清楚了很多。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Rust </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Rust </tag>
+            
+            <tag> Brainfuck </tag>
+            
+            <tag> 解释器 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>密码破解与心理学</title>
       <link href="/2021/11/25/%E5%AF%86%E7%A0%81%E7%A0%B4%E8%A7%A3%E4%B8%8E%E5%BF%83%E7%90%86%E5%AD%A6/"/>
       <url>/2021/11/25/%E5%AF%86%E7%A0%81%E7%A0%B4%E8%A7%A3%E4%B8%8E%E5%BF%83%E7%90%86%E5%AD%A6/</url>
@@ -41,11 +229,11 @@
       
         <tags>
             
-            <tag> Hexo </tag>
+            <tag> Linux </tag>
             
             <tag> 转载 </tag>
             
-            <tag> Linux </tag>
+            <tag> Hexo </tag>
             
         </tags>
       
@@ -70,9 +258,9 @@
       
         <tags>
             
-            <tag> 转载 </tag>
-            
             <tag> Linux </tag>
+            
+            <tag> 转载 </tag>
             
         </tags>
       
@@ -97,11 +285,11 @@
       
         <tags>
             
-            <tag> 转载 </tag>
-            
             <tag> Linux </tag>
             
             <tag> 搭建教程 </tag>
+            
+            <tag> 转载 </tag>
             
         </tags>
       
@@ -153,9 +341,9 @@
       
         <tags>
             
-            <tag> Hexo </tag>
-            
             <tag> 转载 </tag>
+            
+            <tag> Hexo </tag>
             
         </tags>
       

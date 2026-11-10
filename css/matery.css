@@ -250,11 +250,11 @@ mark {
 }
 
 .bg-color {
-    background-image: linear-gradient(to right, #d53b30 0%, #398bcd 100%);
+    background-image: linear-gradient(to right, #4cbf30 0%, #0f9d58 100%);
 }
 
 .text-color {
-    color: #398bcd !important;
+    color: #0f9d58 !important;
 }
 
 .white-color {
@@ -266,7 +266,7 @@ mark {
     position: fixed;
     bottom: 0;
     z-index: 300;
-    background: linear-gradient(to right, #d53b30 0%, #398bcd 100%);
+    background: linear-gradient(to right, #4cbf30 0%, #0f9d58 100%);
     opacity: 0.8;
 }
 
@@ -298,15 +298,14 @@ header nav .brand-span {
     font-size: 1.45rem;
 }
 
-header .brand-logo .logo-img{
+header .brand-logo .logo-img {
     height: 45px;
     vertical-align: middle;
     padding-bottom: 6px;
-	border-radius: 50%;
 }
 
 header .brand-logo .logo-span {
-    font-size: 1.35rem;
+    font-size: 2rem;
 }
 
 /*修改顶部 logo 的文字垂直对齐为 top，避免默认 middle 看起来偏下*/
@@ -338,7 +337,7 @@ header .side-nav .mobile-head .logo-desc {
     margin-top: -10px;
     padding-left: 10px;
     padding-bottom: 10px;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     line-height: 1.3rem;
     color: #e3e3e3;
 }
@@ -585,15 +584,15 @@ header .go-back i {
 }
 
 .bg-cover .title {
-    font-size: 2.3rem;
-    line-height: 43px;
+    font-size: 4rem;
+    line-height: 1.85em;
     margin-bottom: 20px;
     position: relative;
 }
 
 .bg-cover .description {
     font-weight: 300;
-    font-size: 1rem;
+    font-size: 1.25rem;
     line-height: 1.4em;
     color: #eee;
 }
@@ -1311,7 +1310,7 @@ thead {
 
 .chip-container .chip:hover {
     color: #fff;
-    background: linear-gradient(to right, #d53b30 0%, #398bcd 100%) !important;
+    background: linear-gradient(to right, #4cbf30 0%, #0f9d58 100%) !important;
 }
 
 .chip .tag-length {
@@ -1387,7 +1386,7 @@ thead {
     left: 18px;
     height: 100%;
     width: 4px;
-    background: #398bcd;
+    background: #0f9d58;
 }
 
 @media only screen and (min-width: 900px) {
@@ -1623,8 +1622,8 @@ thead {
     margin: 0 0.5rem;
     padding: 0;
     color: #fff;
-    border: 1px solid #398bcd;
-    background: radial-gradient(#d53b30, #398bcd);
+    border: 1px solid #0f9d58;
+    background: radial-gradient(#4cbf30, #0f9d58);
     font-size: 0.9rem;
     border-radius: 50%;
     box-shadow: 0 4px 6px rgba(50, 50, 93, .21), 0 2px 3px rgba(0, 0, 0, .1);
@@ -1800,8 +1799,8 @@ thead {
 
 .other-skills .chip:hover {
     color: #fff;
-    background: linear-gradient(to right, #d53b30 0%, #398bcd 100%);
-    border: 1px solid #d53b30;
+    background: linear-gradient(to right, #4cbf30 0%, #0f9d58 100%);
+    border: 1px solid #4cbf30;
     box-shadow: 0 5px 5px rgba(0, 0, 0, .25)
 }
 
