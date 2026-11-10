@@ -101,6 +101,11 @@ ignore:
 ## Themes: https://hexo.io/themes/
 theme: matery
 
+# Theme overrides
+theme_config:
+  reward:
+    enable: false
+
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 # https://gitee.com/nekokecore/nekokecore.git
