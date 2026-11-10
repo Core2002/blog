@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "hexo": "^8.1.2",
-    "hexo-asset-image": "git+https://github.com/CodeFalling/hexo-asset-image.git",
     "hexo-deployer-git": "^4.0.0",
     "hexo-generator-archive": "^2.0.0",
     "hexo-generator-category": "^2.0.0",
@@ -29,5 +28,10 @@
   },
   "engines": {
     "node": ">=20.19.0"
+  },
+  "allowScripts": {
+    "hexo-util@3.3.0": true,
+    "hexo-util@2.7.0": true,
+    "hexo-util@4.0.0": true
   }
 }
