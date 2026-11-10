@@ -565,7 +565,7 @@ screen-4.0.3-4.el5
 <h2 id="6-3-发送命令到screen会话"><a href="#6-3-发送命令到screen会话" class="headerlink" title="6.3 发送命令到screen会话"></a>6.3 发送命令到screen会话</h2><p>在Screen会话之外，可以通过screen命令操作一个Screen会话，这也为使用Screen作为脚本程序增加了便利。关于Screen在脚本中的应用超出了入门的范围，这里只看一个例子，体会一下在会话之外对Screen的操作：</p>
 <pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@TS-DEV ~<span class="token punctuation">]</span><span class="token comment"># screen -S sandy -X screen ping www.baidu.com</span></code></pre>
 <p>这个命令在一个叫做sandy的screen会话中创建一个新窗口，并在其中运行ping命令。</p>
-<h2 id="6-4-屏幕分割"><a href="#6-4-屏幕分割" class="headerlink" title="6.4 屏幕分割"></a>6.4 屏幕分割</h2><p>现在显示器那么大，将一个屏幕分割成不同区域显示不同的Screen窗口显然是个很酷的事情。可以使用快捷键<code>C-a s</code>将显示器水平分割，Screen 4.00.03版本以后，也支持垂直分屏，快捷键是C-a |。分屏以后，可以使用C-a <tab>在各个区块间切换，每一区块上都可以创建窗口并在其中运行进程。</tab></p>
+<h2 id="6-4-屏幕分割"><a href="#6-4-屏幕分割" class="headerlink" title="6.4 屏幕分割"></a>6.4 屏幕分割</h2><p>现在显示器那么大，将一个屏幕分割成不同区域显示不同的Screen窗口显然是个很酷的事情。可以使用快捷键<code>C-a s</code>将显示器水平分割，Screen 4.00.03版本以后，也支持垂直分屏，快捷键是C-a |。分屏以后，可以使用C-a &lt;tab&gt;在各个区块间切换，每一区块上都可以创建窗口并在其中运行进程。</p>
 <p>可以用C-a X快捷键关闭当前焦点所在的屏幕区块，也可以用C-a Q关闭除当前区块之外其他的所有区块。关闭的区块中的窗口并不会关闭，还可以通过窗口切换找到它。</p>
 <h2 id="6-5-C-P模式和操作"><a href="#6-5-C-P模式和操作" class="headerlink" title="6.5 C&#x2F;P模式和操作"></a>6.5 C&#x2F;P模式和操作</h2><p>screen的另一个很强大的功能就是可以在不同窗口之间进行复制粘贴了。使用快<code>捷C-a键 &lt;Esc&gt;</code>或者<code>C-a [</code>可以进入<code>copy/paste</code>模式，这个模式下可以像在vi中一样移动光标，并可以使用空格键设置标记。其实在这个模式下有很多类似vi的操作，譬如使用<code>/</code>进行搜索，使用<code>y</code>快速标记一行，使用w快速标记一个单词等。关于C&#x2F;P模式下的高级操作，其文档的这一部分有比较详细的说明。</p>
 <p>一般情况下，可以移动光标到指定位置，按下空格设置一个开头标记，然后移动光标到结尾位置，按下空格设置第二个标记，同时会将两个标记之间的部分储存在copy&#x2F;paste buffer中，并退出copy&#x2F;paste模式。在正常模式下，可以使用快捷键C-a ]将储存在buffer中的内容粘贴到当前窗口。</p>
