@@ -30,7 +30,9 @@
     contentLoading: false,
     lightbox: null,
     gPending: false,
-    gTimer: 0
+    gTimer: 0,
+    spacePending: false,
+    spaceTimer: 0
   };
 
   /* ------------------------------- helpers -------------------------------- */
@@ -383,7 +385,7 @@
     { id: 'about', title: '关于我', desc: '个人资料与站点信息', key: 'g o', icon: 'i-user', action: function () { go(routes.about); } },
     { id: 'friends', title: '友链', desc: '互联网邻居们', key: 'g f', icon: 'i-link', action: function () { go(routes.friends); } },
     { id: 'contact', title: '联系', desc: '公开的联系方式', key: 'g m', icon: 'i-envelope', action: function () { go(routes.contact); } },
-    { id: 'tree', title: '切换文件树', desc: '显示或隐藏 neo-tree 侧栏', key: 'Ctrl+B', icon: 'i-layout', action: toggleTree },
+    { id: 'tree', title: '切换文件树', desc: 'Space e / Ctrl B 显示或隐藏 neo-tree 侧栏', key: 'Space e', icon: 'i-layout', action: toggleTree },
     { id: 'top', title: '回到顶部', desc: '滚动到 buffer 第一行', key: 'g g', icon: 'i-arrow-up', action: function () { scrollTop(); } },
     { id: 'copy', title: '复制当前链接', desc: '把当前页面地址放到剪贴板', key: ':copy', icon: 'i-copy', action: copyCurrentLink },
     { id: 'github', title: '打开 GitHub', desc: '源码仓库', key: ':github', icon: 'i-github', action: function () { if (routes.github) window.open(routes.github, '_blank', 'noopener'); } }
@@ -399,6 +401,7 @@
   var helpRows = [
     { id: 'hjkl', title: 'j / k', desc: '向下 / 向上滚动 buffer', key: 'j k', icon: 'i-arrow-up', action: null },
     { id: 'gg', title: 'gg / G', desc: '跳到 buffer 顶部 / 底部', key: 'g g', icon: 'i-arrow-up', action: null },
+    { id: 'space-e', title: 'Space e', desc: '显示 / 隐藏 neo-tree 侧栏', key: '', icon: 'i-layout', action: null },
     { id: 'esc', title: 'Esc', desc: '关闭面板、抽屉或灯箱', key: 'Esc', icon: 'i-close', action: null }
   ];
 
@@ -955,6 +958,12 @@
     state.gTimer = 0;
   }
 
+  function clearSpacePrefix() {
+    state.spacePending = false;
+    if (state.spaceTimer) window.clearTimeout(state.spaceTimer);
+    state.spaceTimer = 0;
+  }
+
   function initKeyboard() {
     document.addEventListener('keydown', function (event) {
       if (event.defaultPrevented || event.isComposing) return;
@@ -982,6 +991,23 @@
       }
 
       if (isTyping(event.target) || event.altKey) return;
+
+      if (state.spacePending) {
+        clearSpacePrefix();
+        if (key === 'e' || key === 'E') {
+          event.preventDefault();
+          toggleTree();
+        }
+        return;
+      }
+
+      if (key === ' ' || key === 'Spacebar') {
+        event.preventDefault();
+        if (event.repeat) return;
+        state.spacePending = true;
+        state.spaceTimer = window.setTimeout(clearSpacePrefix, 1000);
+        return;
+      }
 
       if (state.gPending) {
         clearGPrefix();
