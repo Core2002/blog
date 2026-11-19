@@ -1307,6 +1307,7 @@ body.mode-command .sl-mode { background: var(--yellow); }
 body.mode-search .sl-mode { background: var(--purple); }
 body.mode-insert .sl-mode { background: var(--green); }
 body.mode-help .sl-mode { background: var(--cyan); }
+body.mode-visual .sl-mode { background: var(--red); }
 .sl-seg {
   display: inline-flex;
   align-items: center;
@@ -1757,6 +1758,42 @@ body.mode-help .sl-mode { background: var(--cyan); }
 @media (max-width: 1024px) { .sidebar .sidebar-close { display: inline-grid; } }
 
 
+/* ------------------------------- vi find -------------------------------- */
+.vi-find {
+  position: fixed;
+  top: 78px;
+  left: 50%;
+  z-index: 180;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: min(380px, calc(100vw - 24px));
+  padding: 8px 11px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--bg-panel);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, .38);
+}
+.vi-find[hidden] { display: none; }
+.vi-find-prefix { color: var(--green); font-size: 13px; line-height: 1; }
+.vi-find-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  caret-color: var(--blue);
+}
+.vi-find-hint { flex: 0 0 auto; color: var(--muted-2); font-size: 8px; white-space: nowrap; }
+@media (max-width: 760px) {
+  .vi-find { top: 74px; right: 10px; left: 10px; width: auto; transform: none; }
+  .vi-find-hint { display: none; }
+}
+
 /* ------------------------------ overlays -------------------------------- */
 body.palette-open .viewport,
 body.lightbox-open .viewport,
@@ -1937,7 +1974,7 @@ body.lightbox-open .app { filter: blur(1px) brightness(.8); }
 /* -------------------------------- print --------------------------------- */
 @media print {
   html, body { height: auto; overflow: visible; background: #fff; color: #111; }
-  .sidebar, .tabline, .winbar, .statusline, .outline, .palette-layer,
+  .sidebar, .tabline, .winbar, .statusline, .outline, .palette-layer, .vi-find,
   .drawer-backdrop, .skip-link, .post-actions, .post-nav, .block-cursor { display: none !important; }
   .app, .workspace, .viewport { display: block; height: auto; overflow: visible; background: #fff; }
   .buffer-shell, body.has-outline .buffer-shell { display: block; max-width: none; padding: 0; }

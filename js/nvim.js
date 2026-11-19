@@ -32,7 +32,23 @@
     gPending: false,
     gTimer: 0,
     spacePending: false,
-    spaceTimer: 0
+    spaceTimer: 0,
+    viMode: 'normal',
+    count: '',
+    findOpen: false,
+    findQuery: '',
+    findBackward: false,
+    findBar: null,
+    findInput: null,
+    visual: false,
+    visualBlocks: [],
+    visualAnchor: 0,
+    visualIndex: 0,
+    marks: {},
+    markPending: null,
+    markTimer: 0,
+    yPending: false,
+    yTimer: 0
   };
 
   /* ------------------------------- helpers -------------------------------- */
@@ -74,11 +90,26 @@
   }
 
   function setMode(mode) {
-    var labels = { normal: 'NORMAL', command: 'COMMAND', search: 'SEARCH', help: 'HELP', insert: 'INSERT' };
+    state.viMode = mode || 'normal';
+    var labels = { normal: 'NORMAL', visual: 'VISUAL', command: 'COMMAND', search: 'SEARCH', help: 'HELP', insert: 'INSERT' };
     var modeEl = $('#sl-mode');
-    body.classList.remove('mode-command', 'mode-search', 'mode-help', 'mode-insert');
+    body.classList.remove('mode-command', 'mode-search', 'mode-help', 'mode-insert', 'mode-visual');
     if (mode && mode !== 'normal') body.classList.add('mode-' + mode);
-    if (modeEl) modeEl.textContent = labels[mode] || 'NORMAL';
+    if (modeEl) {
+      var label = labels[mode] || 'NORMAL';
+      if (state.count && mode === 'normal') label += ' ' + state.count;
+      modeEl.textContent = label;
+    }
+  }
+
+  function refreshModeLabel() {
+    var modeEl = $('#sl-mode');
+    if (!modeEl) return;
+    if (state.viMode === 'normal') {
+      modeEl.textContent = state.count ? 'NORMAL ' + state.count : 'NORMAL';
+    } else if (state.viMode === 'visual') {
+      modeEl.textContent = state.count ? 'VISUAL ' + state.count : 'VISUAL';
+    }
   }
 
   function toast(message) {
@@ -96,10 +127,7 @@
     el._timer = setTimeout(function () { el.classList.remove('is-visible'); }, 1800);
   }
 
-  function copyText(text) {
-    if (navigator.clipboard && window.isSecureContext) {
-      return navigator.clipboard.writeText(text);
-    }
+  function fallbackCopy(text) {
     return new Promise(function (resolve, reject) {
       var area = document.createElement('textarea');
       area.value = text;
@@ -111,6 +139,15 @@
       catch (err) { reject(err); }
       finally { document.body.removeChild(area); }
     });
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).catch(function () {
+        return fallbackCopy(text);
+      });
+    }
+    return fallbackCopy(text);
   }
 
   function copyCurrentLink() {
@@ -377,15 +414,15 @@
 
   /* --------------------------- palette commands --------------------------- */
   var commands = [
-    { id: 'search', title: '搜索文章', desc: '按标题、标签或路径搜索所有文件', key: '/', icon: 'i-search', action: function () { openPalette('search'); } },
+    { id: 'search', title: '搜索文章', desc: '打开站点搜索面板（/ 用于页面内查找）', key: ':search', icon: 'i-search', action: function () { openPalette('search'); } },
     { id: 'home', title: '回到首页', desc: '打开 README.md buffer', key: 'g h', icon: 'i-home', action: function () { go(routes.home); } },
     { id: 'archives', title: '打开归档', desc: '按年份浏览全部文章', key: 'g a', icon: 'i-book', action: function () { go(routes.archives); } },
     { id: 'categories', title: '打开分类', desc: '按目录浏览文章', key: 'g c', icon: 'i-folder', action: function () { go(routes.categories); } },
-    { id: 'tags', title: '打开标签', desc: '全部标签与文章数', key: 'g t', icon: 'i-tag', action: function () { go(routes.tags); } },
+    { id: 'tags', title: '打开标签', desc: '全部标签与文章数', key: 'g x', icon: 'i-tag', action: function () { go(routes.tags); } },
     { id: 'about', title: '关于我', desc: '个人资料与站点信息', key: 'g o', icon: 'i-user', action: function () { go(routes.about); } },
     { id: 'friends', title: '友链', desc: '互联网邻居们', key: 'g f', icon: 'i-link', action: function () { go(routes.friends); } },
     { id: 'contact', title: '联系', desc: '公开的联系方式', key: 'g m', icon: 'i-envelope', action: function () { go(routes.contact); } },
-    { id: 'tree', title: '切换文件树', desc: 'Space e / Ctrl B 显示或隐藏 neo-tree 侧栏', key: 'Space e', icon: 'i-layout', action: toggleTree },
+    { id: 'tree', title: '切换文件树', desc: 'Space e 显示或隐藏 neo-tree 侧栏', key: 'Space e', icon: 'i-layout', action: toggleTree },
     { id: 'top', title: '回到顶部', desc: '滚动到 buffer 第一行', key: 'g g', icon: 'i-arrow-up', action: function () { scrollTop(); } },
     { id: 'copy', title: '复制当前链接', desc: '把当前页面地址放到剪贴板', key: ':copy', icon: 'i-copy', action: copyCurrentLink },
     { id: 'github', title: '打开 GitHub', desc: '源码仓库', key: ':github', icon: 'i-github', action: function () { if (routes.github) window.open(routes.github, '_blank', 'noopener'); } }
@@ -398,11 +435,38 @@
     });
   }
 
+  commands.push(
+    { id: 'quit', title: '关闭当前 buffer', desc: '回到 README（:q / :bd）', key: ':q', icon: 'i-close', action: function () { go(routes.home); } },
+    { id: 'next-buffer', title: '下一个 buffer', desc: '切换到下一个已打开文件（gt）', key: ':bn', icon: 'i-arrow-right', action: function () { cycleTab(1); } },
+    { id: 'prev-buffer', title: '上一个 buffer', desc: '切换到上一个已打开文件（gT）', key: ':bp', icon: 'i-arrow-left', action: function () { cycleTab(-1); } },
+    { id: 'help', title: '打开 vi keymap', desc: '查看完整快捷键（g?）', key: ':help', icon: 'i-info', action: function () { openPalette('help'); } },
+    { id: 'noh', title: '取消高亮 / 选择', desc: '清除页面内查找的选中文本（:noh）', key: ':noh', icon: 'i-eye', action: function () {
+        var selection = window.getSelection();
+        if (selection) selection.removeAllRanges();
+        toast('已清除选择');
+      } },
+    { id: 'marks', title: '查看标记', desc: '列出当前页面设置过的标记（:marks）', key: ':marks', icon: 'i-hash', action: function () {
+        var keys = Object.keys(state.marks);
+        toast(keys.length ? '标记：' + keys.join(' ') : '还没有设置标记');
+      } }
+  );
+
   var helpRows = [
-    { id: 'hjkl', title: 'j / k', desc: '向下 / 向上滚动 buffer', key: 'j k', icon: 'i-arrow-up', action: null },
-    { id: 'gg', title: 'gg / G', desc: '跳到 buffer 顶部 / 底部', key: 'g g', icon: 'i-arrow-up', action: null },
+    { id: 'jk', title: 'j / k', desc: '向下 / 向上滚动（可带数字）', key: 'j k', icon: 'i-arrow-up', action: null },
+    { id: 'hl', title: 'h / l', desc: '上一个 / 下一个 buffer', key: 'h l', icon: 'i-arrow-left', action: null },
+    { id: 'wb', title: 'w / b', desc: '下一个 / 上一个标题', key: 'w b', icon: 'i-arrow-right', action: null },
+    { id: 'gg', title: 'gg / G', desc: '跳到页面顶部 / 底部', key: 'g g', icon: 'i-arrow-up', action: null },
+    { id: 'hml', title: 'H / M / L', desc: '第一个 / 中间 / 最后一个标题', key: 'H M L', icon: 'i-arrow-up', action: null },
+    { id: 'half', title: 'Ctrl d / u', desc: '向下 / 向上半页', key: 'Ctrl+d/u', icon: 'i-arrow-up', action: null },
+    { id: 'page', title: 'Ctrl f / b', desc: '向下 / 向上一页', key: 'Ctrl+f/b', icon: 'i-arrow-up', action: null },
+    { id: 'gt', title: 'gt / gT', desc: '下一个 / 上一个 buffer', key: 'g t', icon: 'i-arrow-right', action: null },
+    { id: 'find', title: '/ · ?', desc: '页面内向后 / 向前查找', key: '/ ?', icon: 'i-search', action: null },
+    { id: 'repeat', title: 'n / N', desc: '重复查找（同向 / 反向）', key: 'n N', icon: 'i-search', action: null },
+    { id: 'visual', title: 'v / V', desc: '按段落选择，j/k 扩展，y 复制', key: 'v', icon: 'i-file-text', action: null },
+    { id: 'yank', title: 'y / yy / Y', desc: '复制当前段落（页面只读，不删除）', key: 'y y', icon: 'i-copy', action: null },
+    { id: 'marks', title: "m / '", desc: '设置 / 跳转当前页面标记', key: 'm a', icon: 'i-hash', action: null },
     { id: 'space-e', title: 'Space e', desc: '显示 / 隐藏 neo-tree 侧栏', key: '', icon: 'i-layout', action: null },
-    { id: 'esc', title: 'Esc', desc: '关闭面板、抽屉或灯箱', key: 'Esc', icon: 'i-close', action: null }
+    { id: 'esc', title: 'Esc', desc: '取消计数、选择或关闭面板', key: 'Esc', icon: 'i-close', action: null }
   ];
 
   var palette = $('#palette');
@@ -938,6 +1002,12 @@
     var chips = $$('.tag-chip', cloud);
     var empty = $('#tag-empty');
     var count = $('#tag-filter-count');
+    input.addEventListener('focus', function () {
+      if (!state.paletteOpen && !state.findOpen) setMode('insert');
+    });
+    input.addEventListener('blur', function () {
+      if (!state.paletteOpen && !state.findOpen) setMode(state.visual ? 'visual' : 'normal');
+    });
     input.addEventListener('input', function () {
       var query = input.value.trim().toLowerCase();
       var visible = 0;
@@ -951,90 +1021,734 @@
     });
   }
 
-  /* ------------------------------ keyboard -------------------------------- */
-  function clearGPrefix() {
-    state.gPending = false;
-    if (state.gTimer) window.clearTimeout(state.gTimer);
-    state.gTimer = 0;
+  /* ------------------------------ vi keyboard ----------------------------- */
+  var LINE_HEIGHT = 24;
+  var FIND_KEY = 'nvim.find.v1';
+
+  function pushCount(key) {
+    if (state.count.length >= 4) return;
+    state.count += key;
+    refreshModeLabel();
   }
 
-  function clearSpacePrefix() {
-    state.spacePending = false;
-    if (state.spaceTimer) window.clearTimeout(state.spaceTimer);
-    state.spaceTimer = 0;
+  function takeCount() {
+    var n = parseInt(state.count, 10);
+    state.count = '';
+    refreshModeLabel();
+    return (!n || n < 1) ? 1 : n;
   }
 
-  function initKeyboard() {
-    document.addEventListener('keydown', function (event) {
-      if (event.defaultPrevented || event.isComposing) return;
-      var key = event.key;
+  function clearCount() {
+    if (!state.count) return;
+    state.count = '';
+    refreshModeLabel();
+  }
 
-      if (event.ctrlKey || event.metaKey) {
-        if (key === 'k' || key === 'K') {
-          event.preventDefault();
-          if (state.paletteOpen) closePalette(); else openPalette('command');
-        } else if (key === 'b' || key === 'B') {
-          event.preventDefault();
-          toggleTree();
-        }
-        return;
-      }
+  function scrollLines(lines) {
+    if (!viewport) return;
+    viewport.scrollBy({ top: lines * LINE_HEIGHT });
+  }
 
-      if (state.paletteOpen) {
-        if (key === 'Escape') closePalette();
-        return;
-      }
+  function pageScroll(pages) {
+    if (!viewport) return;
+    viewport.scrollBy({ top: pages * viewport.clientHeight });
+  }
 
-      if (state.lightbox) {
-        if (key === 'Escape') closeLightbox();
-        return;
-      }
+  function headingEls() {
+    return $$('#content h1, #content h2, #content h3, #content h4')
+      .filter(function (el) { return el.offsetParent !== null; });
+  }
 
-      if (isTyping(event.target) || event.altKey) return;
+  function headingOffset(el) {
+    return viewport.scrollTop + el.getBoundingClientRect().top -
+      viewport.getBoundingClientRect().top;
+  }
 
-      if (state.spacePending) {
-        clearSpacePrefix();
-        if (key === 'e' || key === 'E') {
-          event.preventDefault();
-          toggleTree();
-        }
-        return;
-      }
+  function jumpToHeading(index) {
+    var headings = headingEls();
+    var el = headings[index];
+    if (!el) return;
+    viewport.scrollTo({ top: Math.max(0, headingOffset(el) - 16), behavior: 'auto' });
+  }
 
-      if (key === ' ' || key === 'Spacebar') {
+  function moveHeading(direction, count) {
+    var headings = headingEls();
+    if (!headings.length) {
+      toast('本页没有可跳转的标题');
+      return;
+    }
+    var current = viewport.scrollTop;
+    var index = -1;
+    for (var i = 0; i < headings.length; i += 1) {
+      var offset = headingOffset(headings[i]);
+      if (direction > 0 && offset > current + 6) { index = i; break; }
+      if (direction < 0 && offset < current - 6) index = i;
+    }
+    if (index === -1) {
+      toast(direction > 0 ? '已经是最后一个标题' : '已经是第一个标题');
+      return;
+    }
+    index += direction * (count - 1);
+    index = Math.max(0, Math.min(headings.length - 1, index));
+    jumpToHeading(index);
+  }
+
+  function firstHeading() { jumpToHeading(0); }
+  function lastHeading() { jumpToHeading(headingEls().length - 1); }
+  function middleHeading() { jumpToHeading(Math.floor((headingEls().length - 1) / 2)); }
+
+  function tabLinks() {
+    return $$('#buffer-tabs a[href]');
+  }
+
+  function cycleTab(delta) {
+    var links = tabLinks();
+    if (!links.length) return;
+    var count = takeCount();
+    var current = window.location.pathname;
+    var index = -1;
+    for (var i = 0; i < links.length; i += 1) {
+      try {
+        if (new URL(links[i].href).pathname === current) { index = i; break; }
+      } catch (err) {}
+    }
+    if (index === -1) index = 0;
+    var next = (index + delta * count) % links.length;
+    if (next < 0) next += links.length;
+    go(links[next].getAttribute('href'));
+  }
+
+  /* ------------------------------- find ----------------------------------- */
+  function ensureFindBar() {
+    if (state.findBar) return;
+    var bar = document.createElement('div');
+    bar.className = 'vi-find';
+    bar.id = 'vi-find';
+    bar.hidden = true;
+    bar.innerHTML = '<span class="vi-find-prefix" id="vi-find-prefix">/</span>' +
+      '<input id="vi-find-input" class="vi-find-input" type="text" autocomplete="off" spellcheck="false" aria-label="页面内查找">' +
+      '<span class="vi-find-hint">Enter 查找 · Esc 关闭</span>';
+    document.body.appendChild(bar);
+    state.findBar = bar;
+    state.findInput = $('#vi-find-input', bar);
+    state.findInput.addEventListener('keydown', function (event) {
+      event.stopPropagation();
+      if (event.key === 'Enter') {
         event.preventDefault();
-        if (event.repeat) return;
-        state.spacePending = true;
-        state.spaceTimer = window.setTimeout(clearSpacePrefix, 1000);
-        return;
-      }
-
-      if (state.gPending) {
-        clearGPrefix();
-        var targets = {
-          h: routes.home, a: routes.archives, c: routes.categories, t: routes.tags,
-          f: routes.friends, o: routes.about, m: routes.contact
-        };
-        if (key === 'g') { event.preventDefault(); scrollTop(); return; }
-        if (targets[key]) { event.preventDefault(); go(targets[key]); return; }
-        return;
-      }
-
-      if (key === 'g') {
-        state.gPending = true;
-        state.gTimer = window.setTimeout(clearGPrefix, 1000);
-        return;
-      }
-      if (key === 'G') { event.preventDefault(); scrollBottom(); return; }
-      if (key === 'j') { event.preventDefault(); if (viewport) viewport.scrollBy({ top: 88 }); return; }
-      if (key === 'k') { event.preventDefault(); if (viewport) viewport.scrollBy({ top: -88 }); return; }
-      if (key === '/') { event.preventDefault(); openPalette('search'); return; }
-      if (key === ':') { event.preventDefault(); openPalette('command'); return; }
-      if (key === '?') { event.preventDefault(); openPalette('help'); return; }
-      if (key === 'Escape') {
-        if (body.classList.contains('drawer-open')) setDrawer(false);
+        executeFind(state.findBackward);
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        closeFind();
       }
     });
+  }
+
+  function openFind(backward) {
+    ensureFindBar();
+    state.findOpen = true;
+    state.findBackward = Boolean(backward);
+    state.findBar.hidden = false;
+    $('#vi-find-prefix').textContent = backward ? '?' : '/';
+    state.findInput.value = state.findQuery || '';
+    setMode('search');
+    state.findInput.focus();
+    state.findInput.select();
+  }
+
+  function closeFind() {
+    if (!state.findOpen) return;
+    state.findOpen = false;
+    if (state.findBar) state.findBar.hidden = true;
+    if (state.findInput) state.findInput.blur();
+    setMode(state.visual ? 'visual' : 'normal');
+  }
+
+  function persistFind() {
+    try {
+      sessionStorage.setItem(FIND_KEY, JSON.stringify({
+        query: state.findQuery,
+        backward: state.findBackward
+      }));
+    } catch (err) {}
+  }
+
+  function executeFind(backward) {
+    var input = state.findInput;
+    var query = input.value.trim();
+    if (!query) { closeFind(); return; }
+    if (typeof window.find !== 'function') {
+      toast('当前浏览器不支持页面内查找');
+      return;
+    }
+    state.findQuery = query;
+    state.findBackward = Boolean(backward);
+    persistFind();
+
+    // Hide the prompt before searching so the query does not match the input
+    // itself, and start from a clean page selection.
+    state.findBar.hidden = true;
+    input.blur();
+    var selection = window.getSelection();
+    if (selection) selection.removeAllRanges();
+
+    var found = false;
+    try {
+      found = window.find(query, false, Boolean(backward), true, false, false, false);
+    } catch (err) {
+      found = false;
+    }
+
+    if (!found) {
+      state.findBar.hidden = false;
+      setMode('search');
+      input.focus();
+      input.select();
+      toast('未找到：' + query);
+      return;
+    }
+
+    state.findOpen = false;
+    setMode('normal');
+  }
+
+  function repeatFind(opposite) {
+    if (!state.findQuery) {
+      toast('没有可重复的搜索');
+      return;
+    }
+    if (typeof window.find !== 'function') {
+      toast('当前浏览器不支持页面内查找');
+      return;
+    }
+    var backward = opposite ? !state.findBackward : state.findBackward;
+    var found = false;
+    try {
+      found = window.find(state.findQuery, false, backward, true, false, false, false);
+    } catch (err) {
+      found = false;
+    }
+    if (!found) toast('未找到：' + state.findQuery);
+  }
+
+  /* ------------------------------ visual ---------------------------------- */
+  function contentBlocks() {
+    var selector = [
+      'h1', 'h2', 'h3', 'h4', 'p', 'li', 'pre', 'blockquote', 'figcaption', 'tr',
+      '.file-row', '.dir-card', '.friend-card', '.archive-year',
+      '.terminal-window', '.profile-card'
+    ].map(function (s) { return '#content ' + s; }).join(', ');
+    return $$(selector).filter(function (el) { return el.offsetParent !== null; });
+  }
+
+  function currentBlockIndex(blocks) {
+    if (!blocks.length) return 0;
+    var center = viewport.getBoundingClientRect().top + viewport.clientHeight / 2;
+    var best = 0;
+    var bestDistance = Infinity;
+    blocks.forEach(function (el, index) {
+      var rect = el.getBoundingClientRect();
+      var distance = Math.abs((rect.top + rect.bottom) / 2 - center);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        best = index;
+      }
+    });
+    return best;
+  }
+
+  function selectVisual() {
+    var a = state.visualBlocks[state.visualAnchor];
+    var b = state.visualBlocks[state.visualIndex];
+    if (!a || !b) return;
+    var range = document.createRange();
+    range.setStartBefore(a);
+    range.setEndAfter(b);
+    var selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    b.scrollIntoView({ block: 'nearest' });
+  }
+
+  function enterVisual() {
+    if (state.visual) { exitVisual(); return; }
+    var blocks = contentBlocks();
+    if (!blocks.length) {
+      toast('本页没有可选内容');
+      return;
+    }
+    state.visual = true;
+    state.visualBlocks = blocks;
+    state.visualIndex = currentBlockIndex(blocks);
+    state.visualAnchor = state.visualIndex;
+    setMode('visual');
+    selectVisual();
+  }
+
+  function moveVisual(delta) {
+    if (!state.visual) return;
+    var count = takeCount();
+    var max = state.visualBlocks.length - 1;
+    state.visualIndex = Math.max(0, Math.min(max, state.visualIndex + delta * count));
+    selectVisual();
+  }
+
+  function exitVisual() {
+    if (!state.visual) return;
+    state.visual = false;
+    var selection = window.getSelection();
+    if (selection) selection.removeAllRanges();
+    setMode('normal');
+  }
+
+  function copyBlock(index) {
+    var blocks = contentBlocks();
+    var el = blocks[index == null ? currentBlockIndex(blocks) : index];
+    if (!el) return;
+    var text = (el.innerText || el.textContent || '').trim();
+    if (!text) return;
+    copyText(text).then(function () {
+      toast('已复制 ' + text.length + ' 字符');
+    }).catch(function () {
+      toast('复制失败');
+    });
+  }
+
+  function yankVisual() {
+    var text = (window.getSelection() || '').toString();
+    if (!text.trim()) {
+      copyBlock(state.visualIndex);
+    } else {
+      copyText(text).then(function () {
+        toast('已复制 ' + text.length + ' 字符');
+      }).catch(function () {
+        toast('复制失败');
+      });
+    }
+    exitVisual();
+  }
+
+  /* ------------------------------- marks ---------------------------------- */
+  function startMark(kind) {
+    state.markPending = kind;
+    if (state.markTimer) window.clearTimeout(state.markTimer);
+    state.markTimer = window.setTimeout(function () {
+      state.markPending = null;
+    }, 1500);
+    toast(kind === 'set' ? '按 a-z 设置标记' : '按 a-z 跳转标记');
+  }
+
+  function handleMark(key) {
+    var kind = state.markPending;
+    state.markPending = null;
+    if (state.markTimer) window.clearTimeout(state.markTimer);
+    state.markTimer = 0;
+    if (!/^[a-z]$/.test(key)) return;
+    if (kind === 'set') {
+      state.marks[key] = { top: viewport.scrollTop, path: window.location.pathname };
+      toast('已设置标记 ' + key);
+      return;
+    }
+    var mark = state.marks[key];
+    if (!mark) { toast('没有标记 ' + key); return; }
+    if (mark.path !== window.location.pathname) {
+      toast('标记 ' + key + ' 在其他页面');
+      return;
+    }
+    viewport.scrollTo({ top: mark.top, behavior: 'smooth' });
+  }
+
+  /* ------------------------------- yank ----------------------------------- */
+  function startYank() {
+    if (state.yPending) {
+      state.yPending = false;
+      if (state.yTimer) window.clearTimeout(state.yTimer);
+      state.yTimer = 0;
+      copyBlock();
+      return;
+    }
+    state.yPending = true;
+    if (state.yTimer) window.clearTimeout(state.yTimer);
+    state.yTimer = window.setTimeout(function () {
+      state.yPending = false;
+      state.yTimer = 0;
+    }, 1200);
+  }
+
+  /* ------------------------------ keyboard -------------------------------- */
+  function initKeyboard() {
+    try {
+      var saved = JSON.parse(sessionStorage.getItem(FIND_KEY) || 'null');
+      if (saved && saved.query) {
+        state.findQuery = saved.query;
+        state.findBackward = Boolean(saved.backward);
+      }
+    } catch (err) {}
+
+    document.addEventListener('keydown', onKeyDown);
+
+    document.addEventListener('focusin', function (event) {
+      if (state.paletteOpen || state.findOpen) return;
+      if (isTyping(event.target)) setMode('insert');
+    });
+
+    document.addEventListener('focusout', function (event) {
+      if (state.paletteOpen || state.findOpen) return;
+      if (isTyping(event.target)) setMode(state.visual ? 'visual' : 'normal');
+    });
+  }
+
+  function onKeyDown(event) {
+    if (event.defaultPrevented || event.isComposing) return;
+    var key = event.key;
+
+    if (state.findOpen) {
+      if (key === 'Escape') closeFind();
+      return;
+    }
+
+    if (state.paletteOpen) {
+      if (key === 'Escape') closePalette();
+      else if ((event.ctrlKey || event.metaKey) && (key === 'k' || key === 'K')) {
+        event.preventDefault();
+        closePalette();
+      }
+      return;
+    }
+
+    if (state.lightbox) {
+      if (key === 'Escape') closeLightbox();
+      return;
+    }
+
+    if (isTyping(event.target)) {
+      if (!state.paletteOpen && !state.findOpen && state.viMode !== 'insert') {
+        setMode('insert');
+      }
+      if (key === 'Escape') {
+        event.preventDefault();
+        event.target.blur();
+        setMode('normal');
+      }
+      return;
+    }
+
+    if (event.ctrlKey || event.metaKey) {
+      handleControlKey(event, key);
+      return;
+    }
+
+    if (event.altKey) return;
+
+    if (state.markPending) {
+      handleMark(key);
+      return;
+    }
+
+    if (state.yPending) {
+      if (key === 'y') {
+        event.preventDefault();
+        startYank();
+        return;
+      }
+      state.yPending = false;
+      if (state.yTimer) window.clearTimeout(state.yTimer);
+      state.yTimer = 0;
+      return;
+    }
+
+    if (state.visual) {
+      handleVisualKey(event, key);
+      return;
+    }
+
+    if (/^[1-9]$/.test(key) || (key === '0' && state.count)) {
+      event.preventDefault();
+      pushCount(key);
+      return;
+    }
+
+    if (key === ' ' || key === 'Spacebar') {
+      event.preventDefault();
+      if (event.repeat) return;
+      state.spacePending = true;
+      if (state.spaceTimer) window.clearTimeout(state.spaceTimer);
+      state.spaceTimer = window.setTimeout(function () { state.spacePending = false; }, 1000);
+      return;
+    }
+
+    if (state.spacePending) {
+      state.spacePending = false;
+      if (state.spaceTimer) window.clearTimeout(state.spaceTimer);
+      state.spaceTimer = 0;
+      if (key === 'e' || key === 'E') {
+        event.preventDefault();
+        clearCount();
+        toggleTree();
+      }
+      return;
+    }
+
+    if (state.gPending) {
+      state.gPending = false;
+      if (state.gTimer) window.clearTimeout(state.gTimer);
+      state.gTimer = 0;
+      handleGPrefix(event, key);
+      return;
+    }
+
+    if (key === 'g') {
+      state.gPending = true;
+      if (state.gTimer) window.clearTimeout(state.gTimer);
+      state.gTimer = window.setTimeout(function () { state.gPending = false; }, 1000);
+      return;
+    }
+
+    handleNormalKey(event, key);
+  }
+
+  function handleControlKey(event, key) {
+    if (event.metaKey) {
+      if (key === 'k' || key === 'K') {
+        event.preventDefault();
+        if (state.paletteOpen) closePalette(); else openPalette('command');
+      }
+      return;
+    }
+
+    switch (key.toLowerCase()) {
+      case 'k':
+        event.preventDefault();
+        if (state.paletteOpen) closePalette(); else openPalette('command');
+        break;
+      case 'b':
+        event.preventDefault();
+        pageScroll(-takeCount());
+        break;
+      case 'f':
+        event.preventDefault();
+        pageScroll(takeCount());
+        break;
+      case 'd':
+        event.preventDefault();
+        pageScroll(takeCount() * 0.5);
+        break;
+      case 'u':
+        event.preventDefault();
+        pageScroll(takeCount() * -0.5);
+        break;
+      case 'o':
+        event.preventDefault();
+        window.history.back();
+        break;
+      case 'i':
+        event.preventDefault();
+        window.history.forward();
+        break;
+      case '6':
+        event.preventDefault();
+        cycleTab(-1);
+        break;
+      default:
+        break;
+    }
+  }
+
+  function handleGPrefix(event, key) {
+    var targets = {
+      h: routes.home,
+      a: routes.archives,
+      c: routes.categories,
+      x: routes.tags,
+      f: routes.friends,
+      o: routes.about,
+      m: routes.contact
+    };
+    if (key === 'g') { event.preventDefault(); scrollTop(); clearCount(); return; }
+    if (key === '?') { event.preventDefault(); openPalette('help'); clearCount(); return; }
+    if (key === 't') { event.preventDefault(); cycleTab(1); return; }
+    if (key === 'T') { event.preventDefault(); cycleTab(-1); return; }
+    if (targets[key]) {
+      event.preventDefault();
+      clearCount();
+      go(targets[key]);
+      return;
+    }
+    clearCount();
+  }
+
+  function handleNormalKey(event, key) {
+    switch (key) {
+      case 'j':
+        event.preventDefault();
+        scrollLines(takeCount());
+        break;
+      case 'k':
+        event.preventDefault();
+        scrollLines(-takeCount());
+        break;
+      case 'h':
+        event.preventDefault();
+        cycleTab(-1);
+        break;
+      case 'l':
+        event.preventDefault();
+        cycleTab(1);
+        break;
+      case 'w':
+        event.preventDefault();
+        moveHeading(1, takeCount());
+        break;
+      case 'b':
+        event.preventDefault();
+        moveHeading(-1, takeCount());
+        break;
+      case '0':
+        event.preventDefault();
+        clearCount();
+        firstHeading();
+        break;
+      case '$':
+        event.preventDefault();
+        clearCount();
+        lastHeading();
+        break;
+      case 'H':
+        event.preventDefault();
+        clearCount();
+        firstHeading();
+        break;
+      case 'M':
+        event.preventDefault();
+        clearCount();
+        middleHeading();
+        break;
+      case 'L':
+        event.preventDefault();
+        clearCount();
+        lastHeading();
+        break;
+      case 'G':
+        event.preventDefault();
+        clearCount();
+        scrollBottom();
+        break;
+      case 'n':
+        event.preventDefault();
+        clearCount();
+        repeatFind(false);
+        break;
+      case 'N':
+        event.preventDefault();
+        clearCount();
+        repeatFind(true);
+        break;
+      case '/':
+        event.preventDefault();
+        clearCount();
+        openFind(false);
+        break;
+      case '?':
+        event.preventDefault();
+        clearCount();
+        openFind(true);
+        break;
+      case ':':
+        event.preventDefault();
+        clearCount();
+        openPalette('command');
+        break;
+      case 'v':
+      case 'V':
+        event.preventDefault();
+        clearCount();
+        enterVisual();
+        break;
+      case 'y':
+        event.preventDefault();
+        clearCount();
+        startYank();
+        break;
+      case 'Y':
+        event.preventDefault();
+        clearCount();
+        copyBlock();
+        break;
+      case 'm':
+        event.preventDefault();
+        clearCount();
+        startMark('set');
+        break;
+      case "'":
+      case '`':
+        event.preventDefault();
+        clearCount();
+        startMark('jump');
+        break;
+      case 'Escape':
+        event.preventDefault();
+        clearCount();
+        state.gPending = false;
+        state.spacePending = false;
+        state.markPending = null;
+        state.yPending = false;
+        if (body.classList.contains('drawer-open')) setDrawer(false);
+        if (state.visual) exitVisual();
+        setMode('normal');
+        break;
+      case 'd':
+      case 'c':
+      case 'p':
+      case 'u':
+        event.preventDefault();
+        clearCount();
+        toast('页面为只读，无法执行编辑操作');
+        break;
+      default:
+        clearCount();
+        break;
+    }
+  }
+
+  function handleVisualKey(event, key) {
+    if (/^[1-9]$/.test(key) || (key === '0' && state.count)) {
+      event.preventDefault();
+      pushCount(key);
+      return;
+    }
+    if (key === 'j') {
+      event.preventDefault();
+      moveVisual(1);
+      return;
+    }
+    if (key === 'k') {
+      event.preventDefault();
+      moveVisual(-1);
+      return;
+    }
+    if (key === 'y') {
+      event.preventDefault();
+      yankVisual();
+      return;
+    }
+    if (key === 'o') {
+      event.preventDefault();
+      var anchor = state.visualAnchor;
+      state.visualAnchor = state.visualIndex;
+      state.visualIndex = anchor;
+      selectVisual();
+      return;
+    }
+    if (key === 'v' || key === 'V' || key === 'Escape') {
+      event.preventDefault();
+      exitVisual();
+      return;
+    }
+    if (key === 'd' || key === 'c') {
+      event.preventDefault();
+      toast('页面为只读，无法删除或修改');
+      return;
+    }
+    clearCount();
   }
 
   /* -------------------------------- boot ---------------------------------- */
