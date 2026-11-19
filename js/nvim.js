@@ -1240,7 +1240,11 @@
     var headings = headingEls();
     var el = headings[index];
     if (!el) return;
+    // vi jumps should land immediately; CSS smooth scrolling is for TOC clicks.
+    var previous = viewport.style.scrollBehavior;
+    viewport.style.scrollBehavior = 'auto';
     viewport.scrollTo({ top: Math.max(0, headingOffset(el) - 16), behavior: 'auto' });
+    viewport.style.scrollBehavior = previous;
   }
 
   function moveHeading(direction, count) {
@@ -1251,17 +1255,30 @@
     }
     var current = viewport.scrollTop;
     var index = -1;
-    for (var i = 0; i < headings.length; i += 1) {
-      var offset = headingOffset(headings[i]);
-      if (direction > 0 && offset > current + 6) { index = i; break; }
-      if (direction < 0 && offset < current - 6) index = i;
+
+    if (direction > 0) {
+      // Skip headings already sitting at the very top of the viewport, so w
+      // moves to the next section instead of re-jumping to the current one.
+      var margin = Math.max(48, viewport.clientHeight * 0.12);
+      for (var i = 0; i < headings.length; i += 1) {
+        if (headingOffset(headings[i]) > current + margin) { index = i; break; }
+      }
+      if (index === -1) {
+        toast('已经是最后一个标题');
+        return;
+      }
+      index = Math.min(headings.length - 1, index + count - 1);
+    } else {
+      for (var j = 0; j < headings.length; j += 1) {
+        if (headingOffset(headings[j]) < current - 6) index = j;
+      }
+      if (index === -1) {
+        toast('已经是第一个标题');
+        return;
+      }
+      index = Math.max(0, index - count + 1);
     }
-    if (index === -1) {
-      toast(direction > 0 ? '已经是最后一个标题' : '已经是第一个标题');
-      return;
-    }
-    index += direction * (count - 1);
-    index = Math.max(0, Math.min(headings.length - 1, index));
+
     jumpToHeading(index);
   }
 
