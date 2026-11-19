@@ -1,6 +1,6 @@
 # nvim — a text-editor theme for Hexo
 
-把博客做成一扇 Neovim 窗口：左侧是 **neo-tree**，顶部是 buffer 标签栏，底部是 lualine 状态栏和命令行，文章页右侧是 outline。配色为 **Tokyo Night**，所有字体、图标、脚本都本地加载，不依赖 CDN。
+把博客做成一扇 Neovim 窗口：左侧是 **neo-tree**，顶部是 buffer 标签栏，底部是 lualine 状态栏，文章页右侧是 outline。配色为 **Tokyo Night**，所有字体、图标、脚本都本地加载，不依赖 CDN。
 
 ![首页](preview/home.png)
 
