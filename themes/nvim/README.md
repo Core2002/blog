@@ -83,7 +83,7 @@ theme_config:
 | `:` | 命令面板 |
 | `Ctrl K` / `Cmd K` | 命令面板（同上） |
 | `?` | keymap / 全部命令 |
-| `Ctrl B` / `Cmd B` | 显示 / 隐藏 neo-tree |
+| `Space e` / `Ctrl B` / `Cmd B` | 显示 / 隐藏 neo-tree |
 | `j` / `k` | 向下 / 向上滚动 |
 | `gg` / `G` | 顶部 / 底部 |
 | `g h` | 首页 |
@@ -94,6 +94,8 @@ theme_config:
 | `g o` | 关于 |
 | `g m` | 联系 |
 | `Esc` | 关闭面板 / 抽屉 / 灯箱 |
+
+> `Space` 作为 leader 键：单独按空格不会滚动页面，用 `j` / `k`、`gg` / `G` 滚动。
 
 ## 目录结构
 
