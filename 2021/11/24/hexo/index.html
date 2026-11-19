@@ -1,485 +1,574 @@
-<!DOCTYPE HTML>
-<html lang="zh-CN">
-
-
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="tokyonight">
 <head>
-    <meta charset="utf-8">
-    <meta name="keywords" content="hexo博客框架+matery主题搭建以及云服务器部署, 小白的小博客">
-    <meta name="description" content="阅读须知：
-系统环境：
+  
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>hexo博客框架+matery主题搭建以及云服务器部署 · 小白的小博客</title>
+<meta name="description" content="小白的小博客">
+<meta name="author" content="NekokeCore">
+<meta name="theme-color" content="#1a1b26">
+<meta name="color-scheme" content="dark">
+<link rel="canonical" href="https://nekoblog.vercel.app/2021/11/24/hexo/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="alternate icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
 
-本机：win10系统虚拟机：CentOS7-64位（新装的）云服务器：CentOS7-64位注意：以下代码中#代表root权限，$代表普通用户
-如果你也跟我一样新装了个虚拟机centos7系统，建议先看看我的另一篇">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="renderer" content="webkit|ie-stand|ie-comp">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>hexo博客框架+matery主题搭建以及云服务器部署 | 小白的小博客</title>
-    <link rel="icon" type="image/png" href="/favicon.png">
+<!-- Open Graph -->
+<meta property="og:site_name" content="小白的小博客">
+<meta property="og:title" content="hexo博客框架+matery主题搭建以及云服务器部署 · 小白的小博客">
+<meta property="og:description" content="小白的小博客">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://nekoblog.vercel.app/2021/11/24/hexo/">
+<meta property="og:image" content="https://nekoblog.vercel.app/images/avatar.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="hexo博客框架+matery主题搭建以及云服务器部署 · 小白的小博客">
+<meta name="twitter:description" content="小白的小博客">
+<meta name="twitter:image" content="https://nekoblog.vercel.app/images/avatar.png">
 
-    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
-    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
-    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
-    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
-    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
-    <link rel="stylesheet" type="text/css" href="/css/matery.css">
-    <link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="preload" href="/fonts/nvim-mono-regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/nvim-mono-bold.woff2" as="font" type="font/woff2" crossorigin>
 
-    <script src="/libs/jquery/jquery.min.js"></script>
-    
+<link rel="stylesheet" href="/css/nvim.css">
+
+
+
 <meta name="generator" content="Hexo 8.1.2"></head>
+<body class="kind-post has-outline" data-kind="post" data-file="hexo.md" data-tab="hexo.md" data-title="hexo博客框架+matery主题搭建以及云服务器部署" data-url="https://nekoblog.vercel.app/2021/11/24/hexo/" data-source="https://github.com/Core2002/blog/blob/src/source/_posts/hexo.md">
+  <a class="skip-link" href="#content">跳到正文</a>
 
+  <div class="app" id="app">
+    
+<aside class="sidebar" id="sidebar" aria-label="站点导航">
+  <div class="sidebar-brand">
+    <a class="brand" href="/" aria-label="nekoblog 首页">
+      <span class="brand-logo">N</span>
+      <span class="brand-text">
+        <strong>nekoblog</strong>
+        <small>text editor · tokyonight</small>
+      </span>
+    </a>
+    <button class="icon-btn sidebar-close" id="sidebar-close" type="button" title="关闭文件树" aria-label="关闭文件树">
+      <i class="i i-close" aria-hidden="true"></i>
+    </button>
+  </div>
 
-<body>
-    <header class="navbar-fixed">
-    <nav id="headNav" class="bg-color nav-transparent">
-        <div id="navContainer" class="nav-wrapper container">
-            <div class="brand-logo">
-                <a href="/" class="waves-effect waves-light">
-                    
-                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
-                    
-                    <span class="logo-span">小白的小博客</span>
-                </a>
-            </div>
-            
-
-<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
-<ul class="right nav-menu">
-  
-  <li class="hide-on-med-and-down nav-item">
-    
-    <a href="/" class="waves-effect waves-light">
-      
-      <i class="fas fa-home" style="zoom: 0.6;"></i>
-      
-      <span>首页</span>
-    </a>
-    
-  </li>
-  
-  <li class="hide-on-med-and-down nav-item">
-    
-    <a href="/tags" class="waves-effect waves-light">
-      
-      <i class="fas fa-tags" style="zoom: 0.6;"></i>
-      
-      <span>标签</span>
-    </a>
-    
-  </li>
-  
-  <li class="hide-on-med-and-down nav-item">
-    
-    <a href="/categories" class="waves-effect waves-light">
-      
-      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
-      
-      <span>分类</span>
-    </a>
-    
-  </li>
-  
-  <li class="hide-on-med-and-down nav-item">
-    
-    <a href="/archives" class="waves-effect waves-light">
-      
-      <i class="fas fa-archive" style="zoom: 0.6;"></i>
-      
-      <span>归档</span>
-    </a>
-    
-  </li>
-  
-  <li class="hide-on-med-and-down nav-item">
-    
-    <a href="/about" class="waves-effect waves-light">
-      
-      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
-      
-      <span>关于</span>
-    </a>
-    
-  </li>
-  
-  <li class="hide-on-med-and-down nav-item">
-    
-    <a href="/contact" class="waves-effect waves-light">
-      
-      <i class="fas fa-comments" style="zoom: 0.6;"></i>
-      
-      <span>留言板</span>
-    </a>
-    
-  </li>
-  
-  <li class="hide-on-med-and-down nav-item">
-    
-    <a href="/friends" class="waves-effect waves-light">
-      
-      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
-      
-      <span>友情链接</span>
-    </a>
-    
-  </li>
-  
-  <li>
-    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
-      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
-    </a>
-  </li>
-</ul>
-
-<div id="mobile-nav" class="side-nav sidenav">
-
-    <div class="mobile-head bg-color">
-        
-        <img src="/medias/logo.png" class="logo-img circle responsive-img">
-        
-        <div class="logo-name">小白的小博客</div>
-        <div class="logo-desc">
-            
-            Never really desperate, only the lost of the soul.
-            
-        </div>
+  <div class="tree-panel">
+    <div class="tree-head">
+      <span class="tree-head-title">neo-tree</span>
+      <div class="tree-head-tools">
+        <button class="icon-btn" id="tree-collapse-all" type="button" title="全部折叠" aria-label="全部折叠">
+          <i class="i i-minus" aria-hidden="true"></i>
+        </button>
+      </div>
     </div>
 
-    
+    <nav class="tree" id="tree" aria-label="文件">
+      <div class="tree-root">
+        <i class="i i-folder-open tree-root-icon" aria-hidden="true"></i>
+        <span class="tree-root-name">~/blog</span>
+        <span class="tree-root-branch"><i class="i i-git" aria-hidden="true"></i>src</span>
+      </div>
 
-    <ul class="menu-list mobile-menu-list">
-        
-        <li class="m-nav-item">
-	  
-		<a href="/" class="waves-effect waves-light">
-			
-			    <i class="fa-fw fas fa-home"></i>
-			
-			首页
-		</a>
-          
+      <ul class="tree-list" role="tree">
+        <li class="tree-item tree-file-item" role="none">
+          <a class="tree-row tree-file-row" href="/" >
+            <span class="tree-chev-spacer"></span>
+            <i class="i i-file-md ficon" aria-hidden="true"></i>
+            <span class="tree-name">README.md</span>
+            <span class="tree-meta">home</span>
+          </a>
         </li>
-        
-        <li class="m-nav-item">
-	  
-		<a href="/tags" class="waves-effect waves-light">
-			
-			    <i class="fa-fw fas fa-tags"></i>
-			
-			标签
-		</a>
-          
+
+        <li class="tree-item tree-folder is-open" data-folder="posts" role="treeitem" aria-expanded="true">
+          <button class="tree-row tree-folder-row" type="button">
+            <i class="i i-chevron-right tree-chev" aria-hidden="true"></i>
+            <i class="i i-folder ficon" aria-hidden="true"></i>
+            <span class="tree-name">posts</span>
+            <span class="tree-count">14</span>
+          </button>
+          <ul class="tree-children" role="group">
+            
+              <li class="tree-item tree-folder " data-folder="cat-7" role="treeitem" aria-expanded="false">
+                <button class="tree-row tree-folder-row" type="button">
+                  <i class="i i-chevron-right tree-chev" aria-hidden="true"></i>
+                  <i class="i i-folder ficon" aria-hidden="true"></i>
+                  <span class="tree-name">工具</span>
+                  <span class="tree-count">1</span>
+                </button>
+                <ul class="tree-children" role="group">
+                  
+                    <li class="tree-item tree-file-item" role="none">
+                      <a class="tree-row tree-file-row" href="/2020/02/15/AnOpenSource-LightweightIntranetPenetrationToolSimilarToServo-Ngrok/" >
+                        <span class="tree-chev-spacer"></span>
+                        <i class="i i-file-md ficon" aria-hidden="true"></i>
+                        <span class="tree-name">AnOpenSource-LightweightIntranetPenetrationToolSimilarToServo-Ngrok.md</span>
+                        
+                      </a>
+                    </li>
+                  
+                </ul>
+              </li>
+            
+              <li class="tree-item tree-folder " data-folder="cat-3" role="treeitem" aria-expanded="false">
+                <button class="tree-row tree-folder-row" type="button">
+                  <i class="i i-chevron-right tree-chev" aria-hidden="true"></i>
+                  <i class="i i-folder ficon" aria-hidden="true"></i>
+                  <span class="tree-name">前端</span>
+                  <span class="tree-count">1</span>
+                </button>
+                <ul class="tree-children" role="group">
+                  
+                    <li class="tree-item tree-file-item" role="none">
+                      <a class="tree-row tree-file-row" href="/2023/04/09/typescript-github-contribution-graph-time-assassin/" >
+                        <span class="tree-chev-spacer"></span>
+                        <i class="i i-file-md ficon" aria-hidden="true"></i>
+                        <span class="tree-name">typescript-github-contribution-graph-time-assassin.md</span>
+                        
+                      </a>
+                    </li>
+                  
+                </ul>
+              </li>
+            
+              <li class="tree-item tree-folder " data-folder="cat-4" role="treeitem" aria-expanded="false">
+                <button class="tree-row tree-folder-row" type="button">
+                  <i class="i i-chevron-right tree-chev" aria-hidden="true"></i>
+                  <i class="i i-folder ficon" aria-hidden="true"></i>
+                  <span class="tree-name">未分类</span>
+                  <span class="tree-count">2</span>
+                </button>
+                <ul class="tree-children" role="group">
+                  
+                    <li class="tree-item tree-file-item" role="none">
+                      <a class="tree-row tree-file-row" href="/2021/11/25/%E5%AF%86%E7%A0%81%E7%A0%B4%E8%A7%A3%E4%B8%8E%E5%BF%83%E7%90%86%E5%AD%A6/" >
+                        <span class="tree-chev-spacer"></span>
+                        <i class="i i-file-md ficon" aria-hidden="true"></i>
+                        <span class="tree-name">密码破解与心理学.md</span>
+                        
+                      </a>
+                    </li>
+                  
+                    <li class="tree-item tree-file-item" role="none">
+                      <a class="tree-row tree-file-row" href="/2018/06/14/hello-world/" >
+                        <span class="tree-chev-spacer"></span>
+                        <i class="i i-file-md ficon" aria-hidden="true"></i>
+                        <span class="tree-name">hello-world.md</span>
+                        
+                      </a>
+                    </li>
+                  
+                </ul>
+              </li>
+            
+              <li class="tree-item tree-folder " data-folder="cat-6" role="treeitem" aria-expanded="false">
+                <button class="tree-row tree-folder-row" type="button">
+                  <i class="i i-chevron-right tree-chev" aria-hidden="true"></i>
+                  <i class="i i-folder ficon" aria-hidden="true"></i>
+                  <span class="tree-name">学习</span>
+                  <span class="tree-count">3</span>
+                </button>
+                <ul class="tree-children" role="group">
+                  
+                    <li class="tree-item tree-file-item" role="none">
+                      <a class="tree-row tree-file-row" href="/2020/02/15/CentOSCommandScreen/" >
+                        <span class="tree-chev-spacer"></span>
+                        <i class="i i-file-md ficon" aria-hidden="true"></i>
+                        <span class="tree-name">CentOSCommandScreen.md</span>
+                        
+                      </a>
+                    </li>
+                  
+                    <li class="tree-item tree-file-item" role="none">
+                      <a class="tree-row tree-file-row" href="/2020/02/15/ATwo-DimensionalWebMulti-PersonOnlineNetworkChatSystem/" >
+                        <span class="tree-chev-spacer"></span>
+                        <i class="i i-file-md ficon" aria-hidden="true"></i>
+                        <span class="tree-name">ATwo-DimensionalWebMulti-PersonOnlineNetworkChatSystem.md</span>
+                        
+                      </a>
+                    </li>
+                  
+                    <li class="tree-item tree-file-item" role="none">
+                      <a class="tree-row tree-file-row" href="/2020/02/15/UseKaliWirelessPenetrationToGetTheWifiPassword/" >
+                        <span class="tree-chev-spacer"></span>
+                        <i class="i i-file-md ficon" aria-hidden="true"></i>
+                        <span class="tree-name">UseKaliWirelessPenetrationToGetTheWifiPassword.md</span>
+                        
+                      </a>
+                    </li>
+                  
+                </ul>
+              </li>
+            
+              <li class="tree-item tree-folder " data-folder="cat-0" role="treeitem" aria-expanded="false">
+                <button class="tree-row tree-folder-row" type="button">
+                  <i class="i i-chevron-right tree-chev" aria-hidden="true"></i>
+                  <i class="i i-folder ficon" aria-hidden="true"></i>
+                  <span class="tree-name">Android</span>
+                  <span class="tree-count">1</span>
+                </button>
+                <ul class="tree-children" role="group">
+                  
+                    <li class="tree-item tree-file-item" role="none">
+                      <a class="tree-row tree-file-row" href="/2026/07/03/android-on-device-face-recognition-stellareyes/" >
+                        <span class="tree-chev-spacer"></span>
+                        <i class="i i-file-md ficon" aria-hidden="true"></i>
+                        <span class="tree-name">android-on-device-face-recognition-stellareyes.md</span>
+                        
+                      </a>
+                    </li>
+                  
+                </ul>
+              </li>
+            
+              <li class="tree-item tree-folder " data-folder="cat-8" role="treeitem" aria-expanded="false">
+                <button class="tree-row tree-folder-row" type="button">
+                  <i class="i i-chevron-right tree-chev" aria-hidden="true"></i>
+                  <i class="i i-folder ficon" aria-hidden="true"></i>
+                  <span class="tree-name">Bugs</span>
+                  <span class="tree-count">1</span>
+                </button>
+                <ul class="tree-children" role="group">
+                  
+                    <li class="tree-item tree-file-item" role="none">
+                      <a class="tree-row tree-file-row" href="/2020/02/15/HexoReferencesToLocalImagesCannotBeDisplayed/" >
+                        <span class="tree-chev-spacer"></span>
+                        <i class="i i-file-md ficon" aria-hidden="true"></i>
+                        <span class="tree-name">HexoReferencesToLocalImagesCannotBeDisplayed.md</span>
+                        
+                      </a>
+                    </li>
+                  
+                </ul>
+              </li>
+            
+              <li class="tree-item tree-folder " data-folder="cat-1" role="treeitem" aria-expanded="false">
+                <button class="tree-row tree-folder-row" type="button">
+                  <i class="i i-chevron-right tree-chev" aria-hidden="true"></i>
+                  <i class="i i-folder ficon" aria-hidden="true"></i>
+                  <span class="tree-name">Go</span>
+                  <span class="tree-count">1</span>
+                </button>
+                <ul class="tree-children" role="group">
+                  
+                    <li class="tree-item tree-file-item" role="none">
+                      <a class="tree-row tree-file-row" href="/2026/06/18/go-webauthn-paseto-gateway/" >
+                        <span class="tree-chev-spacer"></span>
+                        <i class="i i-file-md ficon" aria-hidden="true"></i>
+                        <span class="tree-name">go-webauthn-paseto-gateway.md</span>
+                        
+                      </a>
+                    </li>
+                  
+                </ul>
+              </li>
+            
+              <li class="tree-item tree-folder is-open is-active-folder" data-folder="cat-5" role="treeitem" aria-expanded="true">
+                <button class="tree-row tree-folder-row" type="button">
+                  <i class="i i-chevron-right tree-chev" aria-hidden="true"></i>
+                  <i class="i i-folder ficon" aria-hidden="true"></i>
+                  <span class="tree-name">Linux</span>
+                  <span class="tree-count">1</span>
+                </button>
+                <ul class="tree-children" role="group">
+                  
+                    <li class="tree-item tree-file-item is-active" role="none">
+                      <a class="tree-row tree-file-row" href="/2021/11/24/hexo/" aria-current=&#34;page&#34;>
+                        <span class="tree-chev-spacer"></span>
+                        <i class="i i-file-md ficon" aria-hidden="true"></i>
+                        <span class="tree-name">hexo.md</span>
+                        <span class="tree-mod" title="当前 buffer">M</span>
+                      </a>
+                    </li>
+                  
+                </ul>
+              </li>
+            
+              <li class="tree-item tree-folder " data-folder="cat-2" role="treeitem" aria-expanded="false">
+                <button class="tree-row tree-folder-row" type="button">
+                  <i class="i i-chevron-right tree-chev" aria-hidden="true"></i>
+                  <i class="i i-folder ficon" aria-hidden="true"></i>
+                  <span class="tree-name">Rust</span>
+                  <span class="tree-count">3</span>
+                </button>
+                <ul class="tree-children" role="group">
+                  
+                    <li class="tree-item tree-file-item" role="none">
+                      <a class="tree-row tree-file-row" href="/2026/05/02/rust-feach-cli/" >
+                        <span class="tree-chev-spacer"></span>
+                        <i class="i i-file-md ficon" aria-hidden="true"></i>
+                        <span class="tree-name">rust-feach-cli.md</span>
+                        
+                      </a>
+                    </li>
+                  
+                    <li class="tree-item tree-file-item" role="none">
+                      <a class="tree-row tree-file-row" href="/2024/11/05/tauri-rust-popcat/" >
+                        <span class="tree-chev-spacer"></span>
+                        <i class="i i-file-md ficon" aria-hidden="true"></i>
+                        <span class="tree-name">tauri-rust-popcat.md</span>
+                        
+                      </a>
+                    </li>
+                  
+                    <li class="tree-item tree-file-item" role="none">
+                      <a class="tree-row tree-file-row" href="/2023/03/31/rust-brainfuck-interpreter/" >
+                        <span class="tree-chev-spacer"></span>
+                        <i class="i i-file-md ficon" aria-hidden="true"></i>
+                        <span class="tree-name">rust-brainfuck-interpreter.md</span>
+                        
+                      </a>
+                    </li>
+                  
+                </ul>
+              </li>
+            
+          </ul>
         </li>
-        
-        <li class="m-nav-item">
-	  
-		<a href="/categories" class="waves-effect waves-light">
-			
-			    <i class="fa-fw fas fa-bookmark"></i>
-			
-			分类
-		</a>
-          
+
+        <li class="tree-item tree-folder is-open" data-folder="pages" role="treeitem" aria-expanded="true">
+          <button class="tree-row tree-folder-row" type="button">
+            <i class="i i-chevron-right tree-chev" aria-hidden="true"></i>
+            <i class="i i-folder ficon" aria-hidden="true"></i>
+            <span class="tree-name">pages</span>
+            <span class="tree-count">5</span>
+          </button>
+          <ul class="tree-children" role="group">
+            
+              <li class="tree-item tree-file-item" role="none">
+                <a class="tree-row tree-file-row" href="/about/index.html" >
+                  <span class="tree-chev-spacer"></span>
+                  <i class="i i-file-md ficon" aria-hidden="true"></i>
+                  <span class="tree-name">about.md</span>
+                  <span class="tree-meta">关于</span>
+                  
+                </a>
+              </li>
+            
+              <li class="tree-item tree-file-item" role="none">
+                <a class="tree-row tree-file-row" href="/categories/index.html" >
+                  <span class="tree-chev-spacer"></span>
+                  <i class="i i-file-md ficon" aria-hidden="true"></i>
+                  <span class="tree-name">categories.md</span>
+                  <span class="tree-meta">分类</span>
+                  
+                </a>
+              </li>
+            
+              <li class="tree-item tree-file-item" role="none">
+                <a class="tree-row tree-file-row" href="/tags/index.html" >
+                  <span class="tree-chev-spacer"></span>
+                  <i class="i i-file-md ficon" aria-hidden="true"></i>
+                  <span class="tree-name">tags.md</span>
+                  <span class="tree-meta">标签</span>
+                  
+                </a>
+              </li>
+            
+              <li class="tree-item tree-file-item" role="none">
+                <a class="tree-row tree-file-row" href="/friends/index.html" >
+                  <span class="tree-chev-spacer"></span>
+                  <i class="i i-file-md ficon" aria-hidden="true"></i>
+                  <span class="tree-name">friends.md</span>
+                  <span class="tree-meta">友链</span>
+                  
+                </a>
+              </li>
+            
+              <li class="tree-item tree-file-item" role="none">
+                <a class="tree-row tree-file-row" href="/contact/index.html" >
+                  <span class="tree-chev-spacer"></span>
+                  <i class="i i-file-md ficon" aria-hidden="true"></i>
+                  <span class="tree-name">contact.md</span>
+                  <span class="tree-meta">联系</span>
+                  
+                </a>
+              </li>
+            
+          </ul>
         </li>
-        
-        <li class="m-nav-item">
-	  
-		<a href="/archives" class="waves-effect waves-light">
-			
-			    <i class="fa-fw fas fa-archive"></i>
-			
-			归档
-		</a>
-          
+
+        <li class="tree-item tree-file-item" role="none">
+          <a class="tree-row tree-file-row" href="/archives/" >
+            <span class="tree-chev-spacer"></span>
+            <i class="i i-book ficon ficon-cyan" aria-hidden="true"></i>
+            <span class="tree-name">archives.md</span>
+            
+          </a>
         </li>
-        
-        <li class="m-nav-item">
-	  
-		<a href="/about" class="waves-effect waves-light">
-			
-			    <i class="fa-fw fas fa-user-circle"></i>
-			
-			关于
-		</a>
+
+        <li class="tree-item tree-file-item" role="none">
           
-        </li>
-        
-        <li class="m-nav-item">
-	  
-		<a href="/contact" class="waves-effect waves-light">
-			
-			    <i class="fa-fw fas fa-comments"></i>
-			
-			留言板
-		</a>
-          
-        </li>
-        
-        <li class="m-nav-item">
-	  
-		<a href="/friends" class="waves-effect waves-light">
-			
-			    <i class="fa-fw fas fa-address-book"></i>
-			
-			友情链接
-		</a>
-          
-        </li>
-        
-        
-        <li><div class="divider"></div></li>
-        <li>
-            <a href="https://github.com/Core2002/blog" class="waves-effect waves-light" target="_blank">
-                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            <a class="tree-row tree-file-row" href="https://github.com/Core2002/blog/blob/src/_config.yml" target="_blank" rel="noopener noreferrer">
+              <span class="tree-chev-spacer"></span>
+              <i class="i i-gear ficon ficon-yellow" aria-hidden="true"></i>
+              <span class="tree-name">_config.yml</span>
             </a>
+          
         </li>
-        
-    </ul>
-</div>
-
-        </div>
-
-        
-            <style>
-    .nav-transparent .github-corner {
-        display: none !important;
-    }
-
-    .github-corner {
-        position: absolute;
-        z-index: 10;
-        top: 0;
-        right: 0;
-        border: 0;
-        transform: scale(1.1);
-    }
-
-    .github-corner svg {
-        color: #0f9d58;
-        fill: #fff;
-        height: 64px;
-        width: 64px;
-    }
-
-    .github-corner:hover .octo-arm {
-        animation: a 0.56s ease-in-out;
-    }
-
-    .github-corner .octo-arm {
-        animation: none;
-    }
-
-    @keyframes a {
-        0%,
-        to {
-            transform: rotate(0);
-        }
-        20%,
-        60% {
-            transform: rotate(-25deg);
-        }
-        40%,
-        80% {
-            transform: rotate(10deg);
-        }
-    }
-</style>
-
-<a href="https://github.com/Core2002/blog" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
-   data-tooltip="Fork Me" data-position="left" data-delay="50">
-    <svg viewBox="0 0 250 250" aria-hidden="true">
-        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
-        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
-              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
-        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
-              fill="currentColor" class="octo-body"></path>
-    </svg>
-</a>
-        
+      </ul>
     </nav>
+  </div>
 
+  <div class="sidebar-foot">
+    <a class="profile-mini" href="/about/">
+      
+        <img class="profile-mini-avatar" src="/images/avatar.png" alt="" loading="lazy" width="28" height="28">
+      
+      <span class="profile-mini-text">
+        <strong>NekokeCore</strong>
+        <small>@Core2002</small>
+      </span>
+    </a>
+    
+      <a class="icon-btn profile-mini-github" href="https://github.com/Core2002" target="_blank" rel="noopener noreferrer" title="GitHub" aria-label="GitHub">
+        <i class="i i-github" aria-hidden="true"></i>
+      </a>
+    
+  </div>
+</aside>
+
+
+    <div class="workspace">
+      
+<header class="tabline" aria-label="缓冲区标签">
+  <div class="tabline-left">
+    <button class="icon-btn tabline-menu" id="tree-toggle" type="button" title="文件树 (Ctrl+B)" aria-label="切换文件树" aria-expanded="true">
+      <i class="i i-menu" aria-hidden="true"></i>
+    </button>
+
+    <div class="tabs-wrap">
+      <div class="tabs" id="buffer-tabs" role="tablist" aria-label="已打开的文件">
+        <a class="tab" href="/" role="tab" aria-selected="false" title="首页">
+          <i class="i i-file-md tab-icon" aria-hidden="true"></i>
+          <span class="tab-name">README.md</span>
+        </a>
+
+        
+          <div class="tab is-active" role="tab" aria-selected="true">
+            <a class="tab-link" href="/2021/11/24/hexo/" title="hexo博客框架+matery主题搭建以及云服务器部署">
+              <i class="i i-file-md tab-icon" aria-hidden="true"></i>
+              <span class="tab-name">hexo.md</span>
+              <span class="tab-mod" title="当前 buffer">●</span>
+            </a>
+            <button class="tab-close" type="button" data-close-tab title="关闭 buffer" aria-label="关闭当前 buffer">
+              <i class="i i-close" aria-hidden="true"></i>
+            </button>
+          </div>
+        
+      </div>
+
+      <button class="tab-new" type="button" data-open-palette title="打开文件 / 命令" aria-label="打开命令面板">
+        <i class="i i-plus" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="tabline-right">
+    <button class="icon-btn" type="button" data-open-search title="搜索 (/)" aria-label="搜索">
+      <i class="i i-search" aria-hidden="true"></i>
+    </button>
+    <button class="icon-btn" type="button" data-open-palette title="命令面板 (Ctrl+K)" aria-label="命令面板">
+      <i class="i i-terminal" aria-hidden="true"></i>
+    </button>
+    
+      <a class="icon-btn" href="https://github.com/Core2002" target="_blank" rel="noopener noreferrer" title="GitHub" aria-label="GitHub">
+        <i class="i i-github" aria-hidden="true"></i>
+      </a>
+    
+    <button class="icon-btn" type="button" data-help title="快捷键 (?)" aria-label="快捷键">
+      <span class="help-glyph">?</span>
+    </button>
+  </div>
 </header>
 
+      <nav class="winbar" aria-label="文件路径">
+  <div class="crumbs">
     
+      
+      
+        <a class="crumb" href="/">~/blog</a>
+      
+    
+      <span class="crumb-sep">/</span>
+      
+        <a class="crumb" href="/archives/">posts</a>
+      
+    
+      <span class="crumb-sep">/</span>
+      
+        <span class="crumb">Linux</span>
+      
+    
+      <span class="crumb-sep">/</span>
+      
+        <span class="crumb is-current">hexo.md</span>
+      
+    
+  </div>
+  <div class="winbar-right">
+    
+      <a class="winbar-link" href="https://github.com/Core2002/blog/blob/src/source/_posts/hexo.md" target="_blank" rel="noopener noreferrer" title="在 GitHub 查看源码">
+        <i class="i i-code" aria-hidden="true"></i><span>源码</span>
+      </a>
+    
+    <button class="winbar-link" type="button" data-copy-link title="复制当前链接">
+      <i class="i i-link" aria-hidden="true"></i><span>复制链接</span>
+    </button>
+    <span class="winbar-ft">markdown</span>
+  </div>
+</nav>
 
 
-
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/17.jpg')">
-    <div class="container" style="right: 0px;left: 0px;">
-        <div class="row">
-            <div class="col s12 m12 l12">
-                <div class="brand">
-                    <h1 class="description center-align post-title">hexo博客框架+matery主题搭建以及云服务器部署</h1>
-                </div>
-            </div>
-        </div>
+      <div class="viewport" id="viewport" tabindex="-1">
+        <div class="buffer-shell">
+          <main class="buffer" id="content">
+            
+<article class="post">
+  <header class="post-head">
+    <div class="post-kicker">
+      <span class="c">--</span>
+      <span>markdown</span>
+      <span class="c">--</span>
     </div>
-</div>
 
-
-
-
-<main class="post-container content">
+    <h1 class="post-title"><span class="md-hash">#</span>hexo博客框架+matery主题搭建以及云服务器部署</h1>
 
     
-    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
-<style>
-    #articleContent h1::before,
-    #articleContent h2::before,
-    #articleContent h3::before,
-    #articleContent h4::before,
-    #articleContent h5::before,
-    #articleContent h6::before {
-        display: block;
-        content: " ";
-        height: 100px;
-        margin-top: -100px;
-        visibility: hidden;
-    }
 
-    #articleContent :focus {
-        outline: none;
-    }
+    <div class="post-meta">
+      <span class="post-meta-item"><i class="i i-calendar" aria-hidden="true"></i><time datetime="2021-11-24">2021-11-24</time></span>
+      <span class="post-meta-item"><i class="i i-clock" aria-hidden="true"></i>15 分钟</span>
+      <span class="post-meta-item"><i class="i i-file" aria-hidden="true"></i>6,679 字</span>
+      
+        <span class="post-meta-item"><i class="i i-pencil" aria-hidden="true"></i>更新于 2026-11-10</span>
+      
+    </div>
 
-    .toc-fixed {
-        position: fixed;
-        top: 64px;
-    }
+    <div class="post-tax">
+      
+        <a class="chip" href="/categories/Linux/"><i class="i i-folder" aria-hidden="true"></i>Linux</a>
+      
+      
+        <a class="tag" href="/tags/%E8%BD%AC%E8%BD%BD/">#转载</a>
+      
+        <a class="tag" href="/tags/Linux/">#Linux</a>
+      
+        <a class="tag" href="/tags/Hexo/">#Hexo</a>
+      
+    </div>
+  </header>
 
-    .toc-widget {
-        width: 345px;
-        padding-left: 20px;
-    }
+  
+    <div class="notice notice-reprint">
+      <i class="i i-info" aria-hidden="true"></i>
+      <span>本文为转载文章，版权归原作者所有。</span>
+    </div>
+  
 
-    .toc-widget .toc-title {
-        margin: 35px 0 15px 0;
-        padding-left: 17px;
-        font-size: 1.5rem;
-        font-weight: bold;
-        line-height: 1.5rem;
-    }
-
-    .toc-widget ol {
-        padding: 0;
-        list-style: none;
-    }
-
-    #toc-content {
-        height: calc(100vh - 250px);
-        overflow: auto;
-    }
-
-    #toc-content ol {
-        padding-left: 10px;
-    }
-
-    #toc-content ol li {
-        padding-left: 10px;
-    }
-
-    #toc-content .toc-link:hover {
-        color: #42b983;
-        font-weight: 700;
-        text-decoration: underline;
-    }
-
-    #toc-content .toc-link::before {
-        background-color: transparent;
-        max-height: 25px;
-    }
-
-    #toc-content .is-active-link {
-        color: #42b983;
-    }
-
-    #toc-content .is-active-link::before {
-        background-color: #42b983;
-    }
-
-    #floating-toc-btn {
-        position: fixed;
-        right: 15px;
-        bottom: 76px;
-        padding-top: 15px;
-        margin-bottom: 0;
-        z-index: 998;
-    }
-
-    #floating-toc-btn .btn-floating {
-        width: 48px;
-        height: 48px;
-    }
-
-    #floating-toc-btn .btn-floating i {
-        line-height: 48px;
-        font-size: 1.4rem;
-    }
-</style>
-<div class="row">
-    <div id="main-content" class="col s12 m12 l9">
-        <!-- 文章内容详情 -->
-<div id="artDetail">
-    <div class="card">
-        <div class="card-content article-info">
-            <div class="row tag-cate">
-                <div class="col s7">
-                    
-                    <div class="article-tag">
-                        
-                            <a href="/tags/Linux/">
-                                <span class="chip bg-color">Linux</span>
-                            </a>
-                        
-                            <a href="/tags/%E8%BD%AC%E8%BD%BD/">
-                                <span class="chip bg-color">转载</span>
-                            </a>
-                        
-                            <a href="/tags/Hexo/">
-                                <span class="chip bg-color">Hexo</span>
-                            </a>
-                        
-                    </div>
-                    
-                </div>
-                <div class="col s5 right-align">
-                    
-                    <div class="post-cate">
-                        <i class="fas fa-bookmark fa-fw icon-category"></i>
-                        
-                            <a href="/categories/Linux/" class="post-category">
-                                Linux
-                            </a>
-                        
-                    </div>
-                    
-                </div>
-            </div>
-
-            <div class="post-info">
-                
-                <div class="post-date info-break-policy">
-                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2021-11-24
-                </div>
-                
-
-                
-
-                
-
-                
-
-                
-            </div>
-
-        </div>
-        <hr class="clearfix">
-        <div class="card-content article-card-content">
-            <div id="articleContent">
-                <h3 id="阅读须知："><a href="#阅读须知：" class="headerlink" title="阅读须知："></a>阅读须知：</h3><ul>
+  <div class="post-body" id="post-body">
+    <h3 id="阅读须知："><a href="#阅读须知：" class="headerlink" title="阅读须知："></a>阅读须知：</h3><ul>
 <li><p>系统环境：</p>
 <blockquote>
 <p>本机：win10系统<br>虚拟机：CentOS7-64位（新装的）<br>云服务器：CentOS7-64位<br>注意：以下代码中<code>#</code>代表root权限，<code>$</code>代表普通用户</p>
@@ -494,119 +583,119 @@
 </blockquote>
 <ol>
 <li><p>先卸载旧版本</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">sudo</span> yum remove <span class="token parameter variable">-y</span> <span class="token function">git</span></code></pre></li>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">sudo</span> yum remove <span class="token parameter variable">-y</span> <span class="token function">git</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
 <li><p>安装git新版本所需的依赖包</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">sudo</span> yum <span class="token function">install</span> <span class="token parameter variable">-y</span> curl-devel expat-devel gettext-devel openssl-devel zlib-devel
-$ <span class="token function">sudo</span> yum <span class="token function">install</span> <span class="token parameter variable">-y</span> gcc perl-ExtUtils-MakeMaker</code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">sudo</span> yum <span class="token function">install</span> <span class="token parameter variable">-y</span> curl-devel expat-devel gettext-devel openssl-devel zlib-devel
+$ <span class="token function">sudo</span> yum <span class="token function">install</span> <span class="token parameter variable">-y</span> gcc perl-ExtUtils-MakeMaker<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 </li>
 <li><p>从我的github仓库源中下载最新git安装包并解压到<code>/usr/local/src</code>目录下</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">wget</span> https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.19.0.tar.gz
-$ <span class="token function">sudo</span> <span class="token function">tar</span> <span class="token parameter variable">-zxvf</span> git-2.19.0.tar.gz <span class="token parameter variable">-C</span> /usr/local/src</code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">wget</span> https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.19.0.tar.gz
+$ <span class="token function">sudo</span> <span class="token function">tar</span> <span class="token parameter variable">-zxvf</span> git-2.19.0.tar.gz <span class="token parameter variable">-C</span> /usr/local/src<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
 <blockquote>
 <p>如果你的机器上没有安装wget则先安装<br><code>sudo yum install -y wget</code><br>这里解释一下 <code>-y</code> 这个参数的作用：<br>无需用户确认要发生的操作（也就是经常会弹出的yes&#x2F;no&#x2F;Enter 直接确认跳过）</p>
 </blockquote>
 </li>
 <li><p>编译并安装</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash">$ <span class="token builtin class-name">cd</span> /usr/local/src/git-2.19.0/
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token builtin class-name">cd</span> /usr/local/src/git-2.19.0/
 $ <span class="token function">sudo</span> <span class="token function">make</span> <span class="token assign-left variable">prefix</span><span class="token operator">=</span>/usr/local/git all <span class="token comment"># 编译源码</span>
-$ <span class="token function">sudo</span> <span class="token function">make</span> <span class="token assign-left variable">prefix</span><span class="token operator">=</span>/usr/local/git <span class="token function">install</span> <span class="token comment">#安装到/usr/local/git</span></code></pre>
+$ <span class="token function">sudo</span> <span class="token function">make</span> <span class="token assign-left variable">prefix</span><span class="token operator">=</span>/usr/local/git <span class="token function">install</span> <span class="token comment">#安装到/usr/local/git</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 </li>
 <li><p>修改配置文件（添加环境变量）</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">sudo</span> <span class="token function">vi</span> /etc/profile
-<span class="token comment">#在文件末尾添加export PATH=/usr/local/git/bin:$PATH 保存退出</span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">sudo</span> <span class="token function">vi</span> /etc/profile
+<span class="token comment">#在文件末尾添加export PATH=/usr/local/git/bin:$PATH 保存退出</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 </li>
 <li><p>更新修改过后的配置文件</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash">$ <span class="token builtin class-name">source</span> /etc/profile
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token builtin class-name">source</span> /etc/profile
 <span class="token comment">#查看git版本检查一下是否安装成功</span>
-$ <span class="token function">git</span> <span class="token parameter variable">--version</span></code></pre>
+$ <span class="token function">git</span> <span class="token parameter variable">--version</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 </li>
 <li><p>顺便添加你的用户和邮箱</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># git config --global user.name "yourname"</span>
-<span class="token comment"># git config --global user.email "youremail"</span></code></pre></li>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># git config --global user.name "yourname"</span>
+<span class="token comment"># git config --global user.email "youremail"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></li>
 </ol>
 <h4 id="2、安装nodejs"><a href="#2、安装nodejs" class="headerlink" title="2、安装nodejs"></a>2、安装nodejs</h4><p>在安装hexo-cli之前需要借助nodejs</p>
 <ol>
 <li><p>去nodejs官网下载Linux二进制64bit压缩包，当然如果你的系统是32位的，即选择32位的，这里我直接用wget命令+ url 直接下载到本系统上</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># wget https://nodejs.org/dist/v12.13.1/node-v12.13.1-linux-x64.tar.xz</span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># wget https://nodejs.org/dist/v12.13.1/node-v12.13.1-linux-x64.tar.xz</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 </li>
 <li><p>在<code>/usr/local/</code>目录下创建一个<code>nodejs</code>文件夹</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># mkdir /usr/local/nodejs</span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># mkdir /usr/local/nodejs</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 </li>
 <li><p>将压缩包解压到<code>/usr/local/nodejs/</code>下</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># tar -Jxvf node-v12.13.1-linux-x64.tar.xz -C /usr/local/nodejs</span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># tar -Jxvf node-v12.13.1-linux-x64.tar.xz -C /usr/local/nodejs</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 </li>
 <li><p>为nodejs添加环境变量，即将<code>/usr/local/nodejs/node-v12.13.1-linux-x64/bin</code>添加到环境变量$PATH中，当然你也可以用创建<code>软连接</code>(即windows中的快捷方式)的方式代替，只不过第二种显得有点麻烦</p>
 <ul>
 <li><p>查看一下当前进程的环境变量值</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># echo $PATH</span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># echo $PATH</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 </li>
 <li><p>配置nodejs的环境</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># vi /etc/profile</span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># vi /etc/profile</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>在文件末尾加上：<code>export PATH=/usr/local/nodejs/node-v12.13.1-linux-x64/bin:$PATH</code>保存退出并更新profile文件</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># source /etc/profile</span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># source /etc/profile</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <blockquote>
 <p>这里提一下为什么要写成PATH&#x3D;&#x2F;usr&#x2F;local&#x2F;nodejs&#x2F;node-v12.13.1-linux-x64&#x2F;bin:$PATH<br>而不写成PATH&#x3D;$PATH:&#x2F;usr&#x2F;local&#x2F;nodejs&#x2F;node-v12.13.1-linux-x64&#x2F;bin<br>当执行某个命令时，如果找不到会从环境变量中去查找对应的目录下是否有该命令，而查找则是<br>按照从左到右的顺序进行查找，所以这就可以避免旧版本在新版本之前而使得新版本不能被应用的情况</p>
 </blockquote>
 </li>
 <li><p>再次查看环境变量检查是否添加成功</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># echo $PATH</span></code></pre></li>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># echo $PATH</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
 </ul>
 </li>
 <li><p>查看nodejs版本检查是否安装成功</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># node -v</span>
-<span class="token comment"># npm -v</span></code></pre></li>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># node -v</span>
+<span class="token comment"># npm -v</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></li>
 </ol>
 <h4 id="3、安装hexo"><a href="#3、安装hexo" class="headerlink" title="3、安装hexo"></a>3、安装hexo</h4><p>接下来用<code>npm</code>来安装hexo-cli,但是在这不推荐大家使用，由于安装源在国外，下载过于缓慢，所以我们可以用国内的阿里巴巴镜像源进行快速下载安装</p>
 <ol>
 <li><p>npm 安装方式</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># npm install -g hexo-cli</span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># npm install -g hexo-cli</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 </li>
 <li><p>cnpm 安装方式</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># npm install -g cnpm --registry=https://registry.npm.taobao.org</span>
-<span class="token comment"># cnpm install -g hexo-cli</span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># npm install -g cnpm --registry=https://registry.npm.taobao.org</span>
+<span class="token comment"># cnpm install -g hexo-cli</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 </li>
 <li><p>查看hexo版本检查是否已安装好</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># hexo -v</span></code></pre></li>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># hexo -v</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
 </ol>
 <h4 id="4、用hexo生成博客框架"><a href="#4、用hexo生成博客框架" class="headerlink" title="4、用hexo生成博客框架"></a>4、用hexo生成博客框架</h4><ol>
 <li><p>随便创建一个文件夹，这个文件夹用来存放hexo框架所有文件的（换而言之这个文件夹就是你的博客根目录），然后初始化该文件</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># mkdir myblog</span>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># mkdir myblog</span>
 <span class="token comment">#这里改一下myblog的所有者和所有组(jake为你自己的用户名)</span>
 <span class="token comment"># chown jake:jake -R myblog</span>
 <span class="token comment"># cd myblog</span>
-<span class="token comment"># hexo init</span></code></pre>
+<span class="token comment"># hexo init</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 </li>
 <li><p>用hexo -s 命令启动该博客，接着用浏览器输入localhost:4000 访问，检查是否成功</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># hexo s</span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># hexo s</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <ul>
-<li>默认端口4000，你也可以自定义指定端口为5000<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># hexo s -p 5000</span></code></pre></li>
+<li>默认端口4000，你也可以自定义指定端口为5000<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># hexo s -p 5000</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
 </ul>
 </li>
 <li><p>另外介绍一个命令（后面要用到），用<code>hexo g</code>命令生成部署该博客（实质会生成一个public文件夹，这个文件夹下都是html静态页面）</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># hexo g</span></code></pre></li>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># hexo g</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
 </ol>
 <h4 id="5、win10系统访问虚拟机端口"><a href="#5、win10系统访问虚拟机端口" class="headerlink" title="5、win10系统访问虚拟机端口"></a>5、win10系统访问虚拟机端口</h4><p>由于我所有hexo部署都在虚拟机系统上，怎么通过win10主机访问我的博客页面呢</p>
 <ol>
 <li><p>开放虚拟机CentOS系统的4000端口</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># firewall-cmd --zone=public --add-port=4000/tcp --permanent</span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># firewall-cmd --zone=public --add-port=4000/tcp --permanent</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 </li>
 <li><p>重启防火墙</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># systemctl restart firewalld.service</span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># systemctl restart firewalld.service</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 </li>
 <li><p>接下来你就可以通过win10上的浏览器输入虚拟机ip:4000访问你的博客了，当你看到如下图所示，那么恭喜你成功完成了第一步！</p>
 <p><img src="/2021/11/24/hexo/11-29-09.jpg" alt="img"></p>
 </li>
 </ol>
 <h3 id="二、在第一步的基础上换一个华丽的主题（也就是matery），再用GitHub作为服务器来被外界访问"><a href="#二、在第一步的基础上换一个华丽的主题（也就是matery），再用GitHub作为服务器来被外界访问" class="headerlink" title="二、在第一步的基础上换一个华丽的主题（也就是matery），再用GitHub作为服务器来被外界访问"></a>二、在第一步的基础上换一个华丽的主题（也就是matery），再用GitHub作为服务器来被外界访问</h3><h4 id="1、下载matery主题"><a href="#1、下载matery主题" class="headerlink" title="1、下载matery主题"></a>1、下载matery主题</h4><p>从github上下载一个matery主题(当前目录下)，然后把这个文件移动到<code>myblog/themes/</code>下</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># git clone https://github.com/blinkfoxhexo-theme-matery.git</span>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># git clone https://github.com/blinkfoxhexo-theme-matery.git</span>
 <span class="token comment">#/home/jake/myblog是我的博客根目录，需要根据自身情况予以修改</span>
-<span class="token comment"># mv hexo-theme-matery /home/jake/blog/themes/</span></code></pre>
+<span class="token comment"># mv hexo-theme-matery /home/jake/blog/themes/</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
 <h4 id="2、修改配置文件-config-yml"><a href="#2、修改配置文件-config-yml" class="headerlink" title="2、修改配置文件_config.yml"></a>2、修改配置文件_config.yml</h4><p><img src="/2021/11/24/hexo/11-29-10.jpg" alt="img"></p>
-<h4 id="3、切换到myblog文件下重新启动"><a href="#3、切换到myblog文件下重新启动" class="headerlink" title="3、切换到myblog文件下重新启动"></a>3、切换到myblog文件下重新启动</h4><pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># hexo s</span></code></pre>
+<h4 id="3、切换到myblog文件下重新启动"><a href="#3、切换到myblog文件下重新启动" class="headerlink" title="3、切换到myblog文件下重新启动"></a>3、切换到myblog文件下重新启动</h4><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># hexo s</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><img src="/2021/11/24/hexo/11-29-11.jpg" alt="img"></p>
 <h4 id="4、部署GitHub"><a href="#4、部署GitHub" class="headerlink" title="4、部署GitHub"></a>4、部署GitHub</h4><p>接下来就部署GitHub了，前提你得有个GitHub账号，没有的话去注册一个（这里不提供教程，自己百度）</p>
@@ -617,26 +706,26 @@ $ <span class="token function">git</span> <span class="token parameter variable"
 <li><p>按照规则为你的仓库起名（这个名字就是别人可以访问你博客的网址）<br><img src="/2021/11/24/hexo/11-29-13.jpg" alt="img"><br><img src="/2021/11/24/hexo/11-29-14.jpg" alt="img"></p>
 </li>
 <li><p>打开<code>_config.yml</code>配置文件，配置你的仓库</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># vi _config.yml</span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># vi _config.yml</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p><img src="/2021/11/24/hexo/11-29-15.jpg" alt="img"></p>
 </li>
 <li><p>因为需要将项目推送到GitHub，所以需要安装一个插件</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># cnpm install --save hexo-deployer-git</span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># cnpm install --save hexo-deployer-git</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 </li>
 <li><p>装好后直接用hexo g 生成博客文件，再用hexo d 推送项目到github上</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># hexo g</span>
-<span class="token comment"># hexo d</span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># hexo g</span>
+<span class="token comment"># hexo d</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 <p><img src="/2021/11/24/hexo/11-29-16.jpg" alt="img"></p>
 </li>
 <li><p>换用ssh公钥<br>你会发现每次执行hexo d 推送到github上时需要输入账号和密码，这有点令人不耐烦，因此下面给大家展示一种用ssh公钥的方法去部署github</p>
 <ul>
 <li><p>在虚拟机CentOS系统上下载ssh key</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># ssh-keygen -t rsa</span>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># ssh-keygen -t rsa</span>
 <span class="token comment">#一路回车即可，然后查看/root下的文件夹</span>
-<span class="token comment"># ls -al /root</span></code></pre>
+<span class="token comment"># ls -al /root</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 </li>
 <li><p>这时候你会发现在root下有一个隐藏文件.ssh，打开.ssh下的</p>
-<pre class="language-none"><code class="language-none">id_rsa.pub</code></pre>
+<pre class="line-numbers language-none"><code class="language-none">id_rsa.pub<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>文件，复制此文件的全部内容,粘贴到下图所示位置</p>
 <p>打开github</p>
 <p><img src="/2021/11/24/hexo/11-29-17.jpg" alt="img"></p>
@@ -644,7 +733,7 @@ $ <span class="token function">git</span> <span class="token parameter variable"
 <p><img src="/2021/11/24/hexo/11-29-19.jpg" alt="img"></p>
 </li>
 <li><p>相应的也要修改</p>
-<pre class="language-none"><code class="language-none">_config.yml</code></pre>
+<pre class="line-numbers language-none"><code class="language-none">_config.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>配置文件<br><img src="/2021/11/24/hexo/11-29-22.jpg" alt="img"><br><img src="/2021/11/24/hexo/11-29-21.jpg" alt="img"><br><img src="/2021/11/24/hexo/11-29-20.jpg" alt="img"></p>
 </li>
 </ul>
@@ -655,7 +744,7 @@ $ <span class="token function">git</span> <span class="token parameter variable"
 <li><p>可以用国内的coding，类似github，去coding官网注册一个账号，记得要实名认证，然后仿照github的操作将ssh key内容粘贴到指定区域<br><img src="/2021/11/24/hexo/11-29-24.jpg" alt="img"><br><img src="/2021/11/24/hexo/11-29-25.jpg" alt="img"></p>
 </li>
 <li><p>同样修改</p>
-<pre class="language-none"><code class="language-none">_config.yml</code></pre>
+<pre class="line-numbers language-none"><code class="language-none">_config.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>配置文件<br><img src="/2021/11/24/hexo/11-29-23.jpg" alt="img"></p>
 </li>
@@ -672,51 +761,51 @@ $ <span class="token function">git</span> <span class="token parameter variable"
 <p>如果实在不懂的小伙伴可以在下方留言，也可以参考一下这个大佬的视频<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/av44544186/">hexo博客搭建</a></p>
 </blockquote>
 <h3 id="三、将第二步中的github和coding替换为自己的云服务器，下面介绍如何部署好云服务器"><a href="#三、将第二步中的github和coding替换为自己的云服务器，下面介绍如何部署好云服务器" class="headerlink" title="三、将第二步中的github和coding替换为自己的云服务器，下面介绍如何部署好云服务器"></a>三、将第二步中的github和coding替换为自己的云服务器，下面介绍如何部署好云服务器</h3><h4 id="1-创建git用户"><a href="#1-创建git用户" class="headerlink" title="1. 创建git用户"></a>1. 创建git用户</h4><p>当你做完前面两大步，这一步就相当的简单，原理都一样，首先在你的云服务机上，创建一个git用户,并指定密码</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># useradd git</span>
-<span class="token comment"># passwd git</span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># useradd git</span>
+<span class="token comment"># passwd git</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
 <h4 id="2-部署密钥到服务器上"><a href="#2-部署密钥到服务器上" class="headerlink" title="2. 部署密钥到服务器上"></a>2. 部署密钥到服务器上</h4><p>切换到git用户，创建<code>.ssh</code>文件夹，以及在<code>.ssh</code>下创建<code>authorized_keys</code>文件,将ssh_key（也就是第二大步里面的那个密钥内容）粘贴到<code>authorized_keys</code>文件中</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># su git</span>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># su git</span>
 <span class="token comment"># 切换到git用户的家目录</span>
 <span class="token comment"># cd ~  </span>
 $ <span class="token function">mkdir</span> .ssh
 $ <span class="token function">vim</span> ~/.ssh/autorized_keys <span class="token comment"># wq保存退出</span>
 <span class="token comment"># 修改一下.ssh 和 authorized_key 的权限，保证不被其他用户或用户组访问以及修改</span>
 $ <span class="token function">chmod</span> <span class="token number">600</span> ~/.ssh/authorized_key
-$ <span class="token function">chmod</span> <span class="token number">700</span> ~/.ssh </code></pre>
+$ <span class="token function">chmod</span> <span class="token number">700</span> ~/.ssh <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <blockquote>
 <p>没有安装vim的 安装一下： <code>yum install -y vim</code></p>
 </blockquote>
-<h4 id="3-安装nginx"><a href="#3-安装nginx" class="headerlink" title="3. 安装nginx"></a>3. 安装nginx</h4><pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># yum install -y nginx</span>
-<span class="token comment"># systemctl start nginx.service # 启动nginx服务</span></code></pre>
+<h4 id="3-安装nginx"><a href="#3-安装nginx" class="headerlink" title="3. 安装nginx"></a>3. 安装nginx</h4><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># yum install -y nginx</span>
+<span class="token comment"># systemctl start nginx.service # 启动nginx服务</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
 <p>当你通过外网访问你的服务器ip可以看到nginx的欢迎页面就说明你安装成功了。这里说一下，有可能你显示的时centos欢迎页面，这也没问题。（我的就是）<br>打开<code>/etc/nginx/nginx.conf</code>配置文件（如果找不到，你也可以用<code>nginx -t</code>查看配置文件在哪）</p>
 <p><img src="/2021/11/24/hexo/11-29-29.jpg" alt="img"></p>
 <p>接下来创建你的博客根目录(我创建的根目录是<code>/home/git/blog</code>)</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">mkdir</span> ~/blog</code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">mkdir</span> ~/blog<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>修改nginx配置文件如下（注意以下两个地方）<br>第一个是权限问题<br><img src="/2021/11/24/hexo/11-29-31.jpg" alt="img"><br>第二个是访问路径<br><img src="/2021/11/24/hexo/11-29-30.jpg" alt="img"><br>配置好就重启一下nginx</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># systemctl restart nginx.service</span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># systemctl restart nginx.service</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <h4 id="4-创建git仓库"><a href="#4-创建git仓库" class="headerlink" title="4.创建git仓库"></a>4.创建git仓库</h4><p>创建git仓库以及用hooks钩子同步到你的博客根目录</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash">$ <span class="token builtin class-name">cd</span> ~
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token builtin class-name">cd</span> ~
 $ <span class="token function">git</span> init <span class="token parameter variable">--bare</span> blog.git
 $ <span class="token function">ls</span> <span class="token parameter variable">-l</span> blog.git
 <span class="token comment"># 修改一下权限</span>
 <span class="token comment"># chown git:git -R blog.git</span>
 <span class="token comment"># 创建post-receive文件</span>
-$ <span class="token function">vim</span> blog.git/hooks/post-receive</code></pre>
+$ <span class="token function">vim</span> blog.git/hooks/post-receive<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>添加以下内容：</p>
 <blockquote>
 <p>#!&#x2F;bin&#x2F;sh<br>git –work-tree&#x3D;&#x2F;home&#x2F;git&#x2F;blog –git-dir&#x3D;&#x2F;home&#x2F;git&#x2F;blog.git checkout -f<br><code>/home/git/blog</code>这是你刚刚创建的博客根目录<br>赋予其执行权限</p>
 </blockquote>
-<pre class="language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">chmod</span> +x /home/git/blog.git/hooks/post-receive</code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">chmod</span> +x /home/git/blog.git/hooks/post-receive<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p>接下来创建git-receive-pack和git-upload-pack软连接,以防执行hexo d 命令时报错找不到</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># sudo ln -s /usr/local/git/bin/git-receive-pack  /usr/bin/git-recei</span>
-<span class="token comment"># sudo ln -s /usr/local/git/bin/git-upload-pack  /usr/bin/git-upload-pack</span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># sudo ln -s /usr/local/git/bin/git-receive-pack  /usr/bin/git-recei</span>
+<span class="token comment"># sudo ln -s /usr/local/git/bin/git-upload-pack  /usr/bin/git-upload-pack</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
 <h4 id="5-修改配置文件"><a href="#5-修改配置文件" class="headerlink" title="5.修改配置文件"></a>5.修改配置文件</h4><p>到本地的虚拟机系统上修改博客<code>_config.yml</code>配置文件<br>添加 <code>git@yourserver_ip:/home/git/blog.git</code>git服务器地址</p>
 <p><img src="/2021/11/24/hexo/11-29-32.jpg" alt="img"></p>
@@ -726,7 +815,7 @@ $ <span class="token function">vim</span> blog.git/hooks/post-receive</code></pr
 <h3 id="四、总结一下可能会碰到的错误"><a href="#四、总结一下可能会碰到的错误" class="headerlink" title="四、总结一下可能会碰到的错误"></a>四、总结一下可能会碰到的错误</h3><ol>
 <li><p>经常会发生的错误：权限问题引起的。（这是个家常便饭，但你清楚了权限的重要性，那么你以后在linux系统上配置安装一些程序就很容易了）<br>有时候你在安装依赖文件或者执行某些命令如<code>hexo d hexo clean hexo g</code>等等会报错，那是因为你使用的当前用户权限不够。包括你在向git服务器推送项目时，你的服务器那边git用户权限不足而导致操作不了某些文件。</p>
 <p>所以建议你把博客根目录下所有文件的使用者更改为你当前用户。当然你也可以用root用户去操作，但是经常切换用户很麻烦，或者使用sudo借用root权限也要输入密码。<br>如：假设你的博客根目录路径为<code>/home/jake/myblog</code><br>那么使用以下命令更改权限</p>
-<pre class="language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">sudo</span> <span class="token function">chown</span> jake:jake <span class="token parameter variable">-R</span> /home/jake/myblog/*</code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">sudo</span> <span class="token function">chown</span> jake:jake <span class="token parameter variable">-R</span> /home/jake/myblog/*<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 </li>
 <li><p>访问网页出现404错误，这种很好解决，一是你的nginx路径配错了，二是访问端口未开放，ip配置不对。</p>
 </li>
@@ -747,517 +836,156 @@ $ <span class="token function">vim</span> blog.git/hooks/post-receive</code></pr
 </ol>
 <p><a target="_blank" rel="noopener" href="http://www.nstop.cn/">文章来源</a></p>
 
-            </div>
-            <hr/>
+  </div>
 
-            
+  <footer class="post-foot">
+    <div class="post-end"><span class="c">--</span> END OF BUFFER <span class="c">--</span></div>
 
-    <div class="reprint" id="reprint-statement">
-        
-            <div class="reprint__author">
-                <span class="reprint-meta" style="font-weight: bold;">
-                    <i class="fas fa-user">
-                        文章作者:
-                    </i>
-                </span>
-                <span class="reprint-info">
-                    <a href="https://nekoblog.vercel.app" rel="external nofollow noreferrer">NekokeCore</a>
-                </span>
-            </div>
-            <div class="reprint__type">
-                <span class="reprint-meta" style="font-weight: bold;">
-                    <i class="fas fa-link">
-                        文章链接:
-                    </i>
-                </span>
-                <span class="reprint-info">
-                    <a href="https://nekoblog.vercel.app/2021/11/24/hexo/">https://nekoblog.vercel.app/2021/11/24/hexo/</a>
-                </span>
-            </div>
-            <div class="reprint__notice">
-                <span class="reprint-meta" style="font-weight: bold;">
-                    <i class="fas fa-copyright">
-                        版权声明:
-                    </i>
-                </span>
-                <span class="reprint-info">
-                    本博客所有文章除特別声明外，均采用
-                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
-                    许可协议。转载请注明来源
-                    <a href="https://nekoblog.vercel.app" target="_blank">NekokeCore</a>
-                    !
-                </span>
-            </div>
-        
+    <div class="post-actions">
+      
+        <a class="post-action" href="https://github.com/Core2002/blog/blob/src/source/_posts/hexo.md" target="_blank" rel="noopener noreferrer">
+          <i class="i i-pencil" aria-hidden="true"></i>编辑此页
+        </a>
+      
+      <button class="post-action" type="button" data-copy-link>
+        <i class="i i-link" aria-hidden="true"></i>复制链接
+      </button>
     </div>
 
-    <script async defer>
-      document.addEventListener("copy", function (e) {
-        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
-        M.toast({html: toastHTML})
-      });
-
-      function navToReprintStatement() {
-        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
-      }
-    </script>
-
-
-
-            <div class="tag_share" style="display: block;">
-                <div class="post-meta__tag-list" style="display: inline-block;">
-                    
-                        <div class="article-tag">
-                            
-                                <a href="/tags/Linux/">
-                                    <span class="chip bg-color">Linux</span>
-                                </a>
-                            
-                                <a href="/tags/%E8%BD%AC%E8%BD%BD/">
-                                    <span class="chip bg-color">转载</span>
-                                </a>
-                            
-                                <a href="/tags/Hexo/">
-                                    <span class="chip bg-color">Hexo</span>
-                                </a>
-                            
-                        </div>
-                    
-                </div>
-                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
-                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
-
-<div id="article-share">
-    
-    
-    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
-    <script src="/libs/share/js/social-share.min.js"></script>
-    
-
-    
-
-</div>
-
-                </div>
-            </div>
-            
-        </div>
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-<article id="prenext-posts" class="prev-next articles">
-    <div class="row article-row">
-        
-        <div class="article col s12 m6" data-aos="fade-up">
-            <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
-            <div class="card">
-                <a href="/2021/11/25/%E5%AF%86%E7%A0%81%E7%A0%B4%E8%A7%A3%E4%B8%8E%E5%BF%83%E7%90%86%E5%AD%A6/">
-                    <div class="card-image">
-                        
-                        
-                        <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="密码破解与心理学">
-                        
-                        <span class="card-title">密码破解与心理学</span>
-                    </div>
-                </a>
-                <div class="card-content article-content">
-                    <div class="summary block-with-text">
-                        
-                            
-仅供学习与交流，切勿对真实目标操作，否则后果自负！
-
-十大基本规律
-绝大多数人都高估了破译密码的难度和低估了自己密码存在的风险，因而，往往把能够破解密码的人当成神秘人物，同时基本很少有修改自己密码的习惯。
-绝大多数人一生常用的密码通常不会
-                        
-                    </div>
-                    <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2021-11-25
-                        </span>
-                        <span class="publish-author">
-                            
-                            <i class="fas fa-user fa-fw"></i>
-                            NekokeCore
-                            
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="card-action article-tags">
-                    
-                    <a href="/tags/%E8%BD%AC%E8%BD%BD/">
-                        <span class="chip bg-color">转载</span>
-                    </a>
-                    
-                    <a href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/">
-                        <span class="chip bg-color">密码学</span>
-                    </a>
-                    
-                    <a href="/tags/%E5%BF%83%E7%90%86%E5%AD%A6/">
-                        <span class="chip bg-color">心理学</span>
-                    </a>
-                    
-                </div>
-                
-            </div>
-        </div>
-        
-        
-        <div class="article col s12 m6" data-aos="fade-up">
-            <div class="article-badge right-badge text-color">
-                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
-            </div>
-            <div class="card">
-                <a href="/2020/02/15/CentOSCommandScreen/">
-                    <div class="card-image">
-                        
-                        
-                        <img src="/medias/featureimages/7.jpg" class="responsive-img" alt="命令：Screen">
-                        
-                        <span class="card-title">命令：Screen</span>
-                    </div>
-                </a>
-                <div class="card-content article-content">
-                    <div class="summary block-with-text">
-                        
-                            一、背景系统管理员经常需要SSH 或者telent 远程登录到Linux 服务器，经常运行一些需要很长时间才能完成的任务，比如系统备份、ftp 传输等等。通常情况下我们都是为每一个这样的任务开一个远程终端窗口，因为它们执行的时间太长了。必须
-                        
-                    </div>
-                    <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2020-02-15
-                            </span>
-                        <span class="publish-author">
-                            
-                            <i class="fas fa-bookmark fa-fw icon-category"></i>
-                            
-                            <a href="/categories/%E5%AD%A6%E4%B9%A0/" class="post-category">
-                                    学习
-                                </a>
-                            
-                            
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="card-action article-tags">
-                    
-                    <a href="/tags/Linux/">
-                        <span class="chip bg-color">Linux</span>
-                    </a>
-                    
-                    <a href="/tags/%E8%BD%AC%E8%BD%BD/">
-                        <span class="chip bg-color">转载</span>
-                    </a>
-                    
-                </div>
-                
-            </div>
-        </div>
-        
-    </div>
+    <nav class="post-nav" aria-label="上一篇 / 下一篇">
+      
+        <a class="post-nav-card post-nav-prev" href="/2021/11/25/%E5%AF%86%E7%A0%81%E7%A0%B4%E8%A7%A3%E4%B8%8E%E5%BF%83%E7%90%86%E5%AD%A6/">
+          <span class="post-nav-label"><i class="i i-arrow-left" aria-hidden="true"></i> previous</span>
+          <span class="post-nav-title">密码破解与心理学</span>
+        </a>
+      
+      
+        <a class="post-nav-card post-nav-next" href="/2020/02/15/CentOSCommandScreen/">
+          <span class="post-nav-label">next<i class="i i-arrow-right" aria-hidden="true"></i></span>
+          <span class="post-nav-title">命令：Screen</span>
+        </a>
+      
+    </nav>
+  </footer>
 </article>
 
-</div>
+          </main>
+          
+            <aside class="outline" aria-label="文章大纲">
+  <div class="outline-head">
+    <span class="outline-title"><i class="i i-hash" aria-hidden="true"></i> outline</span>
+    <span class="outline-count">23</span>
+  </div>
+  <nav class="outline-body">
+    <ol class="outline-toc"><li class="outline-item outline-lvl-3"><a class="outline-link" href="#%E9%98%85%E8%AF%BB%E9%A1%BB%E7%9F%A5%EF%BC%9A"><span class="outline-toc-text">阅读须知：</span></a></li><li class="outline-item outline-lvl-3"><a class="outline-link" href="#%E4%B8%80%E3%80%81%E5%88%9D%E6%AD%A5%E6%90%AD%E5%BB%BAhexo%E7%8E%AF%E5%A2%83-%E6%B3%A8%E6%84%8F%EF%BC%9A%E6%88%91%E8%BF%99%E6%98%AF%E5%9C%A8%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%B8%AD%E7%9A%84CentOS7%E7%B3%BB%E7%BB%9F%E4%B8%8A%E6%93%8D%E4%BD%9C"><span class="outline-toc-text">一、初步搭建hexo环境(注意：我这是在虚拟机中的CentOS7系统上操作)</span></a><ol class="outline-toc-child"><li class="outline-item outline-lvl-4"><a class="outline-link" href="#1%E3%80%81%E5%AE%89%E8%A3%85git%EF%BC%88%E5%A6%82%E6%9E%9C%E6%9C%89%E5%88%99%E6%97%A0%E9%A1%BB%E5%AE%89%E8%A3%85%EF%BC%89"><span class="outline-toc-text">1、安装git（如果有则无须安装）</span></a></li><li class="outline-item outline-lvl-4"><a class="outline-link" href="#2%E3%80%81%E5%AE%89%E8%A3%85nodejs"><span class="outline-toc-text">2、安装nodejs</span></a></li><li class="outline-item outline-lvl-4"><a class="outline-link" href="#3%E3%80%81%E5%AE%89%E8%A3%85hexo"><span class="outline-toc-text">3、安装hexo</span></a></li><li class="outline-item outline-lvl-4"><a class="outline-link" href="#4%E3%80%81%E7%94%A8hexo%E7%94%9F%E6%88%90%E5%8D%9A%E5%AE%A2%E6%A1%86%E6%9E%B6"><span class="outline-toc-text">4、用hexo生成博客框架</span></a></li><li class="outline-item outline-lvl-4"><a class="outline-link" href="#5%E3%80%81win10%E7%B3%BB%E7%BB%9F%E8%AE%BF%E9%97%AE%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%AB%AF%E5%8F%A3"><span class="outline-toc-text">5、win10系统访问虚拟机端口</span></a></li></ol></li><li class="outline-item outline-lvl-3"><a class="outline-link" href="#%E4%BA%8C%E3%80%81%E5%9C%A8%E7%AC%AC%E4%B8%80%E6%AD%A5%E7%9A%84%E5%9F%BA%E7%A1%80%E4%B8%8A%E6%8D%A2%E4%B8%80%E4%B8%AA%E5%8D%8E%E4%B8%BD%E7%9A%84%E4%B8%BB%E9%A2%98%EF%BC%88%E4%B9%9F%E5%B0%B1%E6%98%AFmatery%EF%BC%89%EF%BC%8C%E5%86%8D%E7%94%A8GitHub%E4%BD%9C%E4%B8%BA%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%9D%A5%E8%A2%AB%E5%A4%96%E7%95%8C%E8%AE%BF%E9%97%AE"><span class="outline-toc-text">二、在第一步的基础上换一个华丽的主题（也就是matery），再用GitHub作为服务器来被外界访问</span></a><ol class="outline-toc-child"><li class="outline-item outline-lvl-4"><a class="outline-link" href="#1%E3%80%81%E4%B8%8B%E8%BD%BDmatery%E4%B8%BB%E9%A2%98"><span class="outline-toc-text">1、下载matery主题</span></a></li><li class="outline-item outline-lvl-4"><a class="outline-link" href="#2%E3%80%81%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6-config-yml"><span class="outline-toc-text">2、修改配置文件_config.yml</span></a></li><li class="outline-item outline-lvl-4"><a class="outline-link" href="#3%E3%80%81%E5%88%87%E6%8D%A2%E5%88%B0myblog%E6%96%87%E4%BB%B6%E4%B8%8B%E9%87%8D%E6%96%B0%E5%90%AF%E5%8A%A8"><span class="outline-toc-text">3、切换到myblog文件下重新启动</span></a></li><li class="outline-item outline-lvl-4"><a class="outline-link" href="#4%E3%80%81%E9%83%A8%E7%BD%B2GitHub"><span class="outline-toc-text">4、部署GitHub</span></a></li><li class="outline-item outline-lvl-4"><a class="outline-link" href="#5%E3%80%81%E6%94%B6%E8%8E%B7%E6%88%90%E5%8A%9F%E7%9A%84%E5%96%9C%E6%82%A6"><span class="outline-toc-text">5、收获成功的喜悦</span></a></li><li class="outline-item outline-lvl-4"><a class="outline-link" href="#6%E3%80%81%E6%B8%A9%E9%A6%A8%E6%8F%90%E7%A4%BA"><span class="outline-toc-text">6、温馨提示</span></a></li></ol></li><li class="outline-item outline-lvl-3"><a class="outline-link" href="#%E4%B8%89%E3%80%81%E5%B0%86%E7%AC%AC%E4%BA%8C%E6%AD%A5%E4%B8%AD%E7%9A%84github%E5%92%8Ccoding%E6%9B%BF%E6%8D%A2%E4%B8%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E4%BA%91%E6%9C%8D%E5%8A%A1%E5%99%A8%EF%BC%8C%E4%B8%8B%E9%9D%A2%E4%BB%8B%E7%BB%8D%E5%A6%82%E4%BD%95%E9%83%A8%E7%BD%B2%E5%A5%BD%E4%BA%91%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="outline-toc-text">三、将第二步中的github和coding替换为自己的云服务器，下面介绍如何部署好云服务器</span></a><ol class="outline-toc-child"><li class="outline-item outline-lvl-4"><a class="outline-link" href="#1-%E5%88%9B%E5%BB%BAgit%E7%94%A8%E6%88%B7"><span class="outline-toc-text">1. 创建git用户</span></a></li><li class="outline-item outline-lvl-4"><a class="outline-link" href="#2-%E9%83%A8%E7%BD%B2%E5%AF%86%E9%92%A5%E5%88%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A"><span class="outline-toc-text">2. 部署密钥到服务器上</span></a></li><li class="outline-item outline-lvl-4"><a class="outline-link" href="#3-%E5%AE%89%E8%A3%85nginx"><span class="outline-toc-text">3. 安装nginx</span></a></li><li class="outline-item outline-lvl-4"><a class="outline-link" href="#4-%E5%88%9B%E5%BB%BAgit%E4%BB%93%E5%BA%93"><span class="outline-toc-text">4.创建git仓库</span></a></li><li class="outline-item outline-lvl-4"><a class="outline-link" href="#5-%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="outline-toc-text">5.修改配置文件</span></a></li></ol></li><li class="outline-item outline-lvl-3"><a class="outline-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93%E4%B8%80%E4%B8%8B%E5%8F%AF%E8%83%BD%E4%BC%9A%E7%A2%B0%E5%88%B0%E7%9A%84%E9%94%99%E8%AF%AF"><span class="outline-toc-text">四、总结一下可能会碰到的错误</span></a></li><li class="outline-item outline-lvl-3"><a class="outline-link" href="#%E4%BA%94%E3%80%81%E8%AE%A8%E8%AE%BA%E4%BB%A5%E5%8F%8A%E5%BF%83%E5%BE%97"><span class="outline-toc-text">五、讨论以及心得</span></a></li><li class="outline-item outline-lvl-3"><a class="outline-link" href="#%E5%85%AD%E3%80%81%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="outline-toc-text">六、参考链接</span></a></li></ol>
+  </nav>
+  <div class="outline-foot">
+    <span class="outline-dot" aria-hidden="true"></span>
+    <span>treesitter · markdown</span>
+  </div>
+</aside>
 
-
-
-<!-- 代码块功能依赖 -->
-<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
-
-<!-- 代码语言 -->
-
-<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
-
-
-<!-- 代码块复制 -->
-
-<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
-
-
-<!-- 代码块收缩 -->
-
-<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
-
-
-<!-- 代码块折行 -->
-
-<style type="text/css">
-code[class*="language-"], pre[class*="language-"] { white-space: pre !important; }
-</style>
-
-
-    </div>
-    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
-        <div class="toc-widget">
-            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
-            <div id="toc-content"></div>
+          
         </div>
-    </div>
-</div>
+      </div>
 
-<!-- TOC 悬浮按钮. -->
+      
+<footer class="statusline" aria-label="状态栏">
+  <span class="status-progress" aria-hidden="true"><span id="status-progress-bar"></span></span>
 
-<div id="floating-toc-btn" class="hide-on-med-and-down">
-    <a class="btn-floating btn-large bg-color">
-        <i class="fas fa-list-ul"></i>
-    </a>
-</div>
-
-
-<script src="/libs/tocbot/tocbot.min.js"></script>
-<script>
-    $(function () {
-        tocbot.init({
-            tocSelector: '#toc-content',
-            contentSelector: '#articleContent',
-            headingsOffset: -($(window).height() * 0.4 - 45),
-            collapseDepth: Number('0'),
-            headingSelector: 'h2, h3, h4'
-        });
-
-        // modify the toc link href to support Chinese.
-        let i = 0;
-        let tocHeading = 'toc-heading-';
-        $('#toc-content a').each(function () {
-            $(this).attr('href', '#' + tocHeading + (++i));
-        });
-
-        // modify the heading title id to support Chinese.
-        i = 0;
-        $('#articleContent').children('h2, h3, h4').each(function () {
-            $(this).attr('id', tocHeading + (++i));
-        });
-
-        // Set scroll toc fixed.
-        let tocHeight = parseInt($(window).height() * 0.4 - 64);
-        let $tocWidget = $('.toc-widget');
-        $(window).scroll(function () {
-            let scroll = $(window).scrollTop();
-            /* add post toc fixed. */
-            if (scroll > tocHeight) {
-                $tocWidget.addClass('toc-fixed');
-            } else {
-                $tocWidget.removeClass('toc-fixed');
-            }
-        });
-
-        
-        /* 修复文章卡片 div 的宽度. */
-        let fixPostCardWidth = function (srcId, targetId) {
-            let srcDiv = $('#' + srcId);
-            if (srcDiv.length === 0) {
-                return;
-            }
-
-            let w = srcDiv.width();
-            if (w >= 450) {
-                w = w + 21;
-            } else if (w >= 350 && w < 450) {
-                w = w + 18;
-            } else if (w >= 300 && w < 350) {
-                w = w + 16;
-            } else {
-                w = w + 14;
-            }
-            $('#' + targetId).width(w);
-        };
-
-        // 切换TOC目录展开收缩的相关操作.
-        const expandedClass = 'expanded';
-        let $tocAside = $('#toc-aside');
-        let $mainContent = $('#main-content');
-        $('#floating-toc-btn .btn-floating').click(function () {
-            if ($tocAside.hasClass(expandedClass)) {
-                $tocAside.removeClass(expandedClass).hide();
-                $mainContent.removeClass('l9');
-            } else {
-                $tocAside.addClass(expandedClass).show();
-                $mainContent.addClass('l9');
-            }
-            fixPostCardWidth('artDetail', 'prenext-posts');
-        });
-        
-    });
-</script>
-
+  <div class="status-left">
+    <span class="sl-mode" id="sl-mode">NORMAL</span>
     
-
-</main>
-
-
-
-    <footer class="page-footer bg-color">
+      <a class="sl-seg sl-branch" href="https://github.com/Core2002/blog/tree/src" target="_blank" rel="noopener noreferrer" title="源码仓库分支">
+        <i class="i i-git" aria-hidden="true"></i><span>src</span>
+      </a>
     
-        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
-<div class="">
-     x
-    <div class="row">
-        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
-                   server="netease"
-                   type="song"
-                   id="506520164"
-                   fixed='true'
-                   autoplay='false'
-                   theme:='#42b983'
-                   loop='all'
-                   order='random'
-                   preload='auto'
-                   volume='0.7'
-                   list-folded='true'
-        >
-        </meting-js>
-    </div>
-</div>
+    <span class="sl-seg sl-file">
+      <i class="i i-file-md" aria-hidden="true"></i>
+      <span id="sl-file">hexo.md</span>
+      <span class="sl-mod" title="modified">●</span>
+    </span>
+  </div>
 
-<script src="/libs/aplayer/APlayer.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
-
-    
-    <div class="container row center-align" style="margin-bottom: 0px !important;">
-        <div class="col s12 m8 l8 copy-right">
-            Copyright&nbsp;&copy;
-            <span id="year">2019</span>
-            <a href="https://nekoblog.vercel.app" target="_blank">NekokeCore</a>
-            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
-            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
-            <br>
-            
-            
-            
-            
-            
-            
-            <span id="busuanzi_container_site_pv">
-                |&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;<span id="busuanzi_value_site_pv"
-                    class="white-color"></span>&nbsp;次
-            </span>
-            
-            
-            <span id="busuanzi_container_site_uv">
-                |&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;<span id="busuanzi_value_site_uv"
-                    class="white-color"></span>&nbsp;人
-            </span>
-            
-            <br>
-            
-            <br>
-            
-        </div>
-        <div class="col s12 m4 l4 social-link social-statis">
-    <a href="https://github.com/Core2002" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
-        <i class="fab fa-github"></i>
-    </a>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
-    </div>
+  <div class="status-right">
+    <span class="sl-seg sl-ft">markdown</span>
+    <span class="sl-seg sl-enc">utf-8</span>
+    <span class="sl-seg sl-eol">unix</span>
+    <span class="sl-seg sl-pct" id="sl-percent" title="阅读进度">TOP</span>
+    <span class="sl-seg sl-clock" id="sl-clock">00:00</span>
+  </div>
 </footer>
 
-<div class="progress-bar"></div>
+<div class="cmdline">
+  <button class="cmdline-open" id="cmdline-open" type="button" data-open-palette aria-label="打开命令面板">
+    <span class="cmd-colon" aria-hidden="true">:</span>
+    <span class="cmd-hint">输入命令</span>
+    <span class="cmd-keys" aria-hidden="true"><kbd>Ctrl</kbd><kbd>K</kbd></span>
+    <span class="cmd-cursor" aria-hidden="true"></span>
+  </button>
+  <div class="cmdline-right" aria-hidden="true">
+    <span>markdown</span>
+    <span>UTF-8</span>
+    <span>LF</span>
+  </div>
+</div>
 
-
-    <!-- 搜索遮罩框 -->
-<div id="searchModal" class="modal">
-    <div class="modal-content">
-        <div class="search-header">
-            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
-            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
-                   class="search-input">
-        </div>
-        <div id="searchResult"></div>
     </div>
+  </div>
+
+  <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
+  <div class="palette-layer" id="palette" hidden>
+  <div class="palette-backdrop" data-palette-close></div>
+  <div class="palette-window" role="dialog" aria-modal="true" aria-labelledby="palette-title">
+    <div class="palette-titlebar">
+      <span class="palette-app"><i class="i i-terminal" aria-hidden="true"></i> telescope</span>
+      <span class="palette-mode" id="palette-title">find_files</span>
+      <button class="palette-close" type="button" data-palette-close aria-label="关闭">
+        <i class="i i-close" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="palette-prompt">
+      <span class="palette-prefix" id="palette-prefix" aria-hidden="true">&gt;</span>
+      <input id="palette-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+             placeholder="搜索文章、标签、页面…" aria-label="搜索" role="combobox" aria-expanded="true"
+             aria-controls="palette-results" aria-autocomplete="list">
+      <kbd class="palette-esc">esc</kbd>
+    </div>
+
+    <div class="palette-body">
+      <div class="palette-results" id="palette-results" role="listbox" aria-label="结果"></div>
+      <div class="palette-preview" id="palette-preview" aria-hidden="true">
+        <div class="preview-head">
+          <span class="preview-path" id="preview-path">~/blog</span>
+          <span class="preview-ft">markdown</span>
+        </div>
+        <div class="preview-title" id="preview-title"></div>
+        <div class="preview-meta" id="preview-meta"></div>
+        <div class="preview-text" id="preview-text"></div>
+      </div>
+    </div>
+
+    <div class="palette-foot">
+      <span class="pf-group"><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
+      <span class="pf-group"><kbd>↵</kbd> 打开</span>
+      <span class="pf-group pf-hide-sm"><kbd>esc</kbd> 关闭</span>
+      <span class="palette-count" id="palette-count">0 / 0</span>
+    </div>
+  </div>
 </div>
 
-<script src="/js/search.js"></script>
-<script type="text/javascript">
-$(function () {
-    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
-});
-</script>
-    <!-- 回到顶部按钮 -->
-<div id="backTop" class="top-scroll">
-    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
-        <i class="fas fa-arrow-up"></i>
-    </a>
-</div>
 
-
-    <script src="/libs/materialize/materialize.min.js"></script>
-    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
-    <script src="/libs/aos/aos.js"></script>
-    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
-    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
-    <script src="/js/matery.js"></script>
-
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-
-
-    <!-- Baidu Analytics -->
-
-    <!-- Baidu Push -->
-
-<script>
-    (function () {
-        var bp = document.createElement('script');
-        var curProtocol = window.location.protocol.split(':')[0];
-        if (curProtocol === 'https') {
-            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
-        } else {
-            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
-        }
-        var s = document.getElementsByTagName("script")[0];
-        s.parentNode.insertBefore(bp, s);
-    })();
-</script>
-
-    
-    <script src="/libs/others/clicklove.js" async="async"></script>
-    
-    
-    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-    
-    <script src="/libs/instantpage/instantpage.js" type="module"></script>
-    
-
+  <noscript>
+    <style>
+      .tree-folder:not(.is-open) > .tree-children { display: block; }
+      .outline { display: none; }
+      .cmdline { display: none; }
+    </style>
+  </noscript>
+  <script type="application/json" id="nvim-data">{"posts":[{"title":"在 Android 上跑端侧人脸识别：StellarEyes 的技术拆解","url":"/2026/07/03/android-on-device-face-recognition-stellareyes/","path":"2026/07/03/android-on-device-face-recognition-stellareyes/","date":"2026-07-03","category":"Android","tags":["Android","Kotlin","TensorFlow Lite","人脸识别","NCNN"],"excerpt":"StellarEyes 的目标是在 Android 设备上完成人脸识别，不把生物特征或图片上传到服务器。应用使用 Kotlin 和 Jetpack Compose 编写界面，CameraX 获取预览帧，ML Kit 做人脸检测，TensorFlow Lite 运行 FaceNet 提取 512 维特征，最后在本地向量库中做余弦相似度匹配。","minutes":4},{"title":"Go 实战：用 WebAuthn + PASETO 给后台做一套无密码登录","url":"/2026/06/18/go-webauthn-paseto-gateway/","path":"2026/06/18/go-webauthn-paseto-gateway/","date":"2026-06-18","category":"Go","tags":["Go","Gin","WebAuthn","PASETO","认证"],"excerpt":"管理后台使用密码登录时，需要处理密码复用、哈希存储、拖库和钓鱼等问题。Passkey 出现之后，我决定把密码从系统中移除，于是写了 fifu-gateway：前面接管理后台，后面代理业务服务，认证统一在网关完成。","minutes":4},{"title":"feach：用 Rust 写一个“在多个目录里执行同一条命令”的小工具","url":"/2026/05/02/rust-feach-cli/","path":"2026/05/02/rust-feach-cli/","date":"2026-05-02","category":"Rust","tags":["Rust","CLI","walkdir","tokio"],"excerpt":"我的机器上有几十个仓库，分散在几个目录里。每次更新都需要逐个执行 cd 和 git pull，为此写过 shell 循环，但在 Windows 上经常被路径和引号的问题打断。后来用 Rust 写了 feach，遍历指定目录的子目录，并在每个子目录中执行同一条命令。","minutes":3},{"title":"Tauri + Rust 实战：把 Windows 回收站改成啵啵猫","url":"/2024/11/05/tauri-rust-popcat/","path":"2024/11/05/tauri-rust-popcat/","date":"2024-11-05","category":"Rust","tags":["Rust","Tauri","Windows","Vue"],"excerpt":"这个项目的目标是把 Windows 回收站的图标换成啵啵猫。选择它主要是想找一个具体场景练习 Tauri，同时了解一下 Windows Shell 图标的配置方式。项目使用 Tauri 1.4、Vue 3 和 TypeScript，Rust 侧负责注册表和文件操作。","minutes":3},{"title":"用 TypeScript 在 GitHub 贡献图上“作画”：Time Assassin","url":"/2023/04/09/typescript-github-contribution-graph-time-assassin/","path":"2023/04/09/typescript-github-contribution-graph-time-assassin/","date":"2023-04-09","category":"前端","tags":["TypeScript","Git","GitHub","工具"],"excerpt":"GitHub 贡献图是一张按周排列的日期网格，每列 7 天，一年大约 53 列。我写 time_assassin 的出发点很简单：既然每个格子对应一天，能不能先选好日期，再让 Git 在这些日期产生提交。","minutes":3},{"title":"用 Rust 从零实现一个 Brainfuck 解释器","url":"/2023/03/31/rust-brainfuck-interpreter/","path":"2023/03/31/rust-brainfuck-interpreter/","date":"2023-03-31","category":"Rust","tags":["Rust","Brainfuck","解释器"],"excerpt":"写一个 Brainfuck 解释器，是我用来理解虚拟机的一次练习。它只有八条指令、一条数据带和一个指针，代码量不大，适合把取指、译码、执行的循环完整地写一遍。","minutes":3},{"title":"密码破解与心理学","url":"/2021/11/25/%E5%AF%86%E7%A0%81%E7%A0%B4%E8%A7%A3%E4%B8%8E%E5%BF%83%E7%90%86%E5%AD%A6/","path":"2021/11/25/密码破解与心理学/","date":"2021-11-25","category":"","tags":["转载","密码学","心理学"],"excerpt":"仅供学习与交流，切勿对真实目标操作，否则后果自负！ 十大基本规律 绝大多数人都高估了破译密码的难度和低估了自己密码存在的风险，因而，往往把能够破解密码的人当成神秘人物，同时基本很少有修改自己密码的习惯。 绝大多数人一生常用的密码通常不会超过3个，如果你破解了某人的QQ密码，很可能你也破解了他的论坛密码、邮箱密码、游戏账号密码…… 从性别上看，男性的密码比女性的要更加难破；从年龄层面上看，年轻人的密码比35岁以上的人群的密码更加难破；从受","minutes":33},{"title":"hexo博客框架+matery主题搭建以及云服务器部署","url":"/2021/11/24/hexo/","path":"2021/11/24/hexo/","date":"2021-11-24","category":"Linux","tags":["转载","Linux","Hexo"],"excerpt":"阅读须知： 系统环境： 本机：win10系统虚拟机：CentOS7-64位（新装的）云服务器：CentOS7-64位注意：以下代码中#代表root权限，$代表普通用户 如果你也跟我一样新装了个虚拟机centos7系统，建议先看看我的另一篇博客 一、初步搭建hexo环境(注意：我这是在虚拟机中的CentOS7系统上操作)1、安装git（如果有则无须安装）先介绍一种简单的方法（直接安装）但这种安装git版本过低yum install -y ","minutes":15},{"title":"命令：Screen","url":"/2020/02/15/CentOSCommandScreen/","path":"2020/02/15/CentOSCommandScreen/","date":"2020-02-15","category":"学习","tags":["转载","Linux"],"excerpt":"一、背景系统管理员经常需要SSH 或者telent 远程登录到Linux 服务器，经常运行一些需要很长时间才能完成的任务，比如系统备份、ftp 传输等等。通常情况下我们都是为每一个这样的任务开一个远程终端窗口，因为它们执行的时间太长了。必须等待它们执行完毕，在此期间不能关掉窗口或者断开连接，否则这个任务就会被杀掉，一切半途而废了。 二、简介GNU Screen是一款由GNU计划开发的用于命令行终端切换的自由软件。用户可以通过该软件同时连","minutes":12},{"title":"一个开源、轻量且类似于Servo/Ngrok的内网穿透工具","url":"/2020/02/15/AnOpenSource-LightweightIntranetPenetrationToolSimilarToServo-Ngrok/","path":"2020/02/15/AnOpenSource-LightweightIntranetPenetrationToolSimilarToServo-Ngrok/","date":"2020-02-15","category":"工具","tags":["转载","Linux","搭建教程"],"excerpt":"说明：sish是一个SSH服务器，仅用于远程端口转发，可以快速将本地端口暴露在外网，作者声称其为Servo&#x2F;Ngrok替代方案，仅使用SSH的HTTP(S)、WS(S)、TCP隧道连接到他们的localhost服务器，该工具和Servo差不多一样，不同就是Servo官方提供了免费的SSH客户端，而sish作者提供的客户端貌似因为滥用关闭了，所以就需要我们自己搭建了，这里就水下Docker和手动安装。 Docker安装**Git","minutes":19},{"title":"一款二次元的Web多人在线网络聊天系统：Fiora的部署","url":"/2020/02/15/ATwo-DimensionalWebMulti-PersonOnlineNetworkChatSystem/","path":"2020/02/15/ATwo-DimensionalWebMulti-PersonOnlineNetworkChatSystem/","date":"2020-02-15","category":"学习","tags":["Linux","搭建教程"],"excerpt":"InstallEnvironmental PreparationTo run Fiora, you need Node.js(recommend v14 LTS version), MongoDB and redis Install Node.js Official website https://nodejs.org/en/download/ It is recommended to use nvm to install Node.j","minutes":4},{"title":"hexo引用本地图片无法显示","url":"/2020/02/15/HexoReferencesToLocalImagesCannotBeDisplayed/","path":"2020/02/15/HexoReferencesToLocalImagesCannotBeDisplayed/","date":"2020-02-15","category":"Bugs","tags":["转载","Hexo"],"excerpt":"最近重新开始用起hexo，但是发现在文章中引用本地图片时总是显示不出来。花费了许久时间才解决这个问题。因此将一些解决经验整理出来，希望能帮助到大家。 一、插件安装与配置首先我们需要安装一个图片路径转换的插件，这个插件名字是hexo-asset-imagenpm install https://github.com/CodeFalling/hexo-asset-image --save 但是这个插件的内容需要修改【不然可能会出Bug】 打","minutes":6},{"title":"使用Kali无线渗透获取WiFi密码","url":"/2020/02/15/UseKaliWirelessPenetrationToGetTheWifiPassword/","path":"2020/02/15/UseKaliWirelessPenetrationToGetTheWifiPassword/","date":"2020-02-15","category":"学习","tags":["Kali"],"excerpt":"仅供学习与交流，切勿对真实目标操作，否则后果自负！ 前期准备：在虚拟机Kali中是无法直接使用物理机本身的网卡的，需要自己买一块网卡插上去让Kali使用，而且对于网卡的类型也是有限制的，买得不好的话就用不了又得退货。本人在这用的无线网卡型号为EP-N8508GS，仅供参考。 Fighting：先将无线网卡插入Kali Linux，输入iwconfig命令查看得到，网卡名为wlan0： 接着通过以下命令将可能会影响进行无线实验的因素排除掉","minutes":3},{"title":"Hello World","url":"/2018/06/14/hello-world/","path":"2018/06/14/hello-world/","date":"2018-06-14","category":"","tags":[],"excerpt":"Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick StartCreate a new p","minutes":1}],"pages":[{"title":"关于","url":"/about/index.html","path":"pages/about.md","pageName":"about"},{"title":"分类","url":"/categories/index.html","path":"pages/categories.md","pageName":"categories"},{"title":"联系","url":"/contact/index.html","path":"pages/contact.md","pageName":"contact"},{"title":"友链","url":"/friends/index.html","path":"pages/friends.md","pageName":"friends"},{"title":"标签","url":"/tags/index.html","path":"pages/tags.md","pageName":"tags"}],"routes":{"home":"/","archives":"/archives/","categories":"/categories/","tags":"/tags/","about":"/about/","friends":"/friends/","contact":"/contact/","content":"/content.json","github":"https://github.com/Core2002","source":"https://github.com/Core2002/blog/blob/src/source/_posts/hexo.md","repo":"https://github.com/Core2002/blog","branch":"src"},"profile":{"name":"NekokeCore","handle":"Core2002","bio":"记录代码，也记录为什么。"},"file":"hexo.md","kind":"post","url":"https://nekoblog.vercel.app/2021/11/24/hexo/","title":"hexo博客框架+matery主题搭建以及云服务器部署"}</script>
+  <script src="/js/nvim.js" defer></script>
+  
+  
 </body>
-
 </html>
