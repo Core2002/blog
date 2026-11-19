@@ -33,7 +33,7 @@ const IS_WINDOWS = process.platform === 'win32';
 const TOOLING_FILES = new Set([
   'package.json',
   'package-lock.json',
-  'scripts/deploy-master.js'
+  'bin/deploy-master.js'
 ]);
 
 const options = parseArgs(process.argv.slice(2));

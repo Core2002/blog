@@ -5,10 +5,10 @@
   "scripts": {
     "build": "hexo generate",
     "clean": "hexo clean",
-    "deploy": "node scripts/deploy-master.js",
-    "deploy:fast": "node scripts/deploy-master.js --skip-build",
-    "deploy:dry": "node scripts/deploy-master.js --dry-run",
-    "deploy:help": "node scripts/deploy-master.js --help",
+    "deploy": "node bin/deploy-master.js",
+    "deploy:fast": "node bin/deploy-master.js --skip-build",
+    "deploy:dry": "node bin/deploy-master.js --dry-run",
+    "deploy:help": "node bin/deploy-master.js --help",
     "server": "hexo server"
   },
   "hexo": {
