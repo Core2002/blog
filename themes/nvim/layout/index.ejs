@@ -1,0 +1,92 @@
+<%
+  const posts = page.posts ? page.posts.toArray() : [];
+  const allPosts = site.posts.sort('-date').toArray();
+  const profile = theme.profile || {};
+  const bio = profile.bio || config.description || '一个用来记录代码与折腾的地方。';
+  const firstYear = allPosts.length ? allPosts[allPosts.length - 1].date.year() : (theme.footer && theme.footer.since) || new Date().getFullYear();
+  const lastYear = allPosts.length ? allPosts[0].date.year() : new Date().getFullYear();
+  const perPage = (config.index_generator && config.index_generator.per_page) || config.per_page || 10;
+  const offset = ((page.current || 1) - 1) * perPage;
+%>
+<section class="home-hero">
+  <div class="home-eyebrow">
+    <span class="home-prompt">~</span>
+    <span class="home-path">/blog/README.md</span>
+    <span class="home-badge">readonly</span>
+  </div>
+
+  <h1 class="home-title">
+    <span class="md-hash">#</span><%= config.title %>
+    <span class="block-cursor" aria-hidden="true"></span>
+  </h1>
+
+  <p class="home-bio"><span class="md-comment">//</span><%= bio %></p>
+
+  <div class="home-meta">
+    <span class="home-meta-item"><i class="i i-user" aria-hidden="true"></i><%= profile.name || config.author || 'author' %></span>
+    <span class="home-meta-item"><i class="i i-calendar" aria-hidden="true"></i><%= firstYear %> — <%= lastYear %></span>
+    <span class="home-meta-item"><i class="i i-file" aria-hidden="true"></i><%= allPosts.length %> 篇文章</span>
+    <span class="home-meta-item"><i class="i i-folder" aria-hidden="true"></i><%= site.categories.length %> 个分类</span>
+  </div>
+
+  <div class="home-actions">
+    <a class="btn" href="<%= url_for('/archives/') %>">
+      <i class="i i-book" aria-hidden="true"></i>归档
+    </a>
+    <button class="btn btn-ghost" type="button" data-open-search>
+      <i class="i i-search" aria-hidden="true"></i>搜索文章 <kbd>/</kbd>
+    </button>
+    <button class="btn btn-ghost home-cmd" type="button" data-open-palette>
+      <i class="i i-terminal" aria-hidden="true"></i>命令 <kbd>Ctrl K</kbd>
+    </button>
+  </div>
+</section>
+
+<section class="buffer-list" aria-labelledby="latest-title">
+  <div class="list-head">
+    <span class="list-title" id="latest-title"><span class="c">--</span> <%= (theme.home && theme.home.section) || '最新文章' %></span>
+    <span class="list-sub"><%= posts.length %> files <span class="sep">·</span> page <%= page.current || 1 %>/<%= page.total || 1 %></span>
+  </div>
+
+  <div class="file-rows">
+    <% if (!posts.length) { %>
+      <div class="empty-state">
+        <span class="empty-prompt">~</span>
+        <p>还没有文章。运行 <code>hexo new post</code> 创建第一篇。</p>
+      </div>
+    <% } %>
+    <% posts.forEach(function (post, i) { %>
+      <%
+        const num = String(offset + i + 1).padStart(2, '0');
+        const cat = post.categories && post.categories.length ? post.categories.first().name : '未分类';
+        const words = strip_html(post.content || '').replace(/\s+/g, '').length;
+        const mins = Math.max(1, Math.round(words / 450));
+      %>
+      <a class="file-row" href="<%= url_for(post.path) %>">
+        <span class="file-ln"><%= num %></span>
+        <i class="i i-file-md file-fi" aria-hidden="true"></i>
+        <span class="file-date"><%= date(post.date, 'YYYY-MM-DD') %></span>
+        <span class="file-title"><%= post.title %></span>
+        <span class="file-cat"><%= cat %></span>
+        <span class="file-time"><%= mins %> min</span>
+        <i class="i i-arrow-right file-arrow" aria-hidden="true"></i>
+      </a>
+    <% }); %>
+  </div>
+</section>
+
+<% if ((page.total || 1) > 1) { %>
+  <nav class="pager" aria-label="分页">
+    <% if (page.prev) { %>
+      <a class="pager-btn pager-prev" href="<%= url_for(page.prev_link || '/') %>"><i class="i i-arrow-left" aria-hidden="true"></i> 上一页</a>
+    <% } else { %>
+      <span class="pager-btn is-disabled"><i class="i i-arrow-left" aria-hidden="true"></i> 上一页</span>
+    <% } %>
+    <span class="pager-info">PAGE <%= page.current %> / <%= page.total %></span>
+    <% if (page.next) { %>
+      <a class="pager-btn pager-next" href="<%= url_for(page.next_link) %>">下一页 <i class="i i-arrow-right" aria-hidden="true"></i></a>
+    <% } else { %>
+      <span class="pager-btn is-disabled">下一页 <i class="i i-arrow-right" aria-hidden="true"></i></span>
+    <% } %>
+  </nav>
+<% } %>

@@ -1,0 +1,27 @@
+<%
+  const rowPosts = (typeof posts !== 'undefined' && posts) ? posts : [];
+%>
+<div class="file-rows file-rows-static">
+  <% if (!rowPosts.length) { %>
+    <div class="empty-state">
+      <span class="empty-prompt">~</span>
+      <p>这里还没有文章。</p>
+    </div>
+  <% } %>
+  <% rowPosts.forEach(function (post, i) { %>
+    <%
+      const cat = post.categories && post.categories.length ? post.categories.first().name : '未分类';
+      const words = strip_html(post.content || '').replace(/\s+/g, '').length;
+      const mins = Math.max(1, Math.round(words / 450));
+    %>
+    <a class="file-row" href="<%= url_for(post.path) %>">
+      <span class="file-ln"><%= String(i + 1).padStart(2, '0') %></span>
+      <i class="i i-file-md file-fi" aria-hidden="true"></i>
+      <span class="file-date"><%= date(post.date, 'YYYY-MM-DD') %></span>
+      <span class="file-title"><%= post.title %></span>
+      <% if (showCat !== false) { %><span class="file-cat"><%= cat %></span><% } %>
+      <span class="file-time"><%= mins %> min</span>
+      <i class="i i-arrow-right file-arrow" aria-hidden="true"></i>
+    </a>
+  <% }); %>
+</div>

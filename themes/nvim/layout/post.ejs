@@ -1,0 +1,93 @@
+<%
+  const postCats = page.categories ? page.categories.toArray() : [];
+  const postTags = page.tags ? page.tags.toArray() : [];
+  const plain = strip_html(page.content || '').replace(/\s+/g, '');
+  const words = plain.length;
+  const minutes = Math.max(1, Math.round(words / 450));
+  const originalDate = date(page.date, 'YYYY-MM-DD');
+  const updatedDate = page.updated ? date(page.updated, 'YYYY-MM-DD') : '';
+  const isReprint = postTags.some(function (t) { return t.name === '转载'; });
+  const repoUrl = (theme.repo && theme.repo.url ? theme.repo.url : '').replace(/\.git$/, '');
+  const branch = (theme.repo && theme.repo.branch) || 'master';
+  const editUrl = (repoUrl && page.source)
+    ? repoUrl + '/blob/' + branch + '/source/' + page.source.split('/').map(encodeURIComponent).join('/')
+    : '';
+%>
+<article class="post">
+  <header class="post-head">
+    <div class="post-kicker">
+      <span class="c">--</span>
+      <span>markdown</span>
+      <span class="c">--</span>
+    </div>
+
+    <h1 class="post-title"><span class="md-hash">#</span><%= page.title %></h1>
+
+    <% if (page.description) { %>
+      <p class="post-desc"><%= page.description %></p>
+    <% } %>
+
+    <div class="post-meta">
+      <span class="post-meta-item"><i class="i i-calendar" aria-hidden="true"></i><time datetime="<%= date(page.date, 'YYYY-MM-DD') %>"><%= originalDate %></time></span>
+      <span class="post-meta-item"><i class="i i-clock" aria-hidden="true"></i><%= minutes %> 分钟</span>
+      <span class="post-meta-item"><i class="i i-file" aria-hidden="true"></i><%= words.toLocaleString('en-US') %> 字</span>
+      <% if (updatedDate && updatedDate !== originalDate) { %>
+        <span class="post-meta-item"><i class="i i-pencil" aria-hidden="true"></i>更新于 <%= updatedDate %></span>
+      <% } %>
+    </div>
+
+    <div class="post-tax">
+      <% postCats.forEach(function (cat) { %>
+        <a class="chip" href="<%= url_for(cat.path) %>"><i class="i i-folder" aria-hidden="true"></i><%= cat.name %></a>
+      <% }); %>
+      <% postTags.forEach(function (tag) { %>
+        <a class="tag" href="<%= url_for(tag.path) %>">#<%= tag.name %></a>
+      <% }); %>
+    </div>
+  </header>
+
+  <% if (isReprint) { %>
+    <div class="notice notice-reprint">
+      <i class="i i-info" aria-hidden="true"></i>
+      <span>本文为转载文章，版权归原作者所有。</span>
+    </div>
+  <% } %>
+
+  <div class="post-body" id="post-body">
+    <%- page.content %>
+  </div>
+
+  <footer class="post-foot">
+    <div class="post-end"><span class="c">--</span> END OF BUFFER <span class="c">--</span></div>
+
+    <div class="post-actions">
+      <% if (editUrl) { %>
+        <a class="post-action" href="<%= editUrl %>" target="_blank" rel="noopener noreferrer">
+          <i class="i i-pencil" aria-hidden="true"></i>编辑此页
+        </a>
+      <% } %>
+      <button class="post-action" type="button" data-copy-link>
+        <i class="i i-link" aria-hidden="true"></i>复制链接
+      </button>
+    </div>
+
+    <nav class="post-nav" aria-label="上一篇 / 下一篇">
+      <% if (page.prev) { %>
+        <a class="post-nav-card post-nav-prev" href="<%= url_for(page.prev.path) %>">
+          <span class="post-nav-label"><i class="i i-arrow-left" aria-hidden="true"></i> previous</span>
+          <span class="post-nav-title"><%= page.prev.title %></span>
+        </a>
+      <% } else { %>
+        <span class="post-nav-card is-empty"></span>
+      <% } %>
+      <% if (page.next) { %>
+        <a class="post-nav-card post-nav-next" href="<%= url_for(page.next.path) %>">
+          <span class="post-nav-label">next<i class="i i-arrow-right" aria-hidden="true"></i></span>
+          <span class="post-nav-title"><%= page.next.title %></span>
+        </a>
+      <% } else { %>
+        <span class="post-nav-card is-empty"></span>
+      <% } %>
+    </nav>
+  </footer>
+</article>

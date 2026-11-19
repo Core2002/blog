@@ -1,0 +1,16 @@
+<%
+  const tagPosts = page.posts ? page.posts.toArray() : [];
+%>
+<article class="taxonomy-page">
+  <header class="page-head">
+    <div class="post-kicker"><span class="c">--</span><span>tag</span><span class="c">--</span></div>
+    <h1 class="page-title"><span class="md-hash">#</span><%= page.tag %></h1>
+    <p class="page-desc"><i class="i i-tag" aria-hidden="true"></i> <%= tagPosts.length %> 篇文章带这个标签。</p>
+  </header>
+
+  <%- partial('_partial/post-rows', { posts: tagPosts, showCat: true }) %>
+
+  <div class="taxonomy-back">
+    <a class="btn btn-ghost" href="<%= url_for('/tags/') %>"><i class="i i-arrow-left" aria-hidden="true"></i>所有标签</a>
+  </div>
+</article>

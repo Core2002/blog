@@ -1,0 +1,40 @@
+<div class="palette-layer" id="palette" hidden>
+  <div class="palette-backdrop" data-palette-close></div>
+  <div class="palette-window" role="dialog" aria-modal="true" aria-labelledby="palette-title">
+    <div class="palette-titlebar">
+      <span class="palette-app"><i class="i i-terminal" aria-hidden="true"></i> telescope</span>
+      <span class="palette-mode" id="palette-title">find_files</span>
+      <button class="palette-close" type="button" data-palette-close aria-label="关闭">
+        <i class="i i-close" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="palette-prompt">
+      <span class="palette-prefix" id="palette-prefix" aria-hidden="true">&gt;</span>
+      <input id="palette-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+             placeholder="搜索文章、标签、页面…" aria-label="搜索" role="combobox" aria-expanded="true"
+             aria-controls="palette-results" aria-autocomplete="list">
+      <kbd class="palette-esc">esc</kbd>
+    </div>
+
+    <div class="palette-body">
+      <div class="palette-results" id="palette-results" role="listbox" aria-label="结果"></div>
+      <div class="palette-preview" id="palette-preview" aria-hidden="true">
+        <div class="preview-head">
+          <span class="preview-path" id="preview-path">~/blog</span>
+          <span class="preview-ft">markdown</span>
+        </div>
+        <div class="preview-title" id="preview-title"></div>
+        <div class="preview-meta" id="preview-meta"></div>
+        <div class="preview-text" id="preview-text"></div>
+      </div>
+    </div>
+
+    <div class="palette-foot">
+      <span class="pf-group"><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
+      <span class="pf-group"><kbd>↵</kbd> 打开</span>
+      <span class="pf-group pf-hide-sm"><kbd>esc</kbd> 关闭</span>
+      <span class="palette-count" id="palette-count">0 / 0</span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,66 @@
+<%
+  const posts = (page.posts ? page.posts.toArray() : site.posts.toArray());
+  const sorted = posts.slice().sort(function (a, b) { return b.date - a.date; });
+  const groups = [];
+  sorted.forEach(function (p) {
+    const y = p.date.year();
+    let g = groups[groups.length - 1];
+    if (!g || g.year !== y) { g = { year: y, posts: [] }; groups.push(g); }
+    g.posts.push(p);
+  });
+  const heading = page.year ? page.year + ' 年归档' : '归档';
+  const totalPosts = page.year ? posts.length : site.posts.length;
+%>
+<article class="archive-page">
+  <header class="page-head">
+    <div class="post-kicker"><span class="c">--</span><span>archives</span><span class="c">--</span></div>
+    <h1 class="page-title"><span class="md-hash">#</span><%= heading %></h1>
+    <p class="page-desc"><%= totalPosts %> 篇文章，按年份折叠。<% if ((page.total || 1) > 1) { %> 当前第 <%= page.current %> 页。<% } %></p>
+  </header>
+
+  <div class="archive">
+    <% groups.forEach(function (g, gi) { %>
+      <details class="archive-year" open>
+        <summary class="archive-summary">
+          <i class="i i-chevron-right archive-chev" aria-hidden="true"></i>
+          <span class="archive-year-num"><%= g.year %></span>
+          <span class="archive-year-count"><%= g.posts.length %> files</span>
+          <span class="archive-rule"></span>
+        </summary>
+        <div class="archive-rows">
+          <% g.posts.forEach(function (p) { %>
+            <%
+              const cat = p.categories && p.categories.length ? p.categories.first().name : '未分类';
+              const words = strip_html(p.content || '').replace(/\s+/g, '').length;
+              const mins = Math.max(1, Math.round(words / 450));
+            %>
+            <a class="archive-row" href="<%= url_for(p.path) %>">
+              <span class="archive-date"><%= date(p.date, 'MM-DD') %></span>
+              <i class="i i-file-md archive-fi" aria-hidden="true"></i>
+              <span class="archive-title"><%= p.title %></span>
+              <span class="archive-cat"><%= cat %></span>
+              <span class="archive-time"><%= mins %> min</span>
+              <i class="i i-arrow-right archive-arrow" aria-hidden="true"></i>
+            </a>
+          <% }); %>
+        </div>
+      </details>
+    <% }); %>
+  </div>
+
+  <% if ((page.total || 1) > 1) { %>
+    <nav class="pager" aria-label="归档分页">
+      <% if (page.prev) { %>
+        <a class="pager-btn pager-prev" href="<%= url_for(page.prev_link || '/archives/') %>"><i class="i i-arrow-left" aria-hidden="true"></i> 上一页</a>
+      <% } else { %>
+        <span class="pager-btn is-disabled"><i class="i i-arrow-left" aria-hidden="true"></i> 上一页</span>
+      <% } %>
+      <span class="pager-info">PAGE <%= page.current %> / <%= page.total %></span>
+      <% if (page.next) { %>
+        <a class="pager-btn pager-next" href="<%= url_for(page.next_link) %>">下一页 <i class="i i-arrow-right" aria-hidden="true"></i></a>
+      <% } else { %>
+        <span class="pager-btn is-disabled">下一页 <i class="i i-arrow-right" aria-hidden="true"></i></span>
+      <% } %>
+    </nav>
+  <% } %>
+</article>

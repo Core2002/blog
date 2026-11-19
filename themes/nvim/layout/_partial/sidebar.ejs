@@ -1,0 +1,200 @@
+<%
+  const treePosts = site.posts.sort('-date').toArray();
+  const currentPath = page.path || '';
+  const onHome = is_home();
+  const onPost = is_post();
+  const onPage = is_page();
+  const onArchive = is_archive();
+  const onCategory = is_category();
+  const onTag = is_tag();
+
+  const groupMap = new Map();
+  treePosts.forEach(function (p) {
+    const name = p.categories && p.categories.length ? p.categories.first().name : '未分类';
+    if (!groupMap.has(name)) groupMap.set(name, []);
+    groupMap.get(name).push(p);
+  });
+  const groups = Array.from(groupMap.entries()).map(function (entry, i) {
+    return { name: entry[0], posts: entry[1], key: 'cat-' + i };
+  }).sort(function (a, b) { return a.name.localeCompare(b.name, 'zh-CN'); });
+
+  const activeCategory = onPost && page.categories && page.categories.length
+    ? page.categories.first().name
+    : (onCategory ? page.category : '');
+
+  const pageOrder = Object.keys(theme.pages || {});
+  const pageEntries = site.pages.filter(function (p) { return p.source && p.title; }).map(function (p) {
+    const seg = (p.source || '').split('/')[0];
+    const labels = theme.pages || {};
+    return {
+      seg: seg,
+      file: seg + '.md',
+      label: labels[seg] || p.title,
+      path: p.path,
+      url: url_for(p.path),
+      order: pageOrder.indexOf(seg)
+    };
+  }).sort(function (a, b) {
+    if (a.order === -1 && b.order === -1) return a.seg.localeCompare(b.seg);
+    if (a.order === -1) return 1;
+    if (b.order === -1) return -1;
+    return a.order - b.order;
+  });
+
+  const root = (theme.brand && theme.brand.root) || (theme.sidebar && theme.sidebar.root) || '~/blog';
+  const brandName = (theme.brand && theme.brand.name) || config.title;
+  const logo = (theme.brand && theme.brand.logo) || (brandName || 'N').slice(0, 1).toUpperCase();
+  const showCounts = !(theme.sidebar && theme.sidebar.show_counts === false);
+  const profile = theme.profile || {};
+  const github = (theme.social && theme.social.github) || '';
+  const avatar = profile.avatar ? url_for(profile.avatar) : '';
+  const configUrl = (theme.repo && theme.repo.url)
+    ? theme.repo.url.replace(/\.git$/, '') + '/blob/' + ((theme.repo && theme.repo.branch) || 'master') + '/_config.yml'
+    : '';
+%>
+<aside class="sidebar" id="sidebar" aria-label="站点导航">
+  <div class="sidebar-brand">
+    <a class="brand" href="<%= url_for('/') %>" aria-label="<%= brandName %> 首页">
+      <span class="brand-logo"><%= logo %></span>
+      <span class="brand-text">
+        <strong><%= brandName %></strong>
+        <small>text editor · tokyonight</small>
+      </span>
+    </a>
+    <button class="icon-btn sidebar-close" id="sidebar-close" type="button" title="关闭文件树" aria-label="关闭文件树">
+      <i class="i i-close" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <div class="tree-panel">
+    <div class="tree-head">
+      <span class="tree-head-title">neo-tree</span>
+      <div class="tree-head-tools">
+        <button class="icon-btn" id="tree-collapse-all" type="button" title="全部折叠" aria-label="全部折叠">
+          <i class="i i-minus" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <nav class="tree" id="tree" aria-label="文件">
+      <div class="tree-root">
+        <i class="i i-folder-open tree-root-icon" aria-hidden="true"></i>
+        <span class="tree-root-name"><%= root %></span>
+        <span class="tree-root-branch"><i class="i i-git" aria-hidden="true"></i><%= (theme.repo && theme.repo.branch) || 'src' %></span>
+      </div>
+
+      <ul class="tree-list" role="tree">
+        <li class="tree-item tree-file-item<%= onHome ? ' is-active' : '' %>" role="none">
+          <a class="tree-row tree-file-row" href="<%= url_for('/') %>" <%= onHome ? 'aria-current="page"' : '' %>>
+            <span class="tree-chev-spacer"></span>
+            <i class="i i-file-md ficon" aria-hidden="true"></i>
+            <span class="tree-name">README.md</span>
+            <% if (showCounts) { %><span class="tree-meta">home</span><% } %>
+          </a>
+        </li>
+
+        <li class="tree-item tree-folder is-open" data-folder="posts" role="treeitem" aria-expanded="true">
+          <button class="tree-row tree-folder-row" type="button">
+            <i class="i i-chevron-right tree-chev" aria-hidden="true"></i>
+            <i class="i i-folder ficon" aria-hidden="true"></i>
+            <span class="tree-name">posts</span>
+            <% if (showCounts) { %><span class="tree-count"><%= treePosts.length %></span><% } %>
+          </button>
+          <ul class="tree-children" role="group">
+            <% groups.forEach(function (g) { %>
+              <li class="tree-item tree-folder <%= activeCategory === g.name ? 'is-open is-active-folder' : '' %>" data-folder="<%= g.key %>" role="treeitem" aria-expanded="<%= activeCategory === g.name ? 'true' : 'false' %>">
+                <button class="tree-row tree-folder-row" type="button">
+                  <i class="i i-chevron-right tree-chev" aria-hidden="true"></i>
+                  <i class="i i-folder ficon" aria-hidden="true"></i>
+                  <span class="tree-name"><%= g.name %></span>
+                  <% if (showCounts) { %><span class="tree-count"><%= g.posts.length %></span><% } %>
+                </button>
+                <ul class="tree-children" role="group">
+                  <% g.posts.forEach(function (p) { const active = onPost && currentPath === p.path; %>
+                    <li class="tree-item tree-file-item<%= active ? ' is-active' : '' %>" role="none">
+                      <a class="tree-row tree-file-row" href="<%= url_for(p.path) %>" <%= active ? 'aria-current="page"' : '' %>>
+                        <span class="tree-chev-spacer"></span>
+                        <i class="i i-file-md ficon" aria-hidden="true"></i>
+                        <span class="tree-name"><%= p.slug %>.md</span>
+                        <% if (active) { %><span class="tree-mod" title="当前 buffer">M</span><% } %>
+                      </a>
+                    </li>
+                  <% }); %>
+                </ul>
+              </li>
+            <% }); %>
+          </ul>
+        </li>
+
+        <li class="tree-item tree-folder is-open" data-folder="pages" role="treeitem" aria-expanded="true">
+          <button class="tree-row tree-folder-row" type="button">
+            <i class="i i-chevron-right tree-chev" aria-hidden="true"></i>
+            <i class="i i-folder ficon" aria-hidden="true"></i>
+            <span class="tree-name">pages</span>
+            <% if (showCounts) { %><span class="tree-count"><%= pageEntries.length %></span><% } %>
+          </button>
+          <ul class="tree-children" role="group">
+            <% pageEntries.forEach(function (p) {
+                 const active = (onPage && currentPath === p.path) ||
+                   (onCategory && p.seg === 'categories') ||
+                   (onTag && p.seg === 'tags'); %>
+              <li class="tree-item tree-file-item<%= active ? ' is-active' : '' %>" role="none">
+                <a class="tree-row tree-file-row" href="<%= p.url %>" <%= active ? 'aria-current="page"' : '' %>>
+                  <span class="tree-chev-spacer"></span>
+                  <i class="i i-file-md ficon" aria-hidden="true"></i>
+                  <span class="tree-name"><%= p.file %></span>
+                  <span class="tree-meta"><%= p.label %></span>
+                  <% if (active) { %><span class="tree-mod" title="当前 buffer">M</span><% } %>
+                </a>
+              </li>
+            <% }); %>
+          </ul>
+        </li>
+
+        <li class="tree-item tree-file-item<%= onArchive ? ' is-active' : '' %>" role="none">
+          <a class="tree-row tree-file-row" href="<%= url_for('/archives/') %>" <%= onArchive ? 'aria-current="page"' : '' %>>
+            <span class="tree-chev-spacer"></span>
+            <i class="i i-book ficon ficon-cyan" aria-hidden="true"></i>
+            <span class="tree-name">archives.md</span>
+            <% if (onArchive) { %><span class="tree-mod" title="当前 buffer">M</span><% } %>
+          </a>
+        </li>
+
+        <li class="tree-item tree-file-item" role="none">
+          <% if (configUrl) { %>
+            <a class="tree-row tree-file-row" href="<%= configUrl %>" target="_blank" rel="noopener noreferrer">
+              <span class="tree-chev-spacer"></span>
+              <i class="i i-gear ficon ficon-yellow" aria-hidden="true"></i>
+              <span class="tree-name">_config.yml</span>
+            </a>
+          <% } else { %>
+            <span class="tree-row tree-file-row is-muted">
+              <span class="tree-chev-spacer"></span>
+              <i class="i i-gear ficon ficon-yellow" aria-hidden="true"></i>
+              <span class="tree-name">_config.yml</span>
+            </span>
+          <% } %>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="sidebar-foot">
+    <a class="profile-mini" href="<%= url_for('/about/') %>">
+      <% if (avatar) { %>
+        <img class="profile-mini-avatar" src="<%= avatar %>" alt="" loading="lazy" width="28" height="28">
+      <% } else { %>
+        <span class="profile-mini-avatar profile-mini-fallback"><%= (profile.name || config.author || 'N').slice(0, 1) %></span>
+      <% } %>
+      <span class="profile-mini-text">
+        <strong><%= profile.name || config.author || 'author' %></strong>
+        <small><%= profile.handle ? '@' + profile.handle : 'author' %></small>
+      </span>
+    </a>
+    <% if (github) { %>
+      <a class="icon-btn profile-mini-github" href="<%= github %>" target="_blank" rel="noopener noreferrer" title="GitHub" aria-label="GitHub">
+        <i class="i i-github" aria-hidden="true"></i>
+      </a>
+    <% } %>
+  </div>
+</aside>

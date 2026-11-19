@@ -1,0 +1,67 @@
+# ============================================================
+#  nvim — a text-editor theme for Hexo
+#  Shell: neo-tree sidebar / bufferline tabs / lualine statusline
+#  Palette: Tokyo Night
+# ============================================================
+
+# Brand shown in the sidebar header and window title.
+brand:
+  name: nekoblog
+  root: ~/blog
+  logo: N
+
+# Profile details used by the sidebar, about page and home screen.
+profile:
+  name: NekokeCore
+  handle: Core2002
+  avatar: /images/avatar.png
+  bio: 记录代码，也记录为什么。
+
+# Social links. Remove or leave empty to hide.
+social:
+  github: https://github.com/Core2002
+  email:
+  twitter:
+  bilibili:
+  zhihu:
+
+# Source repository, used for the `:source` / “编辑此页” links.
+repo:
+  url: https://github.com/Core2002/blog
+  branch: src
+
+# Sidebar / tree behaviour.
+sidebar:
+  root: ~/blog
+  show_counts: true
+
+# Home screen.
+home:
+  section: 最新文章
+
+# Footer / statusline.
+footer:
+  since: 2020
+
+# Menu labels (order controls the `pages/` tree order).
+pages:
+  about: 关于
+  categories: 分类
+  tags: 标签
+  friends: 友链
+  contact: 联系
+
+# Set false to hide the right-hand outline panel.
+outline:
+  enable: true
+  min_depth: 2
+  max_depth: 4
+
+favicon: /favicon.svg
+
+# Optional analytics snippet is inserted verbatim in <head>.
+analytics:
+
+# Optional custom head / body snippets (raw HTML).
+inject_head:
+inject_body:

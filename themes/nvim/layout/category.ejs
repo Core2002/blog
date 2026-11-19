@@ -1,0 +1,16 @@
+<%
+  const catPosts = page.posts ? page.posts.toArray() : [];
+%>
+<article class="taxonomy-page">
+  <header class="page-head">
+    <div class="post-kicker"><span class="c">--</span><span>category</span><span class="c">--</span></div>
+    <h1 class="page-title"><span class="md-hash">#</span><%= page.category %></h1>
+    <p class="page-desc"><i class="i i-folder" aria-hidden="true"></i> <%= catPosts.length %> 篇文章归在这个目录。</p>
+  </header>
+
+  <%- partial('_partial/post-rows', { posts: catPosts, showCat: false }) %>
+
+  <div class="taxonomy-back">
+    <a class="btn btn-ghost" href="<%= url_for('/categories/') %>"><i class="i i-arrow-left" aria-hidden="true"></i>所有分类</a>
+  </div>
+</article>

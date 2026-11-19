@@ -1,0 +1,23 @@
+<%
+  const cats = site.categories.toArray().sort(function (a, b) { return b.length - a.length || a.name.localeCompare(b.name, 'zh-CN'); });
+  const totalPosts = cats.reduce(function (sum, c) { return sum + c.length; }, 0);
+%>
+<article class="categories-page">
+  <header class="page-head">
+    <div class="post-kicker"><span class="c">--</span><span>directories</span><span class="c">--</span></div>
+    <h1 class="page-title"><span class="md-hash">#</span>分类</h1>
+    <p class="page-desc"><%= cats.length %> 个目录，<%= totalPosts %> 篇已分类文章。</p>
+  </header>
+
+  <div class="dir-grid">
+    <% cats.forEach(function (cat, i) { %>
+      <a class="dir-card" href="<%= url_for(cat.path) %>">
+        <span class="dir-index"><%= String(i + 1).padStart(2, '0') %></span>
+        <i class="i i-folder dir-icon" aria-hidden="true"></i>
+        <span class="dir-name"><%= cat.name %></span>
+        <span class="dir-count"><%= cat.length %></span>
+        <i class="i i-chevron-right dir-arrow" aria-hidden="true"></i>
+      </a>
+    <% }); %>
+  </div>
+</article>

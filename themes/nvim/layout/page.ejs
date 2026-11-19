@@ -1,0 +1,26 @@
+<%
+  const repoUrl = (theme.repo && theme.repo.url ? theme.repo.url : '').replace(/\.git$/, '');
+  const branch = (theme.repo && theme.repo.branch) || 'master';
+  const editUrl = (repoUrl && page.source)
+    ? repoUrl + '/blob/' + branch + '/source/' + page.source.split('/').map(encodeURIComponent).join('/')
+    : '';
+%>
+<article class="page">
+  <header class="page-head">
+    <div class="post-kicker"><span class="c">--</span><span>page</span><span class="c">--</span></div>
+    <h1 class="page-title"><span class="md-hash">#</span><%= page.title %></h1>
+    <% if (page.description) { %><p class="page-desc"><%= page.description %></p><% } %>
+  </header>
+
+  <div class="post-body">
+    <%- page.content %>
+  </div>
+
+  <% if (editUrl) { %>
+    <footer class="page-foot">
+      <a class="post-action" href="<%= editUrl %>" target="_blank" rel="noopener noreferrer">
+        <i class="i i-pencil" aria-hidden="true"></i>编辑此页
+      </a>
+    </footer>
+  <% } %>
+</article>

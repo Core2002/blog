@@ -1,0 +1,23 @@
+<nav class="winbar" aria-label="文件路径">
+  <div class="crumbs">
+    <% crumbParts.forEach(function (part, i) { %>
+      <% if (i > 0) { %><span class="crumb-sep">/</span><% } %>
+      <% if (part.href && i < crumbParts.length - 1) { %>
+        <a class="crumb" href="<%= part.href %>"><%= part.label %></a>
+      <% } else { %>
+        <span class="crumb<%= i === crumbParts.length - 1 ? ' is-current' : '' %>"><%= part.label %></span>
+      <% } %>
+    <% }); %>
+  </div>
+  <div class="winbar-right">
+    <% if (sourceUrl) { %>
+      <a class="winbar-link" href="<%= sourceUrl %>" target="_blank" rel="noopener noreferrer" title="在 GitHub 查看源码">
+        <i class="i i-code" aria-hidden="true"></i><span>源码</span>
+      </a>
+    <% } %>
+    <button class="winbar-link" type="button" data-copy-link title="复制当前链接">
+      <i class="i i-link" aria-hidden="true"></i><span>复制链接</span>
+    </button>
+    <span class="winbar-ft">markdown</span>
+  </div>
+</nav>

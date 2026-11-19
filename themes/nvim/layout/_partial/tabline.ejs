@@ -1,0 +1,56 @@
+<%
+  const firstPage = is_home() && (!page.current || page.current === 1);
+  const kind = page.__post ? 'post' : page.archive ? 'archive' : page.category ? 'category' : page.tag ? 'tag' : 'page';
+  const icon = kind === 'archive' ? 'i-book' : kind === 'category' ? 'i-folder' : kind === 'tag' ? 'i-tag' : 'i-file-md';
+  const label = typeof tabLabel !== 'undefined' && tabLabel ? tabLabel : fileBase;
+%>
+<header class="tabline" aria-label="缓冲区标签">
+  <div class="tabline-left">
+    <button class="icon-btn tabline-menu" id="tree-toggle" type="button" title="文件树 (Ctrl+B)" aria-label="切换文件树" aria-expanded="true">
+      <i class="i i-menu" aria-hidden="true"></i>
+    </button>
+
+    <div class="tabs-wrap">
+      <div class="tabs" id="buffer-tabs" role="tablist" aria-label="已打开的文件">
+        <a class="tab<%= firstPage ? ' is-active' : '' %>" href="<%= url_for('/') %>" role="tab" aria-selected="<%= firstPage ? 'true' : 'false' %>" title="首页">
+          <i class="i i-file-md tab-icon" aria-hidden="true"></i>
+          <span class="tab-name">README.md</span>
+        </a>
+
+        <% if (!firstPage) { %>
+          <div class="tab is-active" role="tab" aria-selected="true">
+            <a class="tab-link" href="<%= url_for(page.path) %>" title="<%= pageHeading %>">
+              <i class="i <%= icon %> tab-icon" aria-hidden="true"></i>
+              <span class="tab-name"><%= label %></span>
+              <span class="tab-mod" title="当前 buffer">●</span>
+            </a>
+            <button class="tab-close" type="button" data-close-tab title="关闭 buffer" aria-label="关闭当前 buffer">
+              <i class="i i-close" aria-hidden="true"></i>
+            </button>
+          </div>
+        <% } %>
+      </div>
+
+      <button class="tab-new" type="button" data-open-palette title="打开文件 / 命令" aria-label="打开命令面板">
+        <i class="i i-plus" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="tabline-right">
+    <button class="icon-btn" type="button" data-open-search title="搜索 (/)" aria-label="搜索">
+      <i class="i i-search" aria-hidden="true"></i>
+    </button>
+    <button class="icon-btn" type="button" data-open-palette title="命令面板 (Ctrl+K)" aria-label="命令面板">
+      <i class="i i-terminal" aria-hidden="true"></i>
+    </button>
+    <% if (theme.social && theme.social.github) { %>
+      <a class="icon-btn" href="<%= theme.social.github %>" target="_blank" rel="noopener noreferrer" title="GitHub" aria-label="GitHub">
+        <i class="i i-github" aria-hidden="true"></i>
+      </a>
+    <% } %>
+    <button class="icon-btn" type="button" data-help title="快捷键 (?)" aria-label="快捷键">
+      <span class="help-glyph">?</span>
+    </button>
+  </div>
+</header>

@@ -1,0 +1,87 @@
+<%
+  const profile = theme.profile || {};
+  const social = theme.social || {};
+  const name = profile.name || config.author || 'author';
+  const handle = profile.handle || '';
+  const bio = profile.bio || '';
+  const avatar = profile.avatar ? url_for(profile.avatar) : '';
+  const links = [
+    { key: 'github', label: 'GitHub', icon: 'i-github', url: social.github },
+    { key: 'email', label: 'Email', icon: 'i-envelope', url: social.email ? 'mailto:' + social.email : '' },
+    { key: 'twitter', label: 'Twitter', icon: 'i-link', url: social.twitter },
+    { key: 'bilibili', label: 'Bilibili', icon: 'i-link', url: social.bilibili },
+    { key: 'zhihu', label: '知乎', icon: 'i-link', url: social.zhihu }
+  ].filter(function (l) { return l.url; });
+  const stats = {
+    posts: site.posts.length,
+    categories: site.categories.length,
+    tags: site.tags.length,
+    since: (theme.footer && theme.footer.since) || 2020
+  };
+%>
+<article class="about">
+  <header class="page-head">
+    <div class="post-kicker"><span class="c">--</span><span>about</span><span class="c">--</span></div>
+    <h1 class="page-title"><span class="md-hash">#</span>关于</h1>
+  </header>
+
+  <div class="about-grid">
+    <aside class="profile-card">
+      <div class="profile-card-top">
+        <% if (avatar) { %>
+          <img class="profile-avatar" src="<%= avatar %>" alt="<%= name %>" width="88" height="88">
+        <% } else { %>
+          <span class="profile-avatar profile-avatar-fallback"><%= name.slice(0, 1) %></span>
+        <% } %>
+        <span class="profile-status"><span class="profile-status-dot"></span> available</span>
+      </div>
+      <h2 class="profile-name"><%= name %></h2>
+      <% if (handle) { %><p class="profile-handle">@<%= handle %></p><% } %>
+      <% if (bio) { %><p class="profile-bio"><%= bio %></p><% } %>
+
+      <div class="profile-stats">
+        <span><strong><%= stats.posts %></strong><small>posts</small></span>
+        <span><strong><%= stats.categories %></strong><small>dirs</small></span>
+        <span><strong><%= stats.tags %></strong><small>tags</small></span>
+      </div>
+
+      <% if (links.length) { %>
+        <div class="profile-links">
+          <% links.forEach(function (l) { %>
+            <a href="<%= l.url %>" <%= /^https?:/.test(l.url) ? 'target="_blank" rel="noopener noreferrer"' : '' %>>
+              <i class="i <%= l.icon %>" aria-hidden="true"></i><%= l.label %>
+            </a>
+          <% }); %>
+        </div>
+      <% } %>
+    </aside>
+
+    <div class="about-main">
+      <% if (page.content) { %>
+        <div class="post-body"><%- page.content %></div>
+      <% } %>
+
+      <div class="terminal-window" aria-label="终端信息">
+        <div class="terminal-bar">
+          <span class="terminal-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="terminal-title">zsh — ~/blog</span>
+          <span class="terminal-shell">zsh</span>
+        </div>
+        <pre class="terminal-body"><span class="t-prompt">$</span> whoami
+<span class="t-out"><%= name %></span>
+<span class="t-prompt">$</span> neofetch --short
+<span class="t-key">site</span>    <%= config.title %>
+<span class="t-key">stack</span>   Hexo · nvim theme
+<span class="t-key">theme</span>   tokyonight / neo-tree
+<span class="t-key">posts</span>   <%= stats.posts %>
+<span class="t-key">since</span>   <%= stats.since %>
+<span class="t-prompt">$</span> <span class="terminal-cursor" aria-hidden="true"></span></pre>
+      </div>
+
+      <div class="about-actions">
+        <a class="btn" href="<%= url_for('/contact/') %>"><i class="i i-envelope" aria-hidden="true"></i>联系我</a>
+        <a class="btn btn-ghost" href="<%= url_for('/archives/') %>"><i class="i i-book" aria-hidden="true"></i>浏览文章</a>
+      </div>
+    </div>
+  </div>
+</article>

@@ -1,0 +1,26 @@
+<%
+  const tags = site.tags.toArray().sort(function (a, b) { return b.length - a.length || a.name.localeCompare(b.name, 'zh-CN'); });
+  const totalPosts = site.posts.length;
+%>
+<article class="tags-page">
+  <header class="page-head">
+    <div class="post-kicker"><span class="c">--</span><span>tags</span><span class="c">--</span></div>
+    <h1 class="page-title"><span class="md-hash">#</span>标签</h1>
+    <p class="page-desc"><%= tags.length %> 个标签，分布在 <%= totalPosts %> 篇文章里。</p>
+  </header>
+
+  <div class="tag-filter">
+    <i class="i i-search" aria-hidden="true"></i>
+    <input id="tag-filter" type="search" placeholder="filter tags…" autocomplete="off" spellcheck="false" aria-label="筛选标签">
+    <span class="tag-filter-count" id="tag-filter-count"><%= tags.length %></span>
+  </div>
+
+  <div class="tag-cloud" id="tag-cloud">
+    <% tags.forEach(function (tag) { %>
+      <a class="tag-chip" href="<%= url_for(tag.path) %>" data-tag="<%= tag.name.toLowerCase() %>">
+        <span class="tag-chip-hash">#</span><span class="tag-chip-name"><%= tag.name %></span><span class="tag-chip-count"><%= tag.length %></span>
+      </a>
+    <% }); %>
+    <p class="tag-empty" id="tag-empty" hidden>没有匹配的标签。</p>
+  </div>
+</article>

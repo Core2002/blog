@@ -1,0 +1,234 @@
+<%
+  /* ------------------------------------------------------------------
+     Resolve the current buffer. Everything below is deliberately kept
+     in one place so partials receive plain, ready-to-render values.
+  ------------------------------------------------------------------ */
+  const _isPost    = is_post();
+  const _isHome    = is_home();
+  const _isPage    = is_page();
+  const _isArchive = is_archive();
+  const _isCategory = is_category();
+  const _isTag     = is_tag();
+
+  const postsAll = site.posts.sort('-date').toArray();
+  const themeProfile = theme.profile || {};
+  const themeBrand = theme.brand || {};
+  const siteTitle = config.title || 'blog';
+  const authorName = themeProfile.name || config.author || siteTitle;
+
+  let fileBase = 'README.md';
+  let fileKind = 'markdown';
+  let pageHeading = siteTitle;
+  let crumbParts = [{ label: '~/blog', href: url_for('/') }, { label: 'README.md' }];
+  let pageLabel = siteTitle;
+  let postCategory = '';
+
+  if (_isPost) {
+    fileBase = (page.slug || 'post') + '.md';
+    pageHeading = page.title;
+    pageLabel = page.title;
+    postCategory = page.categories && page.categories.length ? page.categories.first().name : '未分类';
+    crumbParts = [
+      { label: '~/blog', href: url_for('/') },
+      { label: 'posts', href: url_for('/archives/') },
+      { label: postCategory },
+      { label: fileBase }
+    ];
+  } else if (_isArchive) {
+    fileBase = 'archives.md';
+    pageHeading = page.year ? page.year + ' 年归档' : '归档';
+    pageLabel = pageHeading;
+    crumbParts = [
+      { label: '~/blog', href: url_for('/') },
+      { label: 'archives.md' }
+    ];
+  } else if (_isCategory) {
+    fileBase = 'categories.md';
+    pageHeading = '分类：' + page.category;
+    pageLabel = pageHeading;
+    crumbParts = [
+      { label: '~/blog', href: url_for('/') },
+      { label: 'categories.md', href: url_for('/categories/') },
+      { label: page.category + '.md' }
+    ];
+  } else if (_isTag) {
+    fileBase = 'tags.md';
+    pageHeading = '标签：' + page.tag;
+    pageLabel = pageHeading;
+    crumbParts = [
+      { label: '~/blog', href: url_for('/') },
+      { label: 'tags.md', href: url_for('/tags/') },
+      { label: page.tag + '.md' }
+    ];
+  } else if (_isPage) {
+    const sourceSeg = (page.source || '').split('/')[0] || page.slug || 'page';
+    fileBase = sourceSeg + '.md';
+    const labels = theme.pages || {};
+    pageHeading = labels[sourceSeg] || page.title || sourceSeg;
+    pageLabel = pageHeading;
+    crumbParts = [
+      { label: '~/blog', href: url_for('/') },
+      { label: 'pages' },
+      { label: fileBase }
+    ];
+  }
+
+  if (_isHome) {
+    pageHeading = siteTitle;
+    pageLabel = siteTitle;
+  }
+
+  let tabLabel = fileBase;
+  if (_isHome && page.current && page.current > 1) tabLabel = 'README.md · ' + page.current;
+  if (_isArchive && page.year) tabLabel = 'archives · ' + page.year;
+  if (_isCategory && page.category) tabLabel = page.category + '/';
+  if (_isTag && page.tag) tabLabel = '#' + page.tag;
+
+  const outlineCfg = theme.outline || {};
+  let tocHtml = '';
+  if (_isPost && outlineCfg.enable !== false) {
+    tocHtml = toc(page.content || '', {
+      list_number: false,
+      min_depth: outlineCfg.min_depth || 2,
+      max_depth: outlineCfg.max_depth || 4,
+      class: 'outline-toc',
+      class_item: 'outline-item',
+      class_link: 'outline-link',
+      class_level: 'outline-lvl'
+    });
+  }
+  const hasOutline = Boolean(tocHtml);
+  const tocCount = (tocHtml.match(/<li/g) || []).length;
+
+  const wordCount = _isPost
+    ? strip_html(page.content || '').replace(/\s+/g, '').length
+    : 0;
+  const readMinutes = wordCount ? Math.max(1, Math.round(wordCount / 450)) : 0;
+
+  const repoUrl = (theme.repo && theme.repo.url ? theme.repo.url : (theme.social && theme.social.github) || '').replace(/\.git$/, '');
+  const repoBranch = (theme.repo && theme.repo.branch) || 'master';
+  let sourceUrl = '';
+  if (_isPost && repoUrl && page.source) {
+    sourceUrl = repoUrl + '/blob/' + repoBranch + '/source/' + page.source.split('/').map(encodeURIComponent).join('/');
+  }
+  let pageSourceUrl = '';
+  if (_isPage && repoUrl && page.source) {
+    pageSourceUrl = repoUrl + '/blob/' + repoBranch + '/source/' + page.source.split('/').map(encodeURIComponent).join('/');
+  }
+
+  let canonical = page.permalink || full_url_for(page.path || '/');
+  canonical = canonical.replace(/\/index\.html$/, '/');
+  const avatar = themeProfile.avatar ? url_for(themeProfile.avatar) : '';
+  const description = strip_html(
+    page.description ||
+    (_isPost ? (page.excerpt || '') : (config.description || themeProfile.bio || '')) ||
+    siteTitle
+  ).replace(/\s+/g, ' ').trim().slice(0, 180);
+
+  let bodyClass = 'kind-' + (_isPost ? 'post' : _isHome ? 'home' : _isArchive ? 'archive' : _isCategory ? 'category' : _isTag ? 'tag' : 'page');
+  if (hasOutline) bodyClass += ' has-outline';
+
+  const firstYear = postsAll.length ? postsAll[postsAll.length - 1].date.year() : (config.since || new Date().getFullYear());
+  const lastYear = postsAll.length ? postsAll[0].date.year() : new Date().getFullYear();
+
+  /* ---------------------------- search index ---------------------------- */
+  const searchPosts = postsAll.map(function (p) {
+    const cat = p.categories && p.categories.length ? p.categories.first().name : '';
+    const excerptText = strip_html(p.excerpt || p.content || '').replace(/\s+/g, ' ').trim();
+    const words = strip_html(p.content || '').replace(/\s+/g, '').length;
+    return {
+      title: p.title,
+      url: url_for(p.path),
+      path: p.path,
+      date: date(p.date, 'YYYY-MM-DD'),
+      category: cat,
+      tags: p.tags ? p.tags.toArray().map(function (t) { return t.name; }) : [],
+      excerpt: excerptText.slice(0, 220),
+      minutes: Math.max(1, Math.round(words / 450))
+    };
+  });
+
+  const searchPages = site.pages.filter(function (p) {
+    return p.source && p.layout !== false && p.title;
+  }).map(function (p) {
+    const seg = (p.source || '').split('/')[0];
+    const labels = theme.pages || {};
+    return {
+      title: labels[seg] || p.title,
+      url: url_for(p.path),
+      path: 'pages/' + seg + '.md',
+      pageName: seg
+    };
+  }).sort(function (a, b) { return a.pageName.localeCompare(b.pageName); });
+
+  const routes = {
+    home: url_for('/'),
+    archives: url_for('/archives/'),
+    categories: url_for('/categories/'),
+    tags: url_for('/tags/'),
+    about: url_for('/about/'),
+    friends: url_for('/friends/'),
+    contact: url_for('/contact/'),
+    content: url_for('/content.json'),
+    github: (theme.social && theme.social.github) || repoUrl,
+    source: sourceUrl || pageSourceUrl,
+    repo: repoUrl,
+    branch: repoBranch
+  };
+
+  const nvimData = {
+    posts: searchPosts,
+    pages: searchPages,
+    routes: routes,
+    profile: { name: authorName, handle: themeProfile.handle || '', bio: themeProfile.bio || '' },
+    file: fileBase,
+    kind: _isPost ? 'post' : _isHome ? 'home' : _isArchive ? 'archive' : _isCategory ? 'category' : _isTag ? 'tag' : 'page',
+    url: canonical,
+    title: pageHeading
+  };
+%><!DOCTYPE html>
+<html lang="<%= config.language || 'zh-CN' %>" data-theme="tokyonight">
+<head>
+  <%- partial('_partial/head', { pageTitle: (_isHome ? siteTitle : pageLabel + ' · ' + siteTitle), description: description, canonical: canonical, ogType: _isPost ? 'article' : 'website', avatar: avatar, sourceUrl: sourceUrl }) %>
+</head>
+<body class="<%= bodyClass %>" data-kind="<%= nvimData.kind %>" data-file="<%= fileBase %>" data-tab="<%= tabLabel %>" data-title="<%= pageHeading %>" data-url="<%= canonical %>" data-source="<%= sourceUrl %>">
+  <a class="skip-link" href="#content">跳到正文</a>
+
+  <div class="app" id="app">
+    <%- partial('_partial/sidebar', { fileBase: fileBase, fileKind: fileKind, postCategory: postCategory, pageHeading: pageHeading, hasOutline: hasOutline }) %>
+
+    <div class="workspace">
+      <%- partial('_partial/tabline', { fileBase: fileBase, fileKind: fileKind, tabLabel: tabLabel, pageHeading: pageHeading, hasOutline: hasOutline }) %>
+      <%- partial('_partial/winbar', { crumbParts: crumbParts, fileBase: fileBase, sourceUrl: sourceUrl }) %>
+
+      <div class="viewport" id="viewport" tabindex="-1">
+        <div class="buffer-shell">
+          <main class="buffer" id="content">
+            <%- body %>
+          </main>
+          <% if (hasOutline) { %>
+            <%- partial('_partial/outline', { tocHtml: tocHtml, tocCount: tocCount }) %>
+          <% } %>
+        </div>
+      </div>
+
+      <%- partial('_partial/statusline', { fileBase: fileBase, fileKind: fileKind }) %>
+    </div>
+  </div>
+
+  <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
+  <%- partial('_partial/palette') %>
+
+  <noscript>
+    <style>
+      .tree-folder:not(.is-open) > .tree-children { display: block; }
+      .outline { display: none; }
+      .cmdline { display: none; }
+    </style>
+  </noscript>
+  <script type="application/json" id="nvim-data"><%- JSON.stringify(nvimData).replace(/</g, '\\u003c') %></script>
+  <script src="<%- url_for('/js/nvim.js') %>" defer></script>
+  <% if (theme.analytics) { %><%- theme.analytics %><% } %>
+  <% if (theme.inject_body) { %><%- theme.inject_body %><% } %>
+</body>
+</html>
