@@ -102,7 +102,8 @@ theme_config:
 | `:` | ex 命令面板（`:q`、`:bn`、`:bp`、`:help`、`:noh`…） |
 | `Ctrl K` / `Cmd K` | 命令面板（同上） |
 | `g?` | 打开完整 keymap |
-| `Space e` | 显示 / 隐藏 neo-tree |
+| `Space e` | 显示 / 隐藏 neo-tree（打开时焦点移入树） |
+| `Space c` | 关闭当前 buffer 并从 topbar 移除 |
 | `g h` | 首页 |
 | `g a` | 归档 |
 | `g c` | 分类 |
@@ -112,6 +113,8 @@ theme_config:
 | `g m` | 联系 |
 | `Esc` | 清除计数 / 选择，关闭面板或抽屉 |
 
+> neo-tree 获得焦点时：`j` / `k` 上下移动，`h` / `l` 折叠/展开，`Enter` / `o` 打开，`y` 复制路径，`Esc` 返回页面。
+>
 > `Space` 是 leader 键：单独按空格不会滚动页面；用 `j` / `k`、`Ctrl d/u`、`gg` / `G` 滚动。
 >
 > 正文是只读渲染，`d` / `c` / `p` / `u`、`x` / `r` / `~`、寄存器、宏等编辑操作不会修改文章；输入框内仍是浏览器原生编辑，`Esc` 返回 NORMAL。

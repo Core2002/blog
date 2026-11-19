@@ -212,6 +212,10 @@
   function setDrawer(open) {
     body.classList.toggle('drawer-open', open);
     if (drawerBackdrop) drawerBackdrop.hidden = !open;
+    if (!open && document.activeElement && document.activeElement.closest &&
+        document.activeElement.closest('#tree')) {
+      document.activeElement.blur();
+    }
     if (treeToggle) {
       var expanded = isMobile() ? open : !body.classList.contains('tree-collapsed');
       treeToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
@@ -219,13 +223,165 @@
   }
 
   function toggleTree() {
+    var opening = false;
     if (isMobile()) {
-      setDrawer(!body.classList.contains('drawer-open'));
+      opening = !body.classList.contains('drawer-open');
+      setDrawer(opening);
     } else {
       var collapsed = body.classList.toggle('tree-collapsed');
+      opening = !collapsed;
       try { window.localStorage.setItem('nvim.tree.collapsed', collapsed ? '1' : '0'); } catch (err) {}
       if (treeToggle) treeToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
     }
+    if (opening) {
+      window.setTimeout(focusTreeRow, 60);
+    } else if (document.activeElement && document.activeElement.closest &&
+               document.activeElement.closest('#tree')) {
+      document.activeElement.blur();
+    }
+  }
+
+  function treeVisibleRows() {
+    return tree ? $$('.tree-row', tree).filter(function (row) {
+      return row.offsetParent !== null;
+    }) : [];
+  }
+
+  function treeRowOf(element) {
+    return element && element.closest ? element.closest('.tree-row') : null;
+  }
+
+  function scrollTreeRow(row) {
+    if (!tree || !row) return;
+    var rowRect = row.getBoundingClientRect();
+    var treeRect = tree.getBoundingClientRect();
+    if (rowRect.top < treeRect.top + 4) {
+      tree.scrollTop += rowRect.top - treeRect.top - 4;
+    } else if (rowRect.bottom > treeRect.bottom - 4) {
+      tree.scrollTop += rowRect.bottom - treeRect.bottom + 4;
+    }
+  }
+
+  function focusTreeRow() {
+    if (!tree) return;
+    var row = $('.tree-file-item.is-active > .tree-file-row', tree) ||
+      $('.tree-row', tree);
+    if (!row) return;
+    row.focus();
+    scrollTreeRow(row);
+  }
+
+  function isTreeFocused() {
+    var active = document.activeElement;
+    return Boolean(active && active.closest && active.closest('#tree'));
+  }
+
+  function activateTreeRow(row) {
+    if (!row) return;
+    if (row.classList.contains('tree-folder-row')) {
+      row.click();
+      return;
+    }
+    if (row.tagName === 'A') window.location.href = row.getAttribute('href');
+  }
+
+  function handleTreeKey(event, key) {
+    if (!isTreeFocused()) return false;
+    var row = treeRowOf(document.activeElement) || treeRowOf(event.target);
+    if (!row) return false;
+    var rows = treeVisibleRows();
+    var index = rows.indexOf(row);
+
+    if (key === 'j' || key === 'k') {
+      event.preventDefault();
+      var next = index + (key === 'j' ? 1 : -1);
+      next = Math.max(0, Math.min(rows.length - 1, next));
+      if (rows[next]) {
+        rows[next].focus();
+        scrollTreeRow(rows[next]);
+      }
+      return true;
+    }
+
+    if (key === 'l') {
+      event.preventDefault();
+      if (row.classList.contains('tree-folder-row')) {
+        var folder = row.closest('.tree-folder');
+        if (folder && !folder.classList.contains('is-open')) {
+          row.click();
+        } else {
+          var child = rows[index + 1];
+          if (child) {
+            child.focus();
+            scrollTreeRow(child);
+          }
+        }
+      } else {
+        activateTreeRow(row);
+      }
+      return true;
+    }
+
+    if (key === 'h') {
+      event.preventDefault();
+      if (row.classList.contains('tree-folder-row')) {
+        var ownFolder = row.closest('.tree-folder');
+        if (ownFolder && ownFolder.classList.contains('is-open')) {
+          row.click();
+        } else if (ownFolder && ownFolder.parentElement) {
+          var parentFolder = ownFolder.parentElement.closest('.tree-folder');
+          if (parentFolder) {
+            var parentFolderRow = parentFolder.querySelector(':scope > .tree-folder-row');
+            if (parentFolderRow) {
+              parentFolderRow.focus();
+              scrollTreeRow(parentFolderRow);
+            }
+          }
+        }
+      } else {
+        var fileFolder = row.closest('.tree-folder');
+        if (fileFolder) {
+          var fileFolderRow = fileFolder.querySelector(':scope > .tree-folder-row');
+          if (fileFolderRow) {
+            fileFolderRow.focus();
+            scrollTreeRow(fileFolderRow);
+          }
+        }
+      }
+      return true;
+    }
+
+    if (key === 'Enter' || key === 'o') {
+      event.preventDefault();
+      activateTreeRow(row);
+      return true;
+    }
+
+    if (key === 'y') {
+      event.preventDefault();
+      var name = row.querySelector('.tree-name');
+      var text = row.tagName === 'A' ? row.getAttribute('href') : (name ? name.textContent.trim() : '');
+      if (text) {
+        copyText(text).then(function () {
+          toast('已复制：' + text);
+        }).catch(function () {
+          toast('复制失败');
+        });
+      }
+      return true;
+    }
+
+    if (key === 'Escape') {
+      if (isMobile() && body.classList.contains('drawer-open')) {
+        setDrawer(false);
+      } else {
+        row.blur();
+        if (viewport) viewport.focus();
+      }
+      return true;
+    }
+
+    return false;
   }
 
   function initTree() {
@@ -373,6 +529,20 @@
     }
   }
 
+  function closeCurrentBuffer() {
+    var key = normalizeTabKey(window.location.pathname);
+    if (key === '/') {
+      toast('首页 buffer 不能关闭');
+      return;
+    }
+    var tabsEl = $('#buffer-tabs');
+    if (!tabsEl) {
+      go(routes.home || '/');
+      return;
+    }
+    closeTab(key, tabsEl);
+  }
+
   function initTabs() {
     var tabsEl = $('#buffer-tabs');
     if (!tabsEl) return;
@@ -436,7 +606,7 @@
   }
 
   commands.push(
-    { id: 'quit', title: '关闭当前 buffer', desc: '回到 README（:q / :bd）', key: ':q', icon: 'i-close', action: function () { go(routes.home); } },
+    { id: 'quit', title: '关闭当前 buffer', desc: '关闭并从 topbar 移除（Space c / :q / :bd）', key: 'Space c', icon: 'i-close', action: closeCurrentBuffer },
     { id: 'next-buffer', title: '下一个 buffer', desc: '切换到下一个已打开文件（gt）', key: ':bn', icon: 'i-arrow-right', action: function () { cycleTab(1); } },
     { id: 'prev-buffer', title: '上一个 buffer', desc: '切换到上一个已打开文件（gT）', key: ':bp', icon: 'i-arrow-left', action: function () { cycleTab(-1); } },
     { id: 'help', title: '打开 vi keymap', desc: '查看完整快捷键（g?）', key: ':help', icon: 'i-info', action: function () { openPalette('help'); } },
@@ -465,8 +635,10 @@
     { id: 'visual', title: 'v / V', desc: '按段落选择，j/k 扩展，y 复制', key: 'v', icon: 'i-file-text', action: null },
     { id: 'yank', title: 'y / yy / Y', desc: '复制当前段落（页面只读，不删除）', key: 'y y', icon: 'i-copy', action: null },
     { id: 'marks', title: "m / '", desc: '设置 / 跳转当前页面标记', key: 'm a', icon: 'i-hash', action: null },
-    { id: 'space-e', title: 'Space e', desc: '显示 / 隐藏 neo-tree 侧栏', key: '', icon: 'i-layout', action: null },
-    { id: 'esc', title: 'Esc', desc: '取消计数、选择或关闭面板', key: 'Esc', icon: 'i-close', action: null }
+    { id: 'space-e', title: 'Space e', desc: '显示 / 隐藏 neo-tree 侧栏，并把焦点移入树', key: '', icon: 'i-layout', action: null },
+    { id: 'tree-keys', title: 'tree: j / k / h / l', desc: '树内上下移动、折叠/展开，Enter/o 打开', key: 'j k h l', icon: 'i-folder', action: null },
+    { id: 'close-buffer', title: 'Space c', desc: '关闭当前 buffer 并从 topbar 移除', key: '', icon: 'i-close', action: null },
+    { id: 'esc', title: 'Esc', desc: '取消计数、选择或关闭面板 / 返回页面', key: 'Esc', icon: 'i-close', action: null }
   ];
 
   var palette = $('#palette');
@@ -1401,6 +1573,9 @@
     if (event.defaultPrevented || event.isComposing) return;
     var key = event.key;
 
+    // Do not let Shift/Ctrl/etc. break a pending g/space/mark sequence.
+    if (key === 'Shift' || key === 'Control' || key === 'Alt' || key === 'Meta' || key === 'CapsLock') return;
+
     if (state.findOpen) {
       if (key === 'Escape') closeFind();
       return;
@@ -1438,6 +1613,8 @@
     }
 
     if (event.altKey) return;
+
+    if (isTreeFocused() && handleTreeKey(event, key)) return;
 
     if (state.markPending) {
       handleMark(key);
@@ -1484,6 +1661,10 @@
         event.preventDefault();
         clearCount();
         toggleTree();
+      } else if (key === 'c' || key === 'C') {
+        event.preventDefault();
+        clearCount();
+        closeCurrentBuffer();
       }
       return;
     }
