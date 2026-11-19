@@ -349,6 +349,13 @@ kbd {
   transition: background .12s ease, color .12s ease;
 }
 .tree-row:hover { background: var(--bg-hover); color: var(--fg); }
+.tree-row:focus {
+  background: var(--bg-hover);
+  color: var(--fg);
+  outline: 1px solid var(--blue);
+  outline-offset: -1px;
+}
+.tree-file-item.is-active > .tree-file-row:focus { background: rgba(122, 162, 247, .18); }
 .tree-chev {
   width: 12px;
   color: var(--muted-2);
