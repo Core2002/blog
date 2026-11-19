@@ -1838,8 +1838,8 @@ body.drawer-open .viewport { overflow: hidden; }
   cursor: zoom-out;
 }
 .lightbox img {
-  max-width: min(1180px, 94vw);
-  max-height: 88vh;
+  max-width: min(1180px, calc(100vw - 68px));
+  max-height: min(88vh, calc(100dvh - 68px));
   border: 1px solid var(--border-strong);
   border-radius: 5px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, .55);
